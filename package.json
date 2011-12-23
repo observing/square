@@ -1,0 +1,21 @@
+{
+    "name": "oz"
+  , "description": "bundle, all the things"
+  , "version": "0.0.0"
+  , "author": "Arnout Kazemier <info@3rd-Eden.com>"
+  , "private": "true"
+  , "dependencies": {
+        "uglify-js": "1.1.1"
+      , "underscore": "1.2.2"
+      , "contextify": "0.0.6"
+      , "request": "2.2.5"
+      , "devnull": "0.0.x"
+    }
+  , "devDependencies": {
+        "should": "0.3.2"
+      , "mocha": "*"
+    }
+  , "scripts": {
+        "test": "make test"
+    }
+}
