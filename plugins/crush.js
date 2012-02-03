@@ -98,9 +98,15 @@ module.exports = function setup (options) {
 
 exports.jscrush = function jscrushit (content, aggressive, fn) {
   try {
-    fn(null, jscrush(content));
+    var code = jscrush(content);
+
+    process.nextTick(function nextTick () {
+      fn(null, code);
+    });
   } catch (e) {
-    fn(e, content);
+    process.nextTick(function nextTick () {
+      fn(e, content);
+    });
   }
 };
 
@@ -124,10 +130,10 @@ exports.closure = function googleclosure (content, aggressive, fn) {
   // request
   request.post({
       url: 'http://closure-compiler.appspot.com/compile'
-    , body: Object.keys(fields).map(function (key) {
+    , body: Object.keys(fields).map(function map (key) {
           return encodeURIComponent(key) + '=' + encodeURIComponent(fields[key]);
       }).join('&')
-  }, function (err, response, data) {
+  }, function complete (err, response, data) {
     if (err) return fn(err, content);
     if (response.statusCode !== 200) return fn(new Error('invalid status'), content);
 
@@ -161,8 +167,12 @@ exports.uglify = function ugly (content, aggressive, fn) {
         ascii_only: true
     });
 
-    fn(null, code);
+    process.nextTick(function nextTick () {
+      fn(null, code);
+    });
   } catch (e) {
-    fn(e, content);
+    process.nextTick(function nextTick () {
+      fn(e, content);
+    });
   }
 };

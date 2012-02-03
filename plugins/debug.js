@@ -61,7 +61,10 @@ module.exports = function setup (options) {
     }).join('\n');
 
     // replacement is done
-    if (ignore !== 0) return next(new Error('unbalanced debug tags'), content);
-    next(null, code);
+    process.nextTick(function nextTick () {
+      if (ignore !== 0) return next(new Error('unbalanced debug tags'), content);
+
+      next(null, code);
+    });
   };
 };
