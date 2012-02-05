@@ -22,7 +22,13 @@ module.exports = function setup (options) {
     , header: '(function (expose) {'
     , body: [
           'this.contentWindow = this.self = this.window = this;'
-        , 'var window = this, document = expose.document, self = this, top = this'
+        , 'var window = this'
+        ,   ', document = expose.document'
+        ,   ', self = this'
+        ,   ', top = this'
+        ,   ', location = expose.location'
+        // note we shouldn't close the var statement with a ; because this is
+        // done in the wrapping function
       ]
     , footer: '}).call({}, this);'
   };
@@ -44,15 +50,15 @@ module.exports = function setup (options) {
     // search for leaks
     exports.sandboxleak(content, timeout, function found (err, leaks) {
       if (err) {
-        logger.error('sandboxing produced an error, canceling operation', e);
-        logger.warning('the supplied code might leak globals');
+        logger.error('Sandboxing produced an error, canceling operation', e);
+        logger.warning('The supplied code might leak globals');
 
         return next(null, content, leaks);
       }
 
       if (!leaks) return next(null, content, leaks);
 
-      logger.debug('global leaks detected', leaks, 'patching the hole');
+      logger.debug('Global leaks detected:', leaks, 'patching the hole');
 
       // copy
       var body = JSON.parse(JSON.stringify(settings.body))
@@ -83,16 +89,16 @@ module.exports = function setup (options) {
       // try if we fixed all leaks
       exports.sandboxleak(compiled, timeout, function final (err, newleaks) {
         if (err) {
-          logger.error('failed to compile the sandboxed script', err);
-          logger.warn('the supplied code might leak globals');
+          logger.error('Failed to compile the sandboxed script', err);
+          logger.warn('The supplied code might leak globals');
 
           return next(null, content);
         }
 
         // output some compile information
-        if (!newleaks.lenght) logger.info('successfully patched all leaks');
-        else if (newleaks.length < leaks.length) logger.info('patched some leaks, but not all', newleaks);
-        else logger.info('patching the code did not help, it avoided the sandbox');
+        if (!newleaks.lenght) logger.info('Successfully patched all leaks');
+        else if (newleaks.length < leaks.length) logger.info('Patched some leaks, but not all', newleaks);
+        else logger.info('Patching the code did not help, it avoided the sandbox');
 
         next(null, compiled, newleaks);
       });
@@ -111,7 +117,7 @@ module.exports = function setup (options) {
 
 exports.sandboxleak = function sandboxleak (content, timeout, fn) {
   var sandbox = exports.env()
-    , regular = Object.keys(exports.env());
+    , regular = Object.keys(sandbox);
 
   // setup the context
   context(sandbox);
@@ -120,7 +126,12 @@ exports.sandboxleak = function sandboxleak (content, timeout, fn) {
   try { sandbox.run(content) }
   catch (e) {
     sandbox.dispose();
-    return fn(e, []);
+
+    process.nextTick(function nextTick () {
+      fn(e, []);
+    });
+
+    return;
   }
 
   // because we could be working against potential async code that leaks
