@@ -1,13 +1,16 @@
-var localize = require('../plugins/localize')
-  , Oz = require('../lib/oz');
+"use strict";
+
+var wrap = require('../plugins/wrap')
+  , Ion = require('../lib/ion')
+  , should = require('should');
 
 module.exports = {
     'missing var statement': function (next) {
-      var oz = new Oz
+      var ion = new Ion()
         , src = 'hello = "world";';
 
-      oz.use(localize());
-      oz.middleware[0].call(oz, src, function done (err, compiled, leaks) {
+      ion.use(wrap());
+      ion.middleware[0].call(ion, src, function done (err, compiled, leaks) {
         should.not.exist(err);
 
         compiled.should.not.equal(src);
@@ -17,11 +20,11 @@ module.exports = {
     }
 
   , 'window.var statement': function (next) {
-      var oz = new Oz
+      var ion = new Ion()
         , src = 'window.hello = "world";';
 
-      oz.use(localize());
-      oz.middleware[0].call(oz, src, function done (err, compiled, leaks) {
+      ion.use(wrap());
+      ion.middleware[0].call(ion, src, function done (err, compiled, leaks) {
         should.not.exist(err);
 
         compiled.should.not.equal(src);
@@ -31,11 +34,11 @@ module.exports = {
     }
 
   , 'this + anonymous function': function (next) {
-      var oz = new Oz
+      var ion = new Ion()
         , src = '(function (global) { global.hello = "world"; }(this));';
 
-      oz.use(localize());
-      oz.middleware[0].call(oz, src, function done (err, compiled, leaks) {
+      ion.use(wrap());
+      ion.middleware[0].call(ion, src, function done (err, compiled, leaks) {
         should.not.exist(err);
 
         compiled.should.not.equal(src);
@@ -45,11 +48,11 @@ module.exports = {
     }
 
   , 'missing var + anonymous function': function (next) {
-      var oz = new Oz
+      var ion = new Ion()
         , src = '(function (global) { hello = "world"; }(this));';
 
-      oz.use(localize());
-      oz.middleware[0].call(oz, src, function done (err, compiled, leaks) {
+      ion.use(wrap());
+      ion.middleware[0].call(ion, src, function done (err, compiled, leaks) {
         should.not.exist(err);
 
         compiled.should.not.equal(src);
@@ -59,11 +62,11 @@ module.exports = {
     }
 
   , 'window.var + anonymous function': function (next) {
-      var oz = new Oz
+      var ion = new Ion()
         , src = '(function (global) { window.hello = "world"; }(this));';
 
-      oz.use(localize());
-      oz.middleware[0].call(oz, src, function done (err, compiled, leaks) {
+      ion.use(wrap());
+      ion.middleware[0].call(ion, src, function done (err, compiled, leaks) {
         should.not.exist(err);
 
         compiled.should.not.equal(src);
@@ -71,4 +74,4 @@ module.exports = {
         next();
       });
     }
-}
+};

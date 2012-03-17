@@ -150,8 +150,10 @@ exports.closure = function googleclosure (content, aggressive, fn) {
  */
 
 exports.uglify = function ugly (content, aggressive, fn) {
+  var err, ast, code;
+
   try {
-    var ast = uglify.parser.parse(code);
+    ast = uglify.parser.parse(code);
     ast = uglify.uglify.ast_mangle(ast);
     ast = uglify.uglify.ast_squeeze(ast);
 
@@ -163,16 +165,14 @@ exports.uglify = function ugly (content, aggressive, fn) {
 
     // the ascii makes sure we don't fuck up Socket.IO's utf8 message
     // seperators.
-    var code = uglify.uglify.gen_code(ast, {
+    code = uglify.uglify.gen_code(ast, {
         ascii_only: true
     });
-
-    process.nextTick(function nextTick () {
-      fn(null, code);
-    });
   } catch (e) {
-    process.nextTick(function nextTick () {
-      fn(e, content);
-    });
+    err = e;
   }
+
+  process.nextTick(function nextTick () {
+    fn(err, code || content);
+  });
 };

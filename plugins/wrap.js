@@ -1,3 +1,5 @@
+"use strict";
+
 var context = require('contextify')
   , _ = require('underscore')._;
 
@@ -50,7 +52,7 @@ module.exports = function setup (options) {
     // search for leaks
     exports.sandboxleak(content, timeout, function found (err, leaks) {
       if (err) {
-        logger.error('Sandboxing produced an error, canceling operation', e);
+        logger.error('Sandboxing produced an error, canceling operation', err);
         logger.warning('The supplied code might leak globals');
 
         return next(null, content, leaks);
@@ -123,7 +125,7 @@ exports.sandboxleak = function sandboxleak (content, timeout, fn) {
   context(sandbox);
 
   // make sure it doesn't thow directly
-  try { sandbox.run(content) }
+  try { sandbox.run(content); }
   catch (e) {
     sandbox.dispose();
 
@@ -176,7 +178,7 @@ exports.env = function evn () {
     , navigator: {
           userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_6_7) AppleWebKit'
            + '/534.27 (KHTML, like Gecko) Chrome/12.0.716.0 Safari/534.27'
-        , appName: 'oz'
+        , appName: 'ion'
         , platform: process.platform
         , appVersion: process.version
     , }

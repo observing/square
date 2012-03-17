@@ -1,36 +1,38 @@
-var Oz = require('../lib/oz');
+"use strict";
+
+var Ion = require('../lib/ion');
 
 module.exports = {
     'constructing': function () {
-      var oz = new Oz;
+      var ion = new Ion();
 
-      oz.env.should.equal('development');
-      oz.middleware.length.should.equal(0);
+      ion.env.should.equal('development');
+      ion.middleware.length.should.equal(0);
     }
 
   , 'configuring': function () {
-      var oz = new Oz
+      var ion = new Ion()
         , configured = 0;
 
-      oz.configure(function () {
+      ion.configure(function () {
        ++configured;
 
-       this.should.equal(oz);
+       this.should.equal(ion);
       });
 
-      oz.configure('test', function () {
-       ++configured;
-      });
-
-      oz.configure('production', function () {
+      ion.configure('test', function () {
        ++configured;
       });
 
-      oz.configure('production', 'test', function () {
+      ion.configure('production', function () {
        ++configured;
       });
 
-      oz.configure('production', 'development', function () {
+      ion.configure('production', 'test', function () {
+       ++configured;
+      });
+
+      ion.configure('production', 'development', function () {
        ++configured;
       });
 
@@ -38,15 +40,15 @@ module.exports = {
     }
 
   , 'middleware': function () {
-      var oz = new Oz;
+      var ion = new Ion();
 
-      oz.middleware.length.should.equal(0);
+      ion.middleware.length.should.equal(0);
 
-      oz.use(require('../plugins/localize')());
+      ion.use(require('../plugins/wrap')());
 
-      oz.middleware.length.should.equal(1);
+      ion.middleware.length.should.equal(1);
 
-      oz.use('not a function');
-      oz.middleware.length.should.equal(1);
+      ion.use('not a function');
+      ion.middleware.length.should.equal(1);
     }
 };

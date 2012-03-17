@@ -6,6 +6,7 @@ test:
 	@./node_modules/.bin/mocha \
 		--require should \
 		--reporter $(REPORTER) \
+		--timeout 4000 \
 		--ui $(UI) \
 		--growl \
 		$(ALL_TESTS)
