@@ -1,5 +1,5 @@
 {
-    "name": "oz"
+    "name": "ION"
   , "description": "bundle, all the things"
   , "version": "0.0.0"
   , "author": "Arnout Kazemier <info@3rd-Eden.com>"
@@ -10,6 +10,10 @@
       , "contextify": "0.0.7"
       , "request": "2.2.9"
       , "devnull": "0.0.x"
+      , "active-x-obfuscator": "0.0.1"
+      , "findit": "0.1.2"
+      , "watch": "0.5.0"
+      , "commander": "0.5.0"
     }
   , "devDependencies": {
         "should": "0.3.2"
@@ -17,5 +21,9 @@
     }
   , "scripts": {
         "test": "make test"
+    }
+  , "preferGlobal": true
+  , "bin": {
+        "ION": "./bin/ION"
     }
 }

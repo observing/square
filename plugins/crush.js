@@ -1,6 +1,9 @@
+"use strict";
+
 var request = require('request')
   , uglify = require('uglify-js')
   , jscrush = require('./lib/jscrush')
+  , child = require('./lib/child')
   , _ = require('underscore')._;
 
 /**
@@ -84,7 +87,7 @@ module.exports = function setup (options) {
 
     // start processing content
     walk();
-  }
+  };
 };
 
 /**
@@ -120,25 +123,7 @@ exports.jscrush = function jscrushit (content, aggressive, fn) {
  */
 
 exports.closure = function googleclosure (content, aggressive, fn) {
-  var fields = {
-        output_format: 'text'
-      , compilation_level: aggressive ? 'ADVANCED_OPTIMIZATIONS' : 'SIMPLE_OPTIMIZATIONS'
-      , js_code: content
-      , output_info: 'compiled_code'
-    };
-
-  // request
-  request.post({
-      url: 'http://closure-compiler.appspot.com/compile'
-    , body: Object.keys(fields).map(function map (key) {
-          return encodeURIComponent(key) + '=' + encodeURIComponent(fields[key]);
-      }).join('&')
-  }, function complete (err, response, data) {
-    if (err) return fn(err, content);
-    if (response.statusCode !== 200) return fn(new Error('invalid status'), content);
-
-    fn(null, data);
-  });
+  child.closure('js', content, {}, fn);
 };
 
 /**
