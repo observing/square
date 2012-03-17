@@ -1,5 +1,5 @@
 {
-    "name": "ION"
+    "name": "square"
   , "description": "bundle, all the things"
   , "version": "0.0.0"
   , "author": "Arnout Kazemier <info@3rd-Eden.com>"
@@ -24,6 +24,6 @@
     }
   , "preferGlobal": true
   , "bin": {
-        "ION": "./bin/ION"
+        "square": "./bin/square"
     }
 }

@@ -1,38 +1,38 @@
 "use strict";
 
-var Ion = require('../lib/ion');
+var Square = require('../lib/square');
 
 module.exports = {
     'constructing': function () {
-      var ion = new Ion();
+      var square = new Square();
 
-      ion.env.should.equal('development');
-      ion.middleware.length.should.equal(0);
+      square.env.should.equal('development');
+      square.middleware.length.should.equal(0);
     }
 
   , 'configuring': function () {
-      var ion = new Ion()
+      var square = new Square()
         , configured = 0;
 
-      ion.configure(function () {
+      square.configure(function () {
        ++configured;
 
-       this.should.equal(ion);
+       this.should.equal(square);
       });
 
-      ion.configure('test', function () {
-       ++configured;
-      });
-
-      ion.configure('production', function () {
+      square.configure('test', function () {
        ++configured;
       });
 
-      ion.configure('production', 'test', function () {
+      square.configure('production', function () {
        ++configured;
       });
 
-      ion.configure('production', 'development', function () {
+      square.configure('production', 'test', function () {
+       ++configured;
+      });
+
+      square.configure('production', 'development', function () {
        ++configured;
       });
 
@@ -40,15 +40,15 @@ module.exports = {
     }
 
   , 'middleware': function () {
-      var ion = new Ion();
+      var square = new Square();
 
-      ion.middleware.length.should.equal(0);
+      square.middleware.length.should.equal(0);
 
-      ion.use(require('../plugins/wrap')());
+      square.use(require('../plugins/wrap')());
 
-      ion.middleware.length.should.equal(1);
+      square.middleware.length.should.equal(1);
 
-      ion.use('not a function');
-      ion.middleware.length.should.equal(1);
+      square.use('not a function');
+      square.middleware.length.should.equal(1);
     }
 };
