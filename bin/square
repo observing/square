@@ -1,0 +1,149 @@
+#!/usr/bin/env node
+"use strict";
+
+/**
+ * Library modules
+ */
+
+var program = require('commander')
+  , watch = require('watch')
+  , findit = require('findit')
+  , color = require('colors')
+  , Logger = require('devnull')
+  , _ = require('underscore')._;
+
+/**
+ * Square library.
+ */
+
+var Square = require('../lib/square')
+  , square = new Square();
+
+/**
+ * Argument filters for commander.
+ *
+ * @type {Object}
+ * @api private
+ */
+
+program.filters = {
+    ignore: function ignore (ignore) { return ~this.indexOf(ignore) }
+  , listing: function listing (val) { return val.split(',') }
+  , replace: function replace (val) {
+      var keys = val.split(',')
+        , res = {};
+
+      keys.forEach(function each (key) {
+        var kv = key.split('#');
+        res[kv[0]] = kv[1];
+      });
+
+      return res;
+    }
+};
+
+/**
+ * Setup the commandline interface.
+ */
+
+program
+  .version(require('../package.json').version)
+  .usage('[options] [bundle location]')
+  .option('-b, --bundle <dir>', 'The location of the package file')
+  .option('-w, --watch [dir]', 'Watch the bundled files for changes and rebuild')
+  .option('-e, --extension [extension]', 'Filter on this file extension')
+
+  // options that require argument filtering
+  .option('-f, --filename <file>', 'Alternate filenames', program.filters.listing)
+  .option('-i, --ignore [files]', 'Ignore these files', program.filters.listing)
+  .option('-p, --plugin <plug,ins>', 'Which plugins should be included', program.filters.listing)
+  .option('-r, --replace', 'Replace the contents of the file', program.filters.replace);
+
+/**
+ * Display addition help information.
+ */
+
+program.on('--help', function help () {
+  console.log('');
+  console.log('  Examples:');
+  console.log('');
+  process.exit();
+});
+
+// output the help if it's called without arguments
+if (!process.argv.slice(2).length) process.argv.push('--help');
+
+// all the event listeners are attached can we can start parsing the arguments, as
+// this a sync call, we need to be 100% sure that every listener is added.
+program.parse(process.argv);
+
+/**
+ * Set some defaults based on the flags.
+ */
+
+program.filename = Array.isArray(program.filename)
+  ? program.filename
+  : ['square', 'bundle'];
+
+program.ignore = Array.isArray(program.ignore)
+  ? program.ignore
+  : [];
+
+program.replace = _.isObject(program.replace)
+  ? program.replace
+  : {};
+
+program.bundle = program.bundle || process.env.PWD;
+
+program.plugin = Array.isArray(program.plugin)
+  ? program.plugin
+  : [];
+
+/**
+ * Display a not found message.
+ *
+ * @api private
+ */
+
+program.notFound = function notFound () {
+ [
+    '□ Square:'
+  , '  We are unable to find the '.white
+    + (program.filename.join('.json, ') + '.json').red
+    + ' files.'.white
+  , ''
+  , '  Please double check if these files are located in the '.white
+    + program.bundle.red
+    + ' directory.'.white
+  , '  Thanks for flying Square.'.white
+ ].forEach(function output (line) {
+    console.error(line);
+ });
+};
+
+/**
+ * Start search the given directory tree for square.json files.
+ */
+
+var found = findit.find(program.bundle || process.env.PWD)
+  , files = []
+  , filenames = new RegExp('\\/('+ program.filename.join('|') +')\\.json', 'gi'); 
+
+found.on('file', function foundFile (file, fstat) {
+  if (!filenames.test(file)) return;
+  if (program.ignore.some(program.filters.ignore.bind(file))) return;
+
+  files.push(file);
+});
+
+found.on('end', function end () {
+  if (!files.length) return program.notFound();
+
+  square.bundle(files[0]);
+
+  // process the plugins
+  program.plugin.forEach(function (plugin) {
+    square.plugin(plugin);
+  });
+  square.build();
+});

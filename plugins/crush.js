@@ -2,7 +2,6 @@
 
 var request = require('request')
   , uglify = require('uglify-js')
-  , jscrush = require('./lib/jscrush')
   , child = require('./lib/child')
   , _ = require('underscore')._;
 
@@ -14,12 +13,12 @@ var request = require('request')
  */
 
 var level = [
-    ['jscrush']
+    ['yui']
   , ['uglify']
   , ['closure']
-  , ['uglify', 'jscrush']
-  , ['closure', 'jscrush']
-  , ['closure', 'uglify', 'jscrush']
+  , ['yui', 'uglify']
+  , ['yui', 'closure']
+  , ['yui', 'closure', 'uglify']
 ];
 
 /**
@@ -91,30 +90,7 @@ module.exports = function setup (options) {
 };
 
 /**
- * JSCrush the code.
- *
- * @param {String} content
- * @param {Boolean} aggressive
- * @param {Function} fn
- * @api private
- */
-
-exports.jscrush = function jscrushit (content, aggressive, fn) {
-  try {
-    var code = jscrush(content);
-
-    process.nextTick(function nextTick () {
-      fn(null, code);
-    });
-  } catch (e) {
-    process.nextTick(function nextTick () {
-      fn(e, content);
-    });
-  }
-};
-
-/**
- * JSCrush the code.
+ * Closure compile all the code.
  *
  * @param {String} content
  * @param {Boolean} aggressive
@@ -124,6 +100,19 @@ exports.jscrush = function jscrushit (content, aggressive, fn) {
 
 exports.closure = function googleclosure (content, aggressive, fn) {
   child.closure('js', content, {}, fn);
+};
+
+/**
+ * YUI minify all the code.
+ *
+ * @param {String} content
+ * @param {Boolean} aggressive
+ * @param {Function} fn
+ * @api private
+ */
+
+exports.yui = function yui (content, aggressive, fn) {
+  child.yui('js', content, {}, fn);
 };
 
 /**
@@ -138,7 +127,7 @@ exports.uglify = function ugly (content, aggressive, fn) {
   var err, ast, code;
 
   try {
-    ast = uglify.parser.parse(code);
+    ast = uglify.parser.parse(content);
     ast = uglify.uglify.ast_mangle(ast);
     ast = uglify.uglify.ast_squeeze(ast);
 

@@ -1,3 +1,5 @@
+"use strict";
+
 var _ = require('underscore')._;
 
 /**
@@ -35,10 +37,10 @@ module.exports = function setup (options) {
     // iterate over the lines
     code = content.split('\n').map(function map (line) {
       // check if there are tags in here
-      var startpos = line.indexOf(settigns.start)
+      var startpos = line.indexOf(settings.start)
         , endpos = line.indexOf(settings.end)
-        , start = -~startpos
-        , end = -~endpos;
+        , start = ~startpos
+        , end = ~endpos;
 
       // ignore the current line
       if (start) {
@@ -52,12 +54,14 @@ module.exports = function setup (options) {
 
       // oh it was an inline tag!
       if (start && end) {
-        line = line.slice(0, start) + line.slice(end, line.length);
+        line = line.slice(0, startpos) + line.slice(endpos, line.length);
       }
 
-      return ingore === 0 ? line : 0;
+      return ignore === 0
+        ? line
+        : 0;
     }).filter(function filter (item) {
-      return item !== 0
+      return item !== 0;
     }).join('\n');
 
     // replacement is done

@@ -1,10 +1,9 @@
 // adapted from @aivopaas's jscrush
 // http://www.iteral.com/jscrush/
-module.exports = function jscrush (code) {
-  code = code.toString();
-  var i, $, s, c, n, t, o, m, S, M, x, j, e, I, str, map;
+module.exports = function(code) {
+  code = code.toString()
 
-  $ = "~";
+  $ = "~"
 
   for(
     i=123;
@@ -12,7 +11,7 @@ module.exports = function jscrush (code) {
     i-47||(i=38),i-63||(i=57),i-94||(i=90),i-10&&i-13&&i-34&&i-36&&($+=String.fromCharCode(i))
   );
 
-  $ = $.split("");
+  $ = $.split("")
 
   for(s=code.replace(/\/\/.*\n|[\n\r]+[\t ]*/g,''),m=[],S=s.length;;){
     for(c=M=0,i=99;!c&&i--;)!~s.indexOf($[i])&&(c=$[i]);
@@ -29,9 +28,9 @@ module.exports = function jscrush (code) {
     m.push(c+I.replace(/\\/g,'\\\\'));
   }
 
-  str = '"' + s.replace(/["\\]/g,'\\$&') + '"';
-  map = '"' + m.reverse().join('').replace(/"/g,'\\"') + '".split("")';
+  str = '"' + s.replace(/["\\]/g,'\\$&') + '"'
+  map = '"' + m.reverse().join(';').replace(/"/g,'\\"') + '".split(";")'
 
   return '!function(D,B,n){for(n in B)D=D.replace(RegExp(B[n][0],"g"),B[n].slice(1));eval(D)}' +
-         '(' + str + ',' + map + ')';
-};
+         '(' + str + ',' + map + ')'
+}

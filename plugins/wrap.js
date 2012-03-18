@@ -1,6 +1,6 @@
 "use strict";
 
-var context = require('contextify')
+var jsdom = require('jsdom')
   , _ = require('underscore')._;
 
 /**
@@ -118,111 +118,28 @@ module.exports = function setup (options) {
  */
 
 exports.sandboxleak = function sandboxleak (content, timeout, fn) {
-  var sandbox = exports.env()
+  var html = '<html><body></body></html>'
+    , DOM = jsdom.jsdom;
+
+  var doc = DOM(html)
+    , sandbox = doc.createWindow()
     , regular = Object.keys(sandbox);
 
-  // setup the context
-  context(sandbox);
+  // release memory
+  sandbox.close();
 
-  // make sure it doesn't thow directly
-  try { sandbox.run(content); }
-  catch (e) {
-    sandbox.dispose();
+  jsdom.env({
+    html: html
+  , src: [ content ]
+  , done: function done (err, window) {
+      if (err) return fn(err);
 
-    process.nextTick(function nextTick () {
-      fn(e, []);
-    });
+      var infected = Object.keys(window)
+        , globals = _.difference(infected, regular);
 
-    return;
-  }
+      window.close();
 
-  // because we could be working against potential async code that leaks
-  // a global we should wait a while for all code to fully initialized.
-  setTimeout(function timeout () {
-    var nocontext = _.without(Object.keys(sandbox), 'run', 'getGlobal', 'dispose')
-      , globals = _.difference(nocontext, regular);
-
-    // clean up the sandbox
-    sandbox.dispose();
-
-    fn(null, globals);
-  }, timeout);
-};
-
-/**
- * Generates a new dummy env for the context. This allows us to load in scripts
- * and see which globals are exposed, and how we could resolve it.
- *
- * @returns {Object} env
- * @api private
- */
-
-exports.env = function evn () {
-  var details = {
-      location: {
-          port: 8080
-        , host: 'www.example.org'
-        , hostname: 'www.example.org'
-        , href: 'http://www.example.org/example/'
-        , pathname: '/example/'
-        , protocol: 'http:'
-        , search: ''
-        , hash: ''
-      }
-    , console: {
-          log:   function () {}
-        , info:  function () {}
-        , warn:  function () {}
-        , error: function () {}
-      }
-    , navigator: {
-          userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_6_7) AppleWebKit'
-           + '/534.27 (KHTML, like Gecko) Chrome/12.0.716.0 Safari/534.27'
-        , appName: 'ion'
-        , platform: process.platform
-        , appVersion: process.version
-    , }
-    , name: ''
-    , innerWidth: 1024
-    , innerHeight: 768
-    , length: 1
-    , outerWidth: 1024
-    , outerHeight: 768
-    , pageXOffset: 0
-    , pageYOffset: 0
-    , screenX: 0
-    , screenY: 0
-    , screenLeft: 0
-    , screenTop: 0
-    , scrollX: 0
-    , scrollY: 0
-    , scrollTop: 0
-    , scrollLeft: 0
-    , screen: {
-          width: 0
-        , height: 0
-      }
-  };
-
-  // circular references
-  details.window = details.self = details.contentWindow = details;
-
-  // callable methods
-  details.Image = details.scrollTo = details.scrollBy = details.scroll =
-  details.resizeTo = details.resizeBy = details.prompt = details.print =
-  details.open = details.moveTo = details.moveBy = details.focus =
-  details.createPopup = details.confirm = details.close = details.blur =
-  details.alert = details.clearTimeout = details.clearInterval =
-  details.setInterval = details.setTimeout = details.XMLHttpRequest =
-  details.getComputedStyle = details.trigger = details.dispatchEvent =
-  details.removeEventListener = details.addEventListener = function(){};
-
-  // frames
-  details.frames = [details];
-
-  // document
-  details.document = details;
-  details.document.domain = details.location.href;
-
-  return details;
+      fn(null, globals);
+    }
+  });
 };
