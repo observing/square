@@ -8,6 +8,7 @@ var _ = require('underscore')._;
  * Options:
  *  - `start` start debug tag
  *  - `end` end debug tag
+ *  - `inline` inline statement removal
  *
  * @param {Object} options
  * @returns {Function} middeware
@@ -16,8 +17,9 @@ var _ = require('underscore')._;
 
 module.exports = function setup (options) {
   var settings = {
-      start: '{{'
-    , end: '}}'
+      start: /\{\{/
+    , end: /\}\}/
+    , inline: /\{\{[^\{\{]+?\}\}\n?\r?/
   };
 
   _.extend(settings, options || {});
@@ -37,10 +39,9 @@ module.exports = function setup (options) {
     // iterate over the lines
     code = content.split('\n').map(function map (line) {
       // check if there are tags in here
-      var startpos = line.indexOf(settings.start)
-        , endpos = line.indexOf(settings.end)
-        , start = ~startpos
-        , end = ~endpos;
+      var start = settings.start.test(line)
+        , end = settings.end.test(line)
+        , current = ignore;
 
       // ignore the current line
       if (start) {
@@ -54,10 +55,13 @@ module.exports = function setup (options) {
 
       // oh it was an inline tag!
       if (start && end) {
-        line = line.slice(0, startpos) + line.slice(endpos, line.length);
+        line = line.replace(settings.inline, '');
       }
 
-      return ignore === 0
+      // check if we have no more ignores left, and that our prev. check also
+      // returned 0 because it could be that we are hitting an end tag here that
+      // just reduced ignore to 0
+      return ignore === 0 && current === 0
         ? line
         : 0;
     }).filter(function filter (item) {
