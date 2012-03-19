@@ -1,8 +1,8 @@
 module.exports = {
     // output config
-    output: {
-        js: '~/square.{type}.js'
-      , css: '~/square.{type}.css'
+    dist: {
+        min: '~/square.{type}.{ext}'
+      , dev: '~/square.{type}.{ext}'
     }
 
     // plugin configuration
