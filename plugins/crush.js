@@ -1,7 +1,6 @@
 "use strict";
 
-var request = require('request')
-  , uglify = require('uglify-js')
+var uglify = require('uglify-js')
   , child = require('./lib/child')
   , _ = require('underscore')._;
 
