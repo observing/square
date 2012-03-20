@@ -1,6 +1,8 @@
 "use strict";
 
 var url = require('url')
+  , fs = require('fs')
+  , async = require('async')
   , jsdom = require('jsdom')
   , request = require('request')
   , github = require('github')
@@ -18,7 +20,7 @@ var semver = [
   , "\\.([0-9]+)"                       // minor
   , "\\.([0-9]+)"                       // patch
   , "(-[0-9]+-?)?"                      // build
-  ,  "([a-zA-Z-][a-zA-Z0-9-\\.:]*)?"     // tag
+  ,  "([a-zA-Z-][a-zA-Z0-9-\\.:]*)?"    // tag
 ];
 
 semver = new RegExp(semver.join(''), 'gim');
@@ -57,7 +59,7 @@ module.exports = function setup (options) {
   _.extend(settings, options || {});
 
   /**
-   * The actual middleware
+   * The actual middleware.
    *
    * @param {String} content
    * @param {Function} next
@@ -65,28 +67,90 @@ module.exports = function setup (options) {
    */
 
   return function update (content, next) {
-    var bundles = this.package.bundles
+    var bundles = this.package.bundle
       , files = Object.keys(bundles)
       , self = this;
 
-    files.forEach(function (key) {
-      var bundle = bundle[key]
+    // edge case, where the package file isn't loaded from a file, so nothing to
+    // write to
+    if (!this.package.path) return process.nextTick(next);
+
+    async.forEach(files, function testing (key, cb) {
+      var bundle = bundles[key]
         , provider;
 
       // not a third party files
-      if (!bundle.latest) return;
+      if (!bundle.latest) return cb();
 
       if (bundle.latest.indexOf('#')) provider = exports.selector;
       if (/github\.com/.test(bundle.latest)) provider = exports.github;
       if (!provider) provider = exports.request;
 
-      provider(bundle.latest, settings, function (err, version) {
-        if (err) self.logger.error('failed to find updates for ' + key, err);
+      provider(bundle.latest, settings, function test (err, version, content) {
+        if (err) return cb(err);
+        if (!version || version === bundle.version) return cb();
 
-        var changed = version !== bundle.version;
+        /**
+         * Handle file upgrades.
+         *
+         * @param {Mixed} err
+         * @param {String} content
+         * @api private
+         */
+
+        function done (err, content) {
+          if (err) return cb(err);
+
+          var code = JSON.parse(self.package.source)
+            , source;
+
+          code.bundle[key].version = version;
+          bundle.version = version;
+          bundle.content = content;
+
+          // now that we have updated the shizzle, we can write a new file
+          source = JSON.stringify(code, null, 2);
+
+          try {
+            fs.writeFileSync(self.package.location, source);
+            fs.writeFileSync(bundle.meta.location, content);
+          } catch (e) { err = e; }
+
+          cb(err);
+        }
+
+        if (content) return done(null, content);
+
+        // find the correct location where we can download the actual source
+        // code for this bundle
+        var data = bundle.download || provider === exports.github
+          ? exports.raw(bundle.latest)
+          : bundle.latest;
+
+        exports.download(data, done);
       });
-    });
+    }, next);
   };
+};
+
+/**
+ * Transforms a regular git url, to a raw file location.
+ *
+ * @param {String} uri
+ * @returns {String}
+ * @api private
+ */
+
+exports.raw = function (uri) {
+  var user, repo, branch, file
+    , chunks = /github.com\/([\w\-]+)\/([\w\-]+)\/blob\/([\w\-]+)\/(.*)/g.exec(uri);
+
+  user = chunks[1];
+  repo = chunks[2];
+  branch = chunks[3];
+  file = chunks[4];
+
+  return 'https://raw.github.com/' + user + '/' + repo + '/' + branch + '/'+ file;
 };
 
 /**
@@ -190,13 +254,9 @@ exports.github = function commits (uri, options, fn) {
  */
 
 exports.request = function req (uri, options, fn) {
-  request({ uri: uri }, function requested (err, res, body) {
-    if (err) return fn(err);
-    if (res.statusCode !== 200) return fn(new Error('Invalid status code'));
-
-    var version
-      , content = body.toString('utf8')
-      , lines = content.split(/(\r\n)|\r|\n/).splice(0, options.lines);
+  exports.download(uri, function downloading (err, content) {
+    var lines = content.split(/(\r\n)|\r|\n/).splice(0, options.lines)
+      , version;
 
     lines.some(function someline (line) {
       version = exports.version(line, options);
@@ -204,6 +264,23 @@ exports.request = function req (uri, options, fn) {
       return !!version;
     });
 
-    fn(null, version);
+    fn(null, version, content);
+  });
+};
+
+/**
+ * Download the data.
+ *
+ * @param {String} uri
+ * @param {Function} fn
+ * @api private
+ */
+
+exports.download = function (uri, fn) {
+  request({ uri: uri }, function requested (err, res, body) {
+    if (err) return fn(err);
+    if (res.statusCode !== 200) return fn(new Error('Invalid status code'));
+
+    fn(null, body.toString('utf8'));
   });
 };
