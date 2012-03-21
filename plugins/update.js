@@ -42,6 +42,15 @@ var sillyver = [
 sillyver = new RegExp(sillyver.join(''), 'gim');
 
 /**
+ * Regexp to test for Github hash sources
+ *
+ * @type {RegExp}
+ * @api private
+ */
+
+var githubRE = /github.com(\/[\w\-]+){2}\/blob(\/[\w\-]+)\/(.*)/;
+
+/**
  * Updates third party modules.
  *
  * @param {Object} options
@@ -82,13 +91,16 @@ module.exports = function setup (options) {
       // not a third party files
       if (!bundle.latest) return cb();
 
-      if (bundle.latest.indexOf('#')) provider = exports.selector;
-      if (/github\.com/.test(bundle.latest)) provider = exports.github;
+      // find the correct update handler
+      if (~bundle.latest.indexOf('#')) provider = exports.selector;
+      if (githubRE.test(bundle.latest)) provider = exports.github;
       if (!provider) provider = exports.request;
 
+      // fetch that update
       provider(bundle.latest, settings, function test (err, version, content) {
         if (err) return cb(err);
-        if (!version || version === bundle.version) return cb();
+        if (!version) return cb(new Error('unable to find and parse the version'));
+        if (version === bundle.version) return cb();
 
         /**
          * Handle file upgrades.
@@ -109,7 +121,9 @@ module.exports = function setup (options) {
           bundle.content = content;
 
           // now that we have updated the shizzle, we can write a new file
+          // also update the old source with the new version
           source = JSON.stringify(code, null, 2);
+          self.package.source = source;
 
           try {
             fs.writeFileSync(self.package.location, source);
@@ -143,7 +157,7 @@ module.exports = function setup (options) {
 
 exports.raw = function (uri) {
   var user, repo, branch, file
-    , chunks = /github.com\/([\w\-]+)\/([\w\-]+)\/blob\/([\w\-]+)\/(.*)/g.exec(uri);
+    , chunks = githubRE.exec(uri);
 
   user = chunks[1];
   repo = chunks[2];
@@ -163,7 +177,7 @@ exports.raw = function (uri) {
  */
 
 exports.selector = function fetch (uri, options, fn) {
-  var parts = uri.split(/#{1}/)
+  var parts = uri.split('#')
     , url = parts.shift()
     , css = parts.join('#'); // restore '##id' selectors
 
@@ -227,7 +241,7 @@ exports.version = function search (content, options) {
 
 exports.github = function commits (uri, options, fn) {
   var user, repo, branch, file
-    , chunks = /github.com\/([\w\-]+)\/([\w\-]+)\/blob\/([\w\-]+)\/(.*)/g.exec(uri);
+    , chunks = githubRE.exec(uri);
 
   user = chunks[1];
   repo = chunks[2];
