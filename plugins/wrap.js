@@ -41,11 +41,12 @@ module.exports = function setup (options) {
    * The build middleware.
    *
    * @param {String} content
+   * @param {String} extension
    * @param {Function} next
    * @api private
    */
 
-  return function leak (content, next) {
+  return function leak (content, extension, next) {
     var logger = this.logger
       , timeout = settings.timeout;
 

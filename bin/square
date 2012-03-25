@@ -6,10 +6,10 @@
  */
 
 var program = require('commander')
+  , path = require('path')
   , watch = require('watch')
   , findit = require('findit')
   , color = require('colors')
-  , Logger = require('devnull')
   , _ = require('underscore')._;
 
 /**
@@ -17,6 +17,7 @@ var program = require('commander')
  */
 
 var Square = require('../lib/square')
+  , npm = require('../package')
   , square = new Square();
 
 /**
@@ -47,17 +48,17 @@ program.filters = {
  */
 
 program
-  .version(require('../package.json').version)
+  .version(npm.version)
   .usage('[options] [bundle location]')
-  .option('-b, --bundle <dir>', 'The location of the package file')
-  .option('-w, --watch [dir]', 'Watch the bundled files for changes and rebuild')
-  .option('-e, --extension [extension]', 'Filter on this file extension')
+  .option('-b, --bundle <dir>', 'the location of the package file')
+  .option('-w, --watch [dir]', 'watch the bundled files for changes and rebuild')
+  .option('-e, --extension [extension]', 'filter on this file extension')
 
   // options that require argument filtering
-  .option('-f, --filename <file>', 'Alternate filenames', program.filters.listing)
-  .option('-i, --ignore [files]', 'Ignore these files', program.filters.listing)
-  .option('-p, --plugin <plug,ins>', 'Which plugins should be included', program.filters.listing)
-  .option('-r, --replace', 'Replace the contents of the file', program.filters.replace);
+  .option('-f, --filename <file>', 'alternate filenames', program.filters.listing)
+  .option('-i, --ignore [files]', 'ignore these files', program.filters.listing)
+  .option('-p, --plugin <plug,ins>', 'which plugins should be included', program.filters.listing)
+  .option('-r, --replace', 'replace the contents of the file', program.filters.replace);
 
 /**
  * Display addition help information.
@@ -72,6 +73,19 @@ program.on('--help', function help () {
 
 // output the help if it's called without arguments
 if (!process.argv.slice(2).length) process.argv.push('--help');
+
+// output a fancy pancy logo, [square] for le win.
+[
+    ''
+  , 'o-o  o-o o  o o-o o-o o-o '.cyan
+  , ' \\  |  | |  | |-| |   |- '.cyan + ('      version: ' + npm.version).white
+  , 'o-o  o-O o--o o o-o   o-o '.cyan
+  , '       |                  '.cyan
+  , '       o                  '.cyan
+  , ''
+].forEach(function each (line) {
+  console.error('  ' + line);
+});
 
 // all the event listeners are attached can we can start parsing the arguments, as
 // this a sync call, we need to be 100% sure that every listener is added.
@@ -107,25 +121,32 @@ program.plugin = Array.isArray(program.plugin)
 
 program.notFound = function notFound () {
  [
-    '□ Square:'
-  , '  We are unable to find the '.white
+    'We are unable to find the '.white
     + (program.filename.join('.json, ') + '.json').red
     + ' files.'.white
   , ''
-  , '  Please double check if these files are located in the '.white
+  , 'Please double check if these files are located in the '.white
     + program.bundle.red
     + ' directory.'.white
-  , '  Thanks for flying Square.'.white
+  , 'Thanks for flying Square.'.white
  ].forEach(function output (line) {
-    console.error(line);
+    square.logger.error(line);
  });
 };
+
+/**
+ * Make sure that the bundle location exists, so we don't get any ENOENT errors
+ */
+
+if (!path.existsSync(program.bundle)) {
+  return program.notFound();
+}
 
 /**
  * Start search the given directory tree for square.json files.
  */
 
-var found = findit.find(program.bundle || process.env.PWD)
+var found = findit.find(program.bundle)
   , files = []
   , filenames = new RegExp('\\/('+ program.filename.join('|') +')\\.json', 'gi'); 
 
@@ -145,5 +166,6 @@ found.on('end', function end () {
   program.plugin.forEach(function (plugin) {
     square.plugin(plugin);
   });
-  square.build();
+
+  square.build(program.extension);
 });

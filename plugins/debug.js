@@ -28,11 +28,12 @@ module.exports = function setup (options) {
    * The debug middleware.
    *
    * @param {String} content
+   * @param {String} extension
    * @param {Function} next
    * @api private
    */
 
-  return function debug (content, next) {
+  return function debug (content, extension, next) {
     var ignore = 0
       , code;
 

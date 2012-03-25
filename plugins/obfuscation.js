@@ -1,6 +1,6 @@
 "use strict";
 
-var ActiveX = require('active-x-obfuscator');
+var activex = require('active-x-obfuscator');
 
 /**
  * Obfusticate JavaScript, there are firewalls that cannot handle ActiveX in the
@@ -13,11 +13,19 @@ var ActiveX = require('active-x-obfuscator');
  */
 
 module.exports = function setup (options) {
-  return function obfuscation (content, next) {
+  /**
+   * The obfuse all the things
+   *
+   * @param {String} content
+   * @param {String} extension
+   * @param {Function} next
+   * @api private
+   */
+  return function obfuscation (content, extension, next) {
     var obfused, err;
 
     process.nextTick(function tick () {
-      try { return next(null, ActiveX(content)); }
+      try { return next(null, activex(content)); }
       catch (e) { return next(e, content); }
     });
   };

@@ -71,11 +71,12 @@ module.exports = function setup (options) {
    * The actual middleware.
    *
    * @param {String} content
+   * @param {String} extension
    * @param {Function} next
    * @api private
    */
 
-  return function update (content, next) {
+  return function update (content, extension, next) {
     var bundles = this.package.bundle
       , files = Object.keys(bundles)
       , self = this;

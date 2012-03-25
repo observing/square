@@ -47,11 +47,12 @@ module.exports = function setup (options) {
    * The build middleware.
    *
    * @param {String} content
+   * @param {String} extension
    * @param {Function} next
    * @api private
    */
 
-  return function crush (content, next) {
+  return function crush (content, extension, next) {
     var logger = this.logger
       , steps = level[settings.level]
       , errs = []
