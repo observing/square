@@ -71,8 +71,13 @@ module.exports = function setup (options) {
         return next(null, compiled);
       }
 
+      var crusher = exports[steps.shift()];
+
+      // check if this crusher supports this file type
+      if (!crusher[extension]) return process.nextTick(walk);
+
       // process the data
-      exports[steps.shift()](content, settings.aggressive, function min (err, code) {
+      crusher(content, settings.aggressive, function min (err, code) {
         if (err) {
           errs.push(err.message);
         } else {
@@ -93,37 +98,46 @@ module.exports = function setup (options) {
  * Closure compile all the code.
  *
  * @param {String} content
+ * @param {String} extension
  * @param {Boolean} aggressive
  * @param {Function} fn
  * @api private
  */
 
-exports.closure = function googleclosure (content, aggressive, fn) {
+exports.closure = function googleclosure (content, extension, aggressive, fn) {
   child.closure('js', content, {}, fn);
 };
+
+exports.closure.js = true;
 
 /**
  * YUI minify all the code.
  *
  * @param {String} content
+ * @param {String} extension
  * @param {Boolean} aggressive
  * @param {Function} fn
  * @api private
  */
 
-exports.yui = function yui (content, aggressive, fn) {
-  child.yui('js', content, {}, fn);
+exports.yui = function yui (content, extension, aggressive, fn) {
+  child.yui(extension, content, {}, fn);
 };
+
+exports.yui.js = true;
+exports.yui.css = true;
 
 /**
  * Uglify the code.
  *
- * @param {String} content
+ nt
+ * @param {String} extension
+ * @param {Boolean} aggressive
  * @param {Function} fn
  * @api private
  */
 
-exports.uglify = function ugly (content, aggressive, fn) {
+exports.uglify = function ugly (content, extension, aggressive, fn) {
   var err, ast, code;
 
   try {
@@ -150,3 +164,5 @@ exports.uglify = function ugly (content, aggressive, fn) {
     fn(err, code || content);
   });
 };
+
+exports.uglify.js = true;

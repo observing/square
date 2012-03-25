@@ -22,6 +22,8 @@ module.exports = function setup (options) {
    * @api private
    */
   return function obfuscation (content, extension, next) {
+    if (extension !== 'js') return process.nextTick(next);
+
     var obfused, err;
 
     process.nextTick(function tick () {

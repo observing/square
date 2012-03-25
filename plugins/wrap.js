@@ -47,6 +47,8 @@ module.exports = function setup (options) {
    */
 
   return function leak (content, extension, next) {
+    if (extension !== 'js') return process.nextTick(next);
+
     var logger = this.logger
       , timeout = settings.timeout;
 
