@@ -77,7 +77,7 @@ module.exports = function setup (options) {
       if (!crusher[extension]) return process.nextTick(walk);
 
       // process the data
-      crusher(content, settings.aggressive, function min (err, code) {
+      crusher(content, extension, settings.aggressive, function min (err, code) {
         if (err) {
           errs.push(err.message);
         } else {
