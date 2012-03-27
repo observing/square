@@ -1,7 +1,7 @@
 {
     "name": "square"
   , "description": "bundle, all the things"
-  , "version": "0.0.1"
+  , "version": "0.0.2"
   , "author": "Arnout Kazemier <opensource@observe.it>"
   , "dependencies": {
         "active-x-obfuscator": "0.0.1"
