@@ -46,17 +46,16 @@ module.exports = function setup (options) {
   /**
    * The build middleware.
    *
-   * @param {String} content
-   * @param {String} extension
+   * @param {Object} output
    * @param {Function} next
    * @api private
    */
 
-  return function crush (content, extension, next) {
+  return function crush (output, next) {
     var logger = this.logger
       , steps = level[settings.level]
-      , errs = []
-      , compiled = content;
+      , compiled = output.content
+      , errs = [];
 
     /**
      * Simple async helper function, no need to ship a 100kb aysnc library for
@@ -67,21 +66,23 @@ module.exports = function setup (options) {
 
     function walk () {
       if (!steps.length || errs.lenght) {
-        if (errs.length) return next(new Error(errs.toString()), content);
-        return next(null, compiled);
+        if (errs.length) return next(new Error(errs.toString()), output);
+
+        output.content = compiled;
+        return next(null, output);
       }
 
       var crusher = exports[steps.shift()];
 
       // check if this crusher supports this file type
-      if (!crusher[extension]) return process.nextTick(walk);
+      if (!crusher[output.extension]) return process.nextTick(walk);
 
       // process the data
-      crusher(content, extension, settings.aggressive, function min (err, code) {
+      crusher(compiled, output.extension, settings.aggressive, function min (err, code) {
         if (err) {
           errs.push(err.message);
         } else {
-          compiled = code;
+          compiled = code || compiled;
         }
 
         // we need to go deeper

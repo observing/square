@@ -40,28 +40,27 @@ module.exports = function setup (options) {
   /**
    * The build middleware.
    *
-   * @param {String} content
-   * @param {String} extension
+   * @param {Object} output
    * @param {Function} next
    * @api private
    */
 
-  return function leak (content, extension, next) {
-    if (extension !== 'js') return process.nextTick(next);
+  return function leak (output, next) {
+    if (output.extension !== 'js') return process.nextTick(next);
 
     var logger = this.logger
       , timeout = settings.timeout;
 
     // search for leaks
-    exports.sandboxleak(content, timeout, function found (err, leaks) {
+    exports.sandboxleak(output.content, timeout, function found (err, leaks) {
       if (err) {
         logger.error('Sandboxing produced an error, canceling operation', err);
         logger.warning('The supplied code might leak globals');
 
-        return next(null, content, leaks);
+        return next(null, output);
       }
 
-      if (!leaks) return next(null, content, leaks);
+      if (!leaks) return next(null, output);
 
       logger.debug('Global leaks detected:', leaks, 'patching the hole');
 
@@ -81,7 +80,7 @@ module.exports = function setup (options) {
         body.push('this.' + global + ' = this;');
       });
 
-      body.push(content);
+      body.push(output.content);
 
       // silly variable upgrading
       _.each(leaks, function (global) {
@@ -97,7 +96,7 @@ module.exports = function setup (options) {
           logger.error('Failed to compile the sandboxed script', err);
           logger.warn('The supplied code might leak globals');
 
-          return next(null, content);
+          return next(null, output);
         }
 
         // output some compile information
@@ -105,7 +104,8 @@ module.exports = function setup (options) {
         else if (newleaks.length < leaks.length) logger.info('Patched some leaks, but not all', newleaks);
         else logger.info('Patching the code did not help, it avoided the sandbox');
 
-        next(null, compiled, newleaks);
+        output.content = compiled;
+        next(null, output);
       });
     });
   };

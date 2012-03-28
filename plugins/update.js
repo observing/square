@@ -48,7 +48,7 @@ sillyver = new RegExp(sillyver.join(''), 'gim');
  * @api private
  */
 
-var githubRE = /github.com(\/[\w\-]+){2}\/blob(\/[\w\-]+)\/(.*)/;
+var githubRE = /github.com\/([\w\-]+)\/([\w\-]+)\/blob(\/[\w\-]+)\/(.*)/;
 
 /**
  * Updates third party modules.
@@ -70,13 +70,12 @@ module.exports = function setup (options) {
   /**
    * The actual middleware.
    *
-   * @param {String} content
-   * @param {String} extension
+   * @param {Object} output
    * @param {Function} next
    * @api private
    */
 
-  return function update (content, extension, next) {
+  return function update (output, next) {
     var bundles = this.package.bundle
       , files = Object.keys(bundles)
       , self = this;

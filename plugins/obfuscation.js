@@ -16,19 +16,19 @@ module.exports = function setup (options) {
   /**
    * The obfuse all the things
    *
-   * @param {String} content
-   * @param {String} extension
+   * @param {Object} output
    * @param {Function} next
    * @api private
    */
-  return function obfuscation (content, extension, next) {
-    if (extension !== 'js') return process.nextTick(next);
 
-    var obfused, err;
+  return function obfuscation (output, next) {
+    if (output.extension !== 'js') return process.nextTick(next);
 
     process.nextTick(function tick () {
-      try { return next(null, activex(content)); }
-      catch (e) { return next(e, content); }
+      try {
+        output.content = activex(output.content);
+        return next(null, output);
+      } catch (e) { return next(e, output); }
     });
   };
 };

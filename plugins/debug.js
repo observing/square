@@ -27,18 +27,17 @@ module.exports = function setup (options) {
   /**
    * The debug middleware.
    *
-   * @param {String} content
-   * @param {String} extension
+   * @param {Object} output
    * @param {Function} next
    * @api private
    */
 
-  return function debug (content, extension, next) {
+  return function debug (output, next) {
     var ignore = 0
       , code;
 
     // iterate over the lines
-    code = content.split('\n').map(function map (line) {
+    code = output.content.split('\n').map(function map (line) {
       // check if there are tags in here
       var start = settings.start.test(line)
         , end = settings.end.test(line)
@@ -71,9 +70,10 @@ module.exports = function setup (options) {
 
     // replacement is done
     process.nextTick(function nextTick () {
-      if (ignore !== 0) return next(new Error('unbalanced debug tags'), content);
+      if (ignore !== 0) return next(new Error('unbalanced debug tags'), output);
 
-      next(null, code);
+      output.content = code;
+      next(null, output);
     });
   };
 };
