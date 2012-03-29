@@ -21,10 +21,10 @@ module.exports = function setup (options) {
    */
 
   return function preprocess (output, next) {
-    var process = exports[output.extension];
-    if (!process) return process.nextTick(next);
+    var compiler = exports[output.extension];
+    if (!compiler) return process.nextTick(next);
 
-    process(output, next);
+    compiler(output, next);
   };
 };
 
