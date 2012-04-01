@@ -1,3 +1,10 @@
+var path = require('path')
+  , file = path.join(process.env.PWD, 'package.json')
+  , pkg;
+
+try { pkg = require(file); }
+catch (e) { pkg = {}; }
+
 module.exports = {
     // output config
     dist: {
@@ -11,4 +18,7 @@ module.exports = {
     // hinting and linting
   , jshint: require('./jshint')
   , csslint: require('./csshint')
+
+    // add package.json if it exists
+  , vars: pkg
 };
