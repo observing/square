@@ -30,17 +30,6 @@ var Square = require('../lib/square')
 program.filters = {
     ignore: function ignore (ignore) { return ~this.indexOf(ignore) }
   , listing: function listing (val) { return val.split(',') }
-  , replace: function replace (val) {
-      var keys = val.split(',')
-        , res = {};
-
-      keys.forEach(function each (key) {
-        var kv = key.split('#');
-        res[kv[0]] = kv[1];
-      });
-
-      return res;
-    }
 };
 
 /**
@@ -49,16 +38,15 @@ program.filters = {
 
 program
   .version(npm.version)
-  .usage('[options] [bundle location]')
+  .usage('[options]')
   .option('-b, --bundle <dir>', 'the location of the package file')
   .option('-w, --watch [dir]', 'watch the bundled files for changes and rebuild')
-  .option('-e, --extension [extension]', 'filter on this file extension')
+  .option('-e, --extension <extension>', 'filter on this file extension')
 
   // options that require argument filtering
   .option('-f, --filename <file>', 'alternate filenames', program.filters.listing)
   .option('-i, --ignore [files]', 'ignore these files', program.filters.listing)
-  .option('-p, --plugin <plug,ins>', 'which plugins should be included', program.filters.listing)
-  .option('-r, --replace', 'replace the contents of the file', program.filters.replace);
+  .option('-p, --plugin <plugins>', 'which plugins should be included', program.filters.listing);
 
 /**
  * Display addition help information.
@@ -67,7 +55,26 @@ program
 program.on('--help', function help () {
   console.log('');
   console.log('  Examples:');
+
   console.log('');
+  console.log([
+      '    # Building for development with multiple plugins \n'.grey
+    , '    square --bundle '.cyan
+    , './'.white
+    , ' --plugin '.cyan
+    , 'debug,crush'.white
+  ].join(''));
+
+  console.log('');
+  console.log([
+      '    # Only build css files \n'.grey
+    , '    square --bundle '.cyan
+    , './other/directory'.white
+    , ' --plugin '.cyan
+    , 'crush'.white
+    , ' --extension '.cyan
+    , 'css'.white
+  ].join(''));
   process.exit();
 });
 
@@ -102,10 +109,6 @@ program.filename = Array.isArray(program.filename)
 program.ignore = Array.isArray(program.ignore)
   ? program.ignore
   : [];
-
-program.replace = _.isObject(program.replace)
-  ? program.replace
-  : {};
 
 program.bundle = program.bundle || process.env.PWD;
 
