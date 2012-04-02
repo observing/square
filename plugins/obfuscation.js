@@ -1,6 +1,6 @@
 "use strict";
 
-var activex = require('active-x-obfuscator');
+var canihas = require('../lib/canihas');
 
 /**
  * Obfusticate JavaScript, there are firewalls that cannot handle ActiveX in the
@@ -24,7 +24,9 @@ module.exports = function setup (options) {
   return function obfuscation (output, next) {
     if (output.extension !== 'js') return process.nextTick(next);
 
-    process.nextTick(function tick () {
+    canihas.obfuscator(function canihasObfuscator (err, activex) {
+      if (err) return next(err);
+
       try {
         output.content = activex(output.content);
         return next(null, output);

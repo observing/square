@@ -1,7 +1,7 @@
 "use strict";
 
-var jsdom = require('jsdom')
-  , _ = require('underscore')._;
+var _ = require('underscore')._
+  , canihas = require('../lib/canihas');
 
 /**
  * Attempts to detect leaking globals and provides a wrapper for it.
@@ -121,28 +121,30 @@ module.exports = function setup (options) {
  */
 
 exports.sandboxleak = function sandboxleak (content, timeout, fn) {
-  var html = '<html><body></body></html>'
-    , DOM = jsdom.jsdom;
+  canihas.jsdom(function canihasJSDOM (err, jsdom) {
+    var html = '<html><body></body></html>'
+      , DOM = jsdom.jsdom;
 
-  var doc = DOM(html)
-    , sandbox = doc.createWindow()
-    , regular = Object.keys(sandbox);
+    var doc = DOM(html)
+      , sandbox = doc.createWindow()
+      , regular = Object.keys(sandbox);
 
-  // release memory
-  sandbox.close();
+    // release memory
+    sandbox.close();
 
-  jsdom.env({
-    html: html
-  , src: [ content ]
-  , done: function done (err, window) {
-      if (err) return fn(err);
+    jsdom.env({
+      html: html
+    , src: [ content ]
+    , done: function done (err, window) {
+        if (err) return fn(err);
 
-      var infected = Object.keys(window)
-        , globals = _.difference(infected, regular);
+        var infected = Object.keys(window)
+          , globals = _.difference(infected, regular);
 
-      window.close();
+        window.close();
 
-      fn(null, globals);
-    }
+        fn(null, globals);
+      }
+    });
   });
 };
