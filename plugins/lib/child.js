@@ -94,7 +94,7 @@ function compressor (type, flags, configuration) {
       // invalid states
       if (errors.length) return fn(new Error(errors));
       if (code !== 0) return fn(new Error('process exited with code ' + code));
-      if (!buffer.length) return fn(new Error('no data returned'));
+      if (!buffer.length) return fn(new Error('no data returned ' + type + args));
 
       // correctly processed the data
       fn(null, buffer);
