@@ -62,6 +62,7 @@ program
   .option('-b, --bundle <dir>', 'the location of the package file')
   .option('-w, --watch [dir]', 'watch the bundled files for changes and rebuild')
   .option('-e, --extension <extension>', 'filter on this file extension')
+  .option('-o, --output', 'output the contents to stdout instead of a file')
 
   // options that require argument filtering
   .option('-f, --filename <file>', 'alternate filenames', program.filters.list)
@@ -135,6 +136,9 @@ program.bundle = program.bundle || process.env.PWD;
 program.plugin = Array.isArray(program.plugin)
   ? program.plugin
   : [];
+
+// how do we need to output data
+square.stdout = !!program.output;
 
 /**
  * Display a not found message.
