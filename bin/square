@@ -5,12 +5,12 @@
  * Library modules
  */
 
-var program = require('commander')
-  , path = require('path')
+var path = require('path')
   , watch = require('watch')
-  , findit = require('findit')
   , color = require('colors')
-  , _ = require('underscore')._;
+  , findit = require('findit')
+  , _ = require('underscore')._
+  , program = require('commander');
 
 /**
  * Square library.
@@ -28,8 +28,28 @@ var Square = require('../lib/square')
  */
 
 program.filters = {
-    ignore: function ignore (ignore) { return ~this.indexOf(ignore) }
-  , listing: function listing (val) { return val.split(',') }
+    /**
+     * Split the supplied argument to create a list (array)
+     *
+     * @param {String} val the commandline flag value
+     * @returns {Array}
+     * @api private
+     */
+
+    list: function list (val) {
+      return val.split(',');
+    }
+
+    /**
+     * Checks if the given option should be ignored.
+     *
+     * @param {Mixed} ignore
+     * @api private
+     */
+
+  , ignore: function ignore (ignore) {
+      return ~this.indexOf(ignore);
+    }
 };
 
 /**
@@ -44,9 +64,9 @@ program
   .option('-e, --extension <extension>', 'filter on this file extension')
 
   // options that require argument filtering
-  .option('-f, --filename <file>', 'alternate filenames', program.filters.listing)
-  .option('-i, --ignore [files]', 'ignore these files', program.filters.listing)
-  .option('-p, --plugin <plugins>', 'which plugins should be included', program.filters.listing);
+  .option('-f, --filename <file>', 'alternate filenames', program.filters.list)
+  .option('-i, --ignore [files]', 'ignore these files', program.filters.list)
+  .option('-p, --plugin <plugins>', 'which plugins should be included', program.filters.list);
 
 /**
  * Display addition help information.
@@ -166,7 +186,7 @@ found.on('end', function end () {
   square.bundle(files[0]);
 
   // process the plugins
-  program.plugin.forEach(function (plugin) {
+  program.plugin.forEach(function load (plugin) {
     square.plugin(plugin);
   });
 
