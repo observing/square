@@ -1,0 +1,7 @@
+{
+  "bundle": {
+    "cupof.coffee": {
+      "description": "simple coffeescript file for pre-process testing"
+    }
+  }
+}
