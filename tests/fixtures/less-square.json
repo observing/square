@@ -1,0 +1,7 @@
+{
+  "bundle": {
+    "less.less": {
+      "description": "simple less file for pre-process testing"
+    }
+  }
+}

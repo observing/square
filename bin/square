@@ -13,6 +13,12 @@ var path = require('path')
   , program = require('commander');
 
 /**
+ * Do we need to silence all the output because we spit the shit to std out?
+ */
+
+program.silence = ~process.argv.indexOf('--output') || process.argv.indexOf('-o');
+
+/**
  * Square library.
  */
 
@@ -47,7 +53,7 @@ program.filters = {
      * @api private
      */
 
-  , ignore: function ignore (ignore) {
+  , ignore: function ignoring (ignore) {
       return ~this.indexOf(ignore);
     }
 };
@@ -103,6 +109,7 @@ program.on('--help', function help () {
 if (!process.argv.slice(2).length) process.argv.push('--help');
 
 // output a fancy pancy logo, [square] for le win.
+if (!program.silence)
 [
     ''
   , 'o-o  o-o o  o o-o o-o o-o '.cyan
@@ -112,7 +119,7 @@ if (!process.argv.slice(2).length) process.argv.push('--help');
   , '       o                  '.cyan
   , ''
 ].forEach(function each (line) {
-  console.error('  ' + line);
+  console.log('  ' + line);
 });
 
 // all the event listeners are attached can we can start parsing the arguments, as
@@ -175,7 +182,7 @@ if (!path.existsSync(program.bundle)) {
 
 var found = findit.find(program.bundle)
   , files = []
-  , filenames = new RegExp('\\/('+ program.filename.join('|') +')\\.json', 'gi'); 
+  , filenames = new RegExp('\\/('+ program.filename.join('|') +')\\.json', 'gi');
 
 found.on('file', function foundFile (file, fstat) {
   if (!filenames.test(file)) return;
