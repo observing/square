@@ -1,0 +1,8 @@
+{
+  "bundle": {
+    "basic.js": {
+      "description": "basic javascript file",
+      "extract": ["foo", "bar", "varfoo"]
+    }
+  }
+}
