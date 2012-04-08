@@ -1,0 +1,10 @@
+{
+  "configuration": {
+    "license": "./LICENSE.example"
+  },
+  "bundle": {
+    "basic.js": {
+      "description": "basic javascript file"
+    }
+  }
+}
