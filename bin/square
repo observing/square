@@ -16,7 +16,7 @@ var path = require('path')
  * Do we need to silence all the output because we spit the shit to std out?
  */
 
-program.silence = ~process.argv.indexOf('--output') || process.argv.indexOf('-o');
+program.silence = ~process.argv.indexOf('--output') || ~process.argv.indexOf('-o');
 
 /**
  * Square library.
