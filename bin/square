@@ -75,6 +75,17 @@ program
   .option('-p, --plugin <plugins>', 'which plugins should be included', filters.list);
 
 /**
+ * Adding some basic commands
+ */
+
+program
+  .command('init')
+  .description('initialize an empty project')
+  .action(function action () {
+    require('./initialize')(program, square);
+  });
+
+/**
  * Display addition help information.
  */
 
