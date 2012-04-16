@@ -82,6 +82,8 @@ program
   .command('init')
   .description('initialize an empty project')
   .action(function action () {
+    program.action = true;
+
     require('./initialize')(program, square);
   });
 
@@ -164,6 +166,11 @@ program.filename = Array.isArray(program.filename)
   ? program.filename
   : ['square', 'bundle'];
 
+// remove the file extension
+program.filename = program.filename.map(function (file) {
+  return file.replace(path.extname(file), '');
+});
+
 program.ignore = Array.isArray(program.ignore)
   ? program.ignore
   : [];
@@ -203,6 +210,13 @@ program.notFound = function notFound () {
     square.logger.error(line);
  });
 };
+
+/**
+ * Check if an command is currently beeing executed, because we don't have to
+ * start building the resting the data if this the case.
+ */
+
+if (program.action) return;
 
 /**
  * Make sure that the bundle location exists, so we don't get any ENOENT errors
