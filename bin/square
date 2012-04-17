@@ -82,7 +82,7 @@ program
   .command('init')
   .description('initialize an empty project')
   .action(function action () {
-    program.action = true;
+    program.commands_exec = true;
 
     require('./initialize')(program, square);
   });
@@ -216,7 +216,7 @@ program.notFound = function notFound () {
  * start building the resting the data if this the case.
  */
 
-if (program.action) return;
+if (program.commands_exec) return;
 
 /**
  * Make sure that the bundle location exists, so we don't get any ENOENT errors

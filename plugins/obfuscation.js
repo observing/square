@@ -24,7 +24,7 @@ module.exports = function setup (options) {
   return function obfuscation (output, next) {
     if (output.extension !== 'js') return process.nextTick(next);
 
-    canihas.obfuscator(function canihasObfuscator (err, activex) {
+    canihas['active-x-obfuscator'](function canihasObfuscator (err, activex) {
       if (err) return next(err);
 
       try {
