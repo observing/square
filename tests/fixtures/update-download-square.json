@@ -1,0 +1,9 @@
+{
+  "bundle": {
+    "jquery.js": {
+      "description": "jQuery update based on version number in file",
+      "version": "1.3",
+      "latest": "http://code.jquery.com/jquery.js"
+    }
+  }
+}
