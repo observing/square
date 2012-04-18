@@ -80,7 +80,7 @@ program
 
 program
   .command('init')
-  .description('initialize an empty project')
+  .description('initialize an empty project'.grey)
   .action(function action () {
     program.commands_exec = true;
 

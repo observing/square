@@ -3,10 +3,8 @@
 var url = require('url')
   , fs = require('fs')
   , async = require('async')
-  , jsdom = require('jsdom')
-  , request = require('request')
-  , github = require('github')
-  , _ = require('underscore')._;
+  , _ = require('underscore')._
+  , canihas = require('../lib/canihas');
 
 /**
  * Semver compatible regexp.
@@ -52,6 +50,12 @@ var githubRE = /github.com\/([\w\-]+)\/([\w\-]+)\/blob(\/[\w\-]+)\/(.*)/;
 
 /**
  * Updates third party modules.
+ *
+ * Options:
+ *
+ * - `strict` regexp, regexp for search for semver based version numbers
+ * - `loose` regexp, fallback for strict regexp, for oddly versioned code
+ * - `lines` number, amount of loc to scan for version numbers
  *
  * @param {Object} options
  * @returns {Function} middeware
@@ -196,10 +200,14 @@ exports.selector = function fetch (uri, options, fn) {
     return fn(null, exports.version(content, options));
   }
 
-  jsdom.env({
-      html: uri
-    , scripts: 'http://code.jquery.com/jquery-1.7.min.js'
-    , done: done
+  canihas.jsdom(function (err, jsdom) {
+    if (err) return fn(err);
+
+    jsdom.env({
+        html: uri
+      , scripts: 'http://code.jquery.com/jquery-1.7.min.js'
+      , done: done
+    });
   });
 };
 
@@ -248,13 +256,17 @@ exports.github = function commits (uri, options, fn) {
   branch = chunks[3];
   file = chunks[4];
 
-  var api = new github.GitHubApi(false);
-  api.getCommitApi().getFileCommits(user, repo, branch, file, function (err, list) {
+  canihas.github(function lazyload (err, github) {
     if (err) return fn(err);
-    if (!list.length) return fn(new Error('No commits in this repo: ' + uri));
 
-    var commit = list.shift();
-    fn(null, commit.id);
+    var api = new github.GitHubApi(false);
+    api.getCommitApi().getFileCommits(user, repo, branch, file, function (err, list) {
+      if (err) return fn(err);
+      if (!list.length) return fn(new Error('No commits in this repo: ' + uri));
+
+      var commit = list.shift();
+      fn(null, commit.id);
+    });
   });
 };
 
@@ -291,10 +303,14 @@ exports.request = function req (uri, options, fn) {
  */
 
 exports.download = function (uri, fn) {
-  request({ uri: uri }, function requested (err, res, body) {
+  canihas.request(function lazyload (err, request) {
     if (err) return fn(err);
-    if (res.statusCode !== 200) return fn(new Error('Invalid status code'));
 
-    fn(null, body.toString('utf8'));
+    request({ uri: uri }, function requested (err, res, body) {
+      if (err) return fn(err);
+      if (res.statusCode !== 200) return fn(new Error('Invalid status code'));
+
+      fn(null, body.toString('utf8'));
+    });
   });
 };
