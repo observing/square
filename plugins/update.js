@@ -165,7 +165,7 @@ exports.raw = function (uri) {
 
   user = chunks[1];
   repo = chunks[2];
-  branch = chunks[3];
+  branch = chunks[3].substr(1); // remove the first /
   file = chunks[4];
 
   return 'https://raw.github.com/' + user + '/' + repo + '/' + branch + '/'+ file;
@@ -253,19 +253,21 @@ exports.github = function commits (uri, options, fn) {
 
   user = chunks[1];
   repo = chunks[2];
-  branch = chunks[3];
+  branch = chunks[3].substr(1); // remove the first /
   file = chunks[4];
 
-  canihas.github(function lazyload (err, github) {
+  canihas.github(function lazyload (err, Github) {
     if (err) return fn(err);
 
-    var api = new github.GitHubApi(false);
-    api.getCommitApi().getFileCommits(user, repo, branch, file, function (err, list) {
+    var api = new Github({ version: "3.0.0" })
+      , request = { user: user, repo: repo, path: file, sha: branch };
+
+    api.repos.getCommits(request, function getcommit (err, list) {
       if (err) return fn(err);
       if (!list.length) return fn(new Error('No commits in this repo: ' + uri));
 
       var commit = list.shift();
-      fn(null, commit.id);
+      fn(null, commit.sha);
     });
   });
 };
