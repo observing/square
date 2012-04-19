@@ -25,7 +25,7 @@ semver = new RegExp(semver.join(''), 'gim');
 
 /**
  * Because not all versions are semver compatible
- * we need a silly fallback:
+ * we need a silly fall back:
  *
  * @type {RegExp}
  * @api private
@@ -54,11 +54,11 @@ var githubRE = /github.com\/([\w\-]+)\/([\w\-]+)\/blob(\/[\w\-]+)\/(.*)/;
  * Options:
  *
  * - `strict` regexp, regexp for search for semver based version numbers
- * - `loose` regexp, fallback for strict regexp, for oddly versioned code
- * - `lines` number, amount of loc to scan for version numbers
+ * - `loose` regexp, fall back for strict regexp, for oddly versioned code
+ * - `lines` number, amount of LOC to scan for version numbers
  *
  * @param {Object} options
- * @returns {Function} middeware
+ * @returns {Function} middleware
  * @api public
  */
 

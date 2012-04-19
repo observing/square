@@ -30,7 +30,7 @@ var level = [
  * - `disable` disable a crushing mode, string.
  *
  * @param {Object} options
- * @returns {Function} middlware
+ * @returns {Function} middleware
  * @api public
  */
 
@@ -58,7 +58,7 @@ module.exports = function setup (options) {
       , errs = [];
 
     /**
-     * Simple async helper function, no need to ship a 100kb aysnc library for
+     * Simple async helper function, no need to ship a 100kb async library for
      * this.
      *
      * @api private
@@ -131,7 +131,6 @@ exports.yui.css = true;
 /**
  * Uglify the code.
  *
- nt
  * @param {String} extension
  * @param {Boolean} aggressive
  * @param {Function} fn
@@ -146,14 +145,14 @@ exports.uglify = function ugly (content, extension, aggressive, fn) {
     ast = uglify.uglify.ast_mangle(ast);
     ast = uglify.uglify.ast_squeeze(ast);
 
-    // do even more agressive optimizing
+    // do even more aggressive optimizing
     if (aggressive) {
       ast = uglify.uglify.ast_lift_variables(ast);
       ast = uglify.uglify.ast_squeeze_more(ast);
     }
 
     // the ascii makes sure we don't fuck up Socket.IO's utf8 message
-    // seperators.
+    // separators.
     code = uglify.uglify.gen_code(ast, {
         ascii_only: true
     });

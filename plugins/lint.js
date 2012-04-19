@@ -3,9 +3,19 @@
 var canihas = require('../lib/canihas')
   , _ = require('underscore')._;
 
+/**
+ * Simple file linting.
+ *
+ * @param {Object} options
+ * @returns {Function}
+ * @api public
+ */
+
 module.exports = function setup (options) {
   var settings = {
       seperate: true
+    , limit: 15
+    , summary: true
   };
 
   _.extend(settings, options || {});
@@ -27,7 +37,15 @@ module.exports = function setup (options) {
 
     parsers[output.extension](output.content, config, function linted (err, failures) {
       if (err) return next(err);
-      if (failures && failures.length) reporters.base.call(self, output, failures);
+      if (failures && failures.length) {
+        reporters.base.call(self, {
+            content: output.content
+          , extension: output.extension
+          , summary: settings.summary
+          , seperate: settings.seperate
+          , limit: settings.limit
+        }, failures);
+      }
 
       next();
     });
@@ -145,7 +163,7 @@ var reporters = {
           , len = stop.toString().length;
 
         reports.push('Lint error: ' + err.line + ' col ' + err.column);
-        range.map(function (line) {
+        range.map(function reformat (line) {
           var lineno = numbers.shift()
             , offender = lineno === err.line
             , inline = /\'[^\']+?\'/
