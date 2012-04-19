@@ -1,7 +1,9 @@
 "use strict";
 
 var canihas = require('../lib/canihas')
-  , _ = require('underscore')._;
+  , async = require('async')
+  , _ = require('underscore')._
+  , fs = require('fs');
 
 /**
  * Simple file linting.
@@ -30,25 +32,44 @@ module.exports = function setup (options) {
 
   return function linting (output, next) {
     var config = this.package.configuration
+      , bundles = this.package.bundle
+      , files = Object.keys(bundles)
       , self = this;
 
     // make sure that we have a parser for this extension
     if (!(output.extension in parsers)) return next();
 
-    parsers[output.extension](output.content, config, function linted (err, failures) {
-      if (err) return next(err);
-      if (failures && failures.length) {
-        reporters.base.call(self, {
-            content: output.content
-          , extension: output.extension
-          , summary: settings.summary
-          , seperate: settings.seperate
-          , limit: settings.limit
-        }, failures);
-      }
+    if (!settings.seperate) {
+      return parsers[output.extension](output.content, config, function linted (err, failures) {
+        if (err) return next(err);
+        if (failures && failures.length) {
+          reporters.base.call(self, output, failures, settings);
+        }
 
-      next();
-    });
+        next();
+      });
+    }
+
+    async.forEachSeries(files, function iterator (key, fn) {
+      var bundle = bundles[key]
+        , content = bundle.content.toString('UTF-8')
+        , extension = bundle.meta.extension;
+
+      // @TODO check if we need to compile the file before we can lint it as it
+      // can change extensions after that..
+
+      if ('lint' in bundle && bundle.lint === false) fn();
+      if (!(extension in parsers)) return fn();
+
+      parsers[extension](content, config, function linted (err, failures) {
+        if (err) fn(err);
+        if (failures && failures.length) {
+          reporters.base.call(self, output, failures, settings);
+        }
+
+        fn();
+      });
+    }, next);
   };
 };
 
@@ -59,12 +80,22 @@ module.exports = function setup (options) {
  */
 
 var parsers = {
+    /**
+     * JSHint the content
+     *
+     * @param {String} content
+     * @param {Object} options
+     * @param {Function} fn
+     * @api private
+     */
+
     js: function parser (content, options, fn) {
       options = options.jshint;
 
       canihas.jshint(function lazyload (err, jshint) {
         if (err) return fn(err);
 
+        // @TODO check for a ~/.jshintrc file
         var validates = jshint.JSHINT(content, options)
           , errors;
 
@@ -72,6 +103,15 @@ var parsers = {
         fn(null, errors);
       });
     }
+
+    /**
+     * JSHint the content
+     *
+     * @param {String} content
+     * @param {Object} options
+     * @param {Function} fn
+     * @api private
+     */
 
   , css: function parser (content, options, fn) {
       // clone the object as we need to remove the un-used options
@@ -148,6 +188,14 @@ var formatters = {
  */
 
 var reporters = {
+    /**
+     * Simple output of the errors in a human readable fashion.
+     *
+     * @param {Object} file
+     * @param {Array} errors
+     * @api pprivate
+     */
+
     base: function (file, errors, options) {
       var reports = []
         , content = file.content.split('\n');
@@ -156,7 +204,7 @@ var reporters = {
         // some linters don't return the location -_-
         if (!err.line) return reports.push(err.message.grey, '');
 
-        var start = err.line > 2 ? err.line - 2 : 0
+        var start = err.line > 3 ? err.line - 3 : 0
           , stop = err.line + 2
           , range = content.slice(start, stop)
           , numbers = _.range(start + 1, stop + 1)
