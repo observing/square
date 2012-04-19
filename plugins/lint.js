@@ -19,14 +19,15 @@ module.exports = function setup (options) {
    */
 
   return function linting (output, next) {
-    var config = this.package.configuration;
+    var config = this.package.configuration
+      , self = this;
 
     // make sure that we have a parser for this extension
     if (!(output.extension in parsers)) return next();
 
     parsers[output.extension](output.content, config, function linted (err, failures) {
       if (err) return next(err);
-      if (failures && failures.length) reporters.base(output, failures);
+      if (failures && failures.length) reporters.base.call(self, output, failures);
 
       next();
     });
@@ -182,8 +183,8 @@ var reporters = {
 
       // output the shizzle
       reports.forEach(function output (line) {
-        console.error(line);
-      });
+        this.logger.error(line);
+      }.bind(this));
     }
 };
 
