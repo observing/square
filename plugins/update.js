@@ -106,6 +106,8 @@ module.exports = function setup (options) {
         if (!version) return cb(new Error('unable to find and parse the version'));
         if (version === bundle.version) return cb();
 
+        self.logger.notice('%s is out of date, latest version is %s', key, version.green);
+
         /**
          * Handle file upgrades.
          *
@@ -118,6 +120,7 @@ module.exports = function setup (options) {
           if (err) return cb(err);
 
           var code = JSON.parse(self.package.source)
+            , current = bundle.version
             , source;
 
           code.bundle[key].version = version;
@@ -134,6 +137,12 @@ module.exports = function setup (options) {
             fs.writeFileSync(bundle.meta.location, content);
           } catch (e) { err = e; }
 
+          self.logger.notice(
+              'sucessfully updated %s from version %s to %s'
+            , key
+            , current.grey
+            , version.green
+          );
           cb(err);
         }
 
