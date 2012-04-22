@@ -131,6 +131,10 @@ program.on('--watch', function watching () {
 
     // start watching for file changes in the given directory
     watch(program.bundle, extensions, function update (files) {
+      // empty line
+      console.log('');
+      square.logger.notice('changes detected, refreshing %s', files.join(', '));
+
       square.refresh(files);
       square.build(program.extension);
     });
