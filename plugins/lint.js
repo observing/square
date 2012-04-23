@@ -1,6 +1,7 @@
 "use strict";
 
 var canihas = require('../lib/canihas')
+  , path = require('path')
   , async = require('async')
   , _ = require('underscore')._
   , fs = require('fs');
@@ -90,13 +91,17 @@ var parsers = {
      */
 
     js: function parser (content, options, fn) {
-      options = options.jshint;
+      var jshintrc = path.join(process.env.HOME, '.jshintrc')
+        , jshintninja = configurator(jshintrc)
+        , config = options.jshint;
+
+      // extend all the things
+      config = _.extend(config, jshintninja);
 
       canihas.jshint(function lazyload (err, jshint) {
         if (err) return fn(err);
 
-        // @TODO check for a ~/.jshintrc file
-        var validates = jshint.JSHINT(content, options)
+        var validates = jshint.JSHINT(content, config)
           , errors;
 
         if (!validates) errors = formatters.js(jshint.JSHINT.errors);
@@ -266,4 +271,21 @@ var reporters = {
 function pad (str, len) {
   str = '' + str;
   return new Array(len - str.length + 1).join(' ') + str;
+}
+
+/**
+ * Simple configuration parser, which is less strict then a regular JSON parser.
+ *
+ * @param {String} path
+ * @returns {Object}
+ */
+
+function configurator (location) {
+  return !(location && path.existsSync(location))
+    ? {}
+    : JSON.parse(
+        fs.readFileSync(location, 'UTF-8')
+          .replace(/\/\*[\s\S]*(?:\*\/)/g, '') // removes /* comments */
+          .replace(/\/\/[^\n\r]*/g, '') // removes // comments
+      );
 }
