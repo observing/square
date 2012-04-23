@@ -1,0 +1,23 @@
+{
+    "configuration": {
+        "dist": {
+            "dev": "/tmp/{group}.less.{type}.{ext}"
+          , "min": "/tmp/{group}.less.{type}.{ext}"
+        }
+    }
+  , "bundle": {
+        "basic.js": {
+            "description": "Basic in group"
+          , "group": [
+                "squared"
+              , "test"
+            ]
+        }
+      , "alert.js": {
+            "description": "alert"
+          , "group": [
+                "test"
+            ]
+        }
+    }
+}

@@ -11,7 +11,7 @@ var _ = require('underscore')._;
  *  - `inline` inline statement removal
  *
  * @param {Object} options
- * @returns {Function} middeware
+ * @returns {Function} middleware
  * @api public
  */
 

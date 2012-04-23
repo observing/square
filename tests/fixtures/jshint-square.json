@@ -1,0 +1,7 @@
+{
+  "bundle": {
+    "basic-jshint.js": {
+      "description": "basic javascript file, with jshint failures"
+    }
+  }
+}

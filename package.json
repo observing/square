@@ -21,7 +21,7 @@
       , "codesurgeon": "0.3.2"
       , "colors": "0.6.0-1"
       , "commander": "0.6.0"
-      , "devnull": "0.0.8"
+      , "devnull": "0.0.9"
       , "eventreactor": "0.0.6"
       , "findit": "0.1.2"
       , "npm": "1.1.16"
