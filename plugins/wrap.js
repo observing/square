@@ -48,8 +48,15 @@ module.exports = function setup (options) {
   return function leak (output, next) {
     if (output.extension !== 'js') return process.nextTick(next);
 
+    // setup the configuration based on the plugin configuration
+    var configuration = _.extend(
+        settings
+      , this.package.configuration.plugins.wrap || {}
+    );
+
+    // setup
     var logger = this.logger
-      , timeout = settings.timeout;
+      , timeout = configuration.timeout;
 
     // search for leaks
     exports.sandboxleak(output.content, timeout, function found (err, leaks) {
@@ -65,7 +72,7 @@ module.exports = function setup (options) {
       logger.debug('Global leaks detected:', leaks, 'patching the hole');
 
       // copy
-      var body = JSON.parse(JSON.stringify(settings.body))
+      var body = JSON.parse(JSON.stringify(configuration.body))
         , compiled;
 
       // add more potential leaked variables
@@ -88,7 +95,7 @@ module.exports = function setup (options) {
       });
 
       // compile the new content
-      compiled = settings.header + body.join('\n') + settings.footer;
+      compiled = configuration.header + body.join('\n') + configuration.footer;
 
       // try if we fixed all leaks
       exports.sandboxleak(compiled, timeout, function final (err, newleaks) {

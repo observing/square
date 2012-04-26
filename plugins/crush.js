@@ -12,12 +12,12 @@ var uglify = require('uglify-js')
  */
 
 var level = [
-    ['yui']
-  , ['uglify']
-  , ['closure']
-  , ['yui', 'uglify']
-  , ['yui', 'closure']
-  , ['yui', 'closure', 'uglify']
+    ['yui']                       // level 0
+  , ['uglify']                    // level 1
+  , ['closure']                   // level 2
+  , ['yui', 'uglify']             // level 3
+  , ['yui', 'closure']            // level 4
+  , ['yui', 'closure', 'uglify']  // level 5
 ];
 
 /**
@@ -27,7 +27,7 @@ var level = [
  *
  * - `aggressive` use the most aggressive crushing, boolean.
  * - `level` crush level, number.
- * - `disable` disable a crushing mode, string.
+ * - `disabled` disabled a crushing mode, array.
  *
  * @param {Object} options
  * @returns {Function} middleware
@@ -38,7 +38,7 @@ module.exports = function setup (options) {
   var settings = {
       aggressive: true
     , level: 5
-    , disable: ''
+    , disabled: []
   };
 
   _.extend(settings, options);
@@ -52,8 +52,15 @@ module.exports = function setup (options) {
    */
 
   return function crush (output, next) {
+    // setup the configuration based on the plugin configuration
+    var configuration = _.extend(
+        settings
+      , this.package.configuration.plugins.crush || {}
+    );
+
+    // setup
     var logger = this.logger
-      , steps = level[settings.level]
+      , steps = level[configuration.level]
       , compiled = output.content
       , errs = [];
 
@@ -72,13 +79,17 @@ module.exports = function setup (options) {
         return next(null, output);
       }
 
-      var crusher = exports[steps.shift()];
+      var step = steps.shift()
+        , crusher = exports[step];
 
-      // check if this crusher supports this file type
-      if (!crusher[output.extension]) return process.nextTick(walk);
+      // check if this crusher supports this file type, or if this type has been
+      // disabled by the user
+      if (!crusher[output.extension] || ~configuration.disabled.indexOf(step)) {
+        return process.nextTick(walk);
+      }
 
       // process the data
-      crusher(compiled, output.extension, settings.aggressive, function min (err, code) {
+      crusher(compiled, output.extension, configuration.aggressive, function min (err, code) {
         if (err) {
           errs.push(err.message);
         } else {

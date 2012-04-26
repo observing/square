@@ -32,6 +32,13 @@ module.exports = function setup (options) {
    */
 
   return function linting (output, next) {
+    // setup the configuration based on the plugin configuration
+    var configuration = _.extend(
+        settings
+      , this.package.configuration.plugins.lint || {}
+    );
+
+    // setup
     var config = this.package.configuration
       , bundles = this.package.bundle
       , files = Object.keys(bundles)
@@ -40,11 +47,11 @@ module.exports = function setup (options) {
     // make sure that we have a parser for this extension
     if (!(output.extension in parsers)) return next();
 
-    if (!settings.seperate) {
+    if (!configuration.seperate) {
       return parsers[output.extension](output.content, config, function linted (err, failures) {
         if (err) return next(err);
         if (failures && failures.length) {
-          reporters.base.call(self, output, failures, settings);
+          reporters.base.call(self, output, failures, configuration);
         }
 
         next();
@@ -65,7 +72,7 @@ module.exports = function setup (options) {
       parsers[extension](content, config, function linted (err, failures) {
         if (err) fn(err);
         if (failures && failures.length) {
-          reporters.base.call(self, output, failures, settings);
+          reporters.base.call(self, output, failures, configuration);
         }
 
         fn();
