@@ -66,7 +66,7 @@ source code is directly reflected in the binary.
 ## Command line flags
 ### Table of Contents
 
-1. [watch, --watch](./blob/master/doc/flags/watch.md)
-2. [filename, --filename](./blob/master/doc/flags/filename.md)
-3. [bundle, --bundle](./blob/master/doc/flags/bundle.md)
-4. [extension, --extension](./blob/master/doc/flags/extension.md)
+1. [watch, --watch](/observing/square/blob/master/doc/flags/watch.md)
+2. [filename, --filename](/observing/square/blob/master/doc/flags/filename.md)
+3. [bundle, --bundle](/observing/square/blob/master/doc/flags/bundle.md)
+4. [extension, --extension](/observing/square/blob/master/doc/flags/extension.md)
