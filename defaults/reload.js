@@ -40,7 +40,10 @@
   setTimeout(function has () {
     if (!('io' in window)) return setTimeout(has, 250);
 
-    var socket = window.io.connect(base);
+    var socket = window.io.connect(base, {
+        'resource': 'live'
+    });
+
     socket.on('refresh', function changes (files) {
       // @TODO smarter reloading, so we only reload the files that are updated
       // @TODO filter out files that are not on the page
