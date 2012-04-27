@@ -128,7 +128,7 @@ program.on('--help', function help () {
 
 program.on('--watch', function watching (live) {
   var watch = require('../lib/watch')
-    , socket = live ? watch.live(live) : null;
+    , socket = live ? watch.live.call(square, live) : null;
 
   square.once('build', function builded () {
     var extensions = [ program.extension || 'js' ]
