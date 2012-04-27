@@ -66,7 +66,7 @@ program
   .usage('[options]')
   .option('-b, --bundle <dir>', 'the location of the package file')
   .option('-e, --extension <extension>', 'filter on this file extension')
-  .option('-w, --watch', 'watch the bundled files for changes and rebuild')
+  .option('-w, --watch [port]', 'watch the bundled files for changes and rebuild', parseInt)
   .option('-o, --output', 'output the contents to stdout instead of a file')
 
   // options that require argument filtering
@@ -121,12 +121,17 @@ program.on('--help', function help () {
 /**
  * Start watching files for changes, but only if we have actually done one
  * successful build before.
+ *
+ * @param {Boolean} live live reloading
+ * @api private
  */
 
-program.on('--watch', function watching () {
+program.on('--watch', function watching (live) {
+  var watch = require('../lib/watch')
+    , socket = live ? watch.live.call(square, live) : null;
+
   square.once('build', function builded () {
-    var watch = require('../lib/watch')
-      , extensions = [ program.extension || 'js' ]
+    var extensions = [ program.extension || 'js' ]
       , dir = program.bundle;
 
     // start watching for file changes in the given directory
@@ -136,7 +141,12 @@ program.on('--watch', function watching () {
       square.logger.notice('changes detected, refreshing %s', files.join(', '));
 
       square.refresh(files);
-      square.build(program.extension);
+      square.build(program.extension, function finished (changes) {
+        // check if we are listening for live changes, if so, emit the changes
+        if (!socket) return;
+
+        socket.emit('refresh', changes);
+      });
     });
   });
 });
@@ -192,7 +202,7 @@ square.stdout = !!program.output;
  * Trigger some events based on the params
  */
 
-if (program.watch) program.emit('--watch');
+if (program.watch) program.emit('--watch', program.watch);
 
 /**
  * Display a not found message.
