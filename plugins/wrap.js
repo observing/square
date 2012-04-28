@@ -119,6 +119,15 @@ module.exports = function setup (options) {
 };
 
 /**
+ * Small description of what this plugin does.
+ *
+ * @type {String}
+ * @api private
+ */
+
+module.exports.description = 'Tries to detect global leaks in your code and attempts to patch it.';
+
+/**
  * Detect leaking code.
  *
  * @param {String} content

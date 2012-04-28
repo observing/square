@@ -107,6 +107,15 @@ module.exports = function setup (options) {
 };
 
 /**
+ * Small description of what this plugin does.
+ *
+ * @type {String}
+ * @api private
+ */
+
+module.exports.description = 'Compiles the code as small as possible.';
+
+/**
  * Closure compile all the code.
  *
  * @param {String} content

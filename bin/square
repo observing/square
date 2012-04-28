@@ -72,7 +72,8 @@ program
   // options that require argument filtering
   .option('-i, --ignore [files]', 'ignore these files', filters.list)
   .option('-f, --filename <file>', 'alternate filenames', filters.list)
-  .option('-p, --plugin <plugins>', 'which plugins should be included', filters.list);
+  .option('-p, --plugin <plugins>', 'which plugins should be included', filters.list)
+  .option('-l, --list', 'show a list of plugins');
 
 /**
  * Adding some basic commands
@@ -151,6 +152,75 @@ program.on('--watch', function watching (live) {
   });
 });
 
+/**
+ * Show a list of active plugins
+ *
+ * @api private
+ */
+
+program.on('--list', function plugins () {
+  /**
+   * Pad a string
+   *
+   * @param {String} str
+   * @param {Number} len
+   * @param {String} prefix
+   * @returns {String}
+   * @api private
+   */
+
+  function pad (str, len, prefix) {
+    str = '' + str;
+    prefix = prefix || '    ';
+    return prefix + str + (new Array(len - str.length + 1).join(' '));
+  }
+
+  var dir = path.join(__dirname, '../plugins')
+    , files = require('fs').readdirSync(dir)
+    , len;
+
+  // remove pointless shit form the list
+  files = files.filter(function filter (file) {
+    return (/\.js$/).test(file);
+  });
+
+  // calculate maximum length of the plugin names
+  len = Math.max.apply(Math, files.map(function max (file) {
+    return file.length;
+  }));
+
+  console.log('  Available plugins:');
+  console.log('');
+
+  files.forEach(function (file) {
+    var plugin = require(dir + '/' + file)
+      , name = file.replace(/\.js$/, '')
+      , description = plugin.description
+      , line = [ pad(name, len) ]
+      , count = 0
+      , words;
+
+    if (!description) return;
+
+    description = description.toLowerCase().words();
+    while (description.length) {
+      count++;
+      words = description.splice(0, 15);
+      words = words.join(' ');
+
+      if (count !== 1) {
+        line.push('\n' + words.padLeft(' ', len + 4));
+      } else {
+        line.push(words);
+      }
+    }
+
+    console.log(line.join(''));
+  });
+
+  process.exit(0);
+});
+
 // output the help if it's called without arguments
 if (!process.argv.slice(2).length) process.argv.push('--help');
 
@@ -203,6 +273,7 @@ square.stdout = !!program.output;
  */
 
 if (program.watch) program.emit('--watch', program.watch);
+if (program.list) program.emit('--list', program.list);
 
 /**
  * Display a not found message.

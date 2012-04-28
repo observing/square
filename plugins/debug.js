@@ -84,3 +84,12 @@ module.exports = function setup (options) {
     });
   };
 };
+
+/**
+ * Small description of what this plugin does.
+ *
+ * @type {String}
+ * @api private
+ */
+
+module.exports.description = 'Removes special debug block statements from your code.';
