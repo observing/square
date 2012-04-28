@@ -14,15 +14,15 @@ process and be more productive on a daily basis.
 
 #### Features
 
-- Transparent support for meta languages such as coffeescript, stylus, less and
+- Transparent support for meta languages such as CoffeeScript, stylus, less and
   sass. The only requirement for this is that the correct file extension is
   used so it can be matched with our compilers.
 - Packages that are not commonly used by developers are lazy installed using the
-  npm package. This reduces the amount of bloat that needs to be installed.
+  NPM package. This reduces the amount of bloat that needs to be installed.
 - Automatic inlining files based on special square comment statements, the only
-  restriction to this is that the same filetype should be used as these files
+  restriction to this is that the same file type should be used as these files
   are not transparently processed.
-- Fully customizeable by the user.
+- Fully customizable by the user.
 - Supports fucking awesomeness.
 
 ![Pretty hinting](http://f.cl.ly/items/0V2Q0I150j1G2j043h2q/square-hint.png)
@@ -31,20 +31,24 @@ process and be more productive on a daily basis.
 ## Installation
 
 Square requires you to have a minimum version of Node 0.6.10 installed on your
-system. And it might require sudo privlages for installation as it needs to
+system. And it might require sudo privileges for installation as it needs to
 install the `square` binary in the `/user/bin` directory. As square comes with a
-commandline interface you should use the `-g` dash during npm installation:
+command line interface you should use the `-g` dash during NPM installation:
 
 ```bash
 npm install square -g
 ```
 
-If the installation fails because you don't have enough privlages you should
-add `sudo` in front of the npm installation command:
+If the installation fails because you don't have enough privileges you should
+add `sudo` in front of the NPM installation command:
 
 ```bash
 sudo npm install square -g
 ```
+
+If you want to minify your code you should also have the `java` binary
+installed on your machine as both YUI and Google Closure compiler are build
+on top of it.
 
 ### Development
 
@@ -60,7 +64,7 @@ make update
 sudo make install
 ```
 
-This ensures that the square binary is symlinked so every change you make to the
+This ensures that the square binary is symlink so every change you make to the
 source code is directly reflected in the binary.
 
 ## Command line flags
