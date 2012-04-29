@@ -67,10 +67,15 @@ sudo make install
 This ensures that the square binary is symlink so every change you make to the
 source code is directly reflected in the binary.
 
-## Command line flags
-### Table of Contents
+## Documentation
+### Command line flags
 
 1. [watch, --watch](/observing/square/blob/master/doc/flags/watch.md)
 2. [filename, --filename](/observing/square/blob/master/doc/flags/filename.md)
 3. [bundle, --bundle](/observing/square/blob/master/doc/flags/bundle.md)
 4. [extension, --extension](/observing/square/blob/master/doc/flags/extension.md)
+
+### Main pages
+
+1. [The square.json build file](/observing/square/blob/master/doc/square.json.md)
+2. [Transparent pre-processing](/observing/square/blob/master/doc/pre-processors.md)
