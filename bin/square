@@ -128,8 +128,6 @@ program.on('--help', function help () {
  */
 
 program.on('--watch', function watching (live) {
-  console.log('watch all the things');
-
   var watch = require('../lib/watch')
     , socket = live && typeof live === 'number'
       ? watch.live.call(square, live)
@@ -138,6 +136,9 @@ program.on('--watch', function watching (live) {
   square.once('build', function builded () {
     var extensions = [ program.extension || 'js' ]
       , dir = program.bundle;
+
+    // notify the user that we started watching for file changes
+    square.logger.info('watching bundled *.%s for file changes', extensions[0].yellow);
 
     // start watching for file changes in the given directory
     watch(program.bundle, extensions, function update (files) {
@@ -157,7 +158,7 @@ program.on('--watch', function watching (live) {
 });
 
 /**
- * Show a list of active plugins
+ * Show a list of active plugins.
  *
  * @api private
  */
