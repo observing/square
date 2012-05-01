@@ -76,7 +76,7 @@ program
   .option('-l, --list', 'show a list of plugins');
 
 /**
- * Adding some basic commands
+ * Adding some basic commands.
  */
 
 program
@@ -128,8 +128,12 @@ program.on('--help', function help () {
  */
 
 program.on('--watch', function watching (live) {
+  console.log('watch all the things');
+
   var watch = require('../lib/watch')
-    , socket = live ? watch.live.call(square, live) : null;
+    , socket = live && typeof live === 'number'
+      ? watch.live.call(square, live)
+      : null;
 
   square.once('build', function builded () {
     var extensions = [ program.extension || 'js' ]
