@@ -168,6 +168,15 @@ module.exports = function setup (options) {
 };
 
 /**
+ * Small description of what this plugin does.
+ *
+ * @type {String}
+ * @api private
+ */
+
+module.exports.description = 'Check the version of your third-party library if its out of it it will be updated automatically.';
+
+/**
  * Transforms a regular git url, to a raw file location.
  *
  * @param {String} uri

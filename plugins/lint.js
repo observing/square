@@ -82,6 +82,15 @@ module.exports = function setup (options) {
 };
 
 /**
+ * Small description of what this plugin does.
+ *
+ * @type {String}
+ * @api private
+ */
+
+module.exports.description = 'Detect errors and potential problems in your code';
+
+/**
  * The actual hinters, linters and other parsers.
  *
  * @api private

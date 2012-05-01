@@ -34,3 +34,12 @@ module.exports = function setup (options) {
     });
   };
 };
+
+/**
+ * Small description of what this plugin does.
+ *
+ * @type {String}
+ * @api private
+ */
+
+module.exports.description = 'Obfuscates code that contains Active-X statements so its not blocked by firewalls.';
