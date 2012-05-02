@@ -1,9 +1,6 @@
 {
     "configuration": {
-        "dist": {
-            "dev": "/tmp/{group}.less.{type}.{ext}"
-          , "min": "/tmp/{group}.less.{type}.{ext}"
-        }
+        "dist": "/tmp/{group}.{type}.{ext}"
     }
   , "bundle": {
         "basic.js": {
@@ -19,6 +16,15 @@
                 "test"
             ]
           , "weight": 11
+        }
+      , "depends.styl": {
+            "description": "Include me for additional flavor"
+          , "dependencies": [
+                "stylus.styl"
+            ]
+        }
+      , "stylus.styl": {
+            "description": "Include me for additional flavor"
         }
     }
 }
