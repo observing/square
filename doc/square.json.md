@@ -71,7 +71,11 @@ In additon to the list above, every key => value pair that you specify in the
 
         // [optional] license header that needs to be added on top of every
         // output file
-      , license: 'path to license file for each'
+      , license: 'path to license file for each bundled file'
+
+        // [optional] extra variables that you want to have available for every
+        // function that makes use of the template tag helper function
+      , vars: {}
     }
 
     ..
