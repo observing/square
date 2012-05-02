@@ -18,6 +18,7 @@
           , "group": [
                 "test"
             ]
+          , "weight": 11
         }
     }
 }
