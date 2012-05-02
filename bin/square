@@ -66,16 +66,17 @@ program
   .usage('[options]')
   .option('-b, --bundle <dir>', 'the location of the package file')
   .option('-e, --extension <extension>', 'filter on this file extension')
-  .option('-w, --watch', 'watch the bundled files for changes and rebuild')
+  .option('-w, --watch [port]', 'watch the bundled files for changes and rebuild', parseInt)
   .option('-o, --output', 'output the contents to stdout instead of a file')
 
   // options that require argument filtering
   .option('-i, --ignore [files]', 'ignore these files', filters.list)
   .option('-f, --filename <file>', 'alternate filenames', filters.list)
-  .option('-p, --plugin <plugins>', 'which plugins should be included', filters.list);
+  .option('-p, --plugin <plugins>', 'which plugins should be included', filters.list)
+  .option('-l, --list', 'show a list of plugins');
 
 /**
- * Adding some basic commands
+ * Adding some basic commands.
  */
 
 program
@@ -121,13 +122,23 @@ program.on('--help', function help () {
 /**
  * Start watching files for changes, but only if we have actually done one
  * successful build before.
+ *
+ * @param {Boolean} live live reloading
+ * @api private
  */
 
-program.on('--watch', function watching () {
+program.on('--watch', function watching (live) {
+  var watch = require('../lib/watch')
+    , socket = live && typeof live === 'number'
+      ? watch.live.call(square, live)
+      : null;
+
   square.once('build', function builded () {
-    var watch = require('../lib/watch')
-      , extensions = [ program.extension || 'js' ]
+    var extensions = [ program.extension || 'js' ]
       , dir = program.bundle;
+
+    // notify the user that we started watching for file changes
+    square.logger.info('watching bundled *.%s for file changes', extensions[0].yellow);
 
     // start watching for file changes in the given directory
     watch(program.bundle, extensions, function update (files) {
@@ -136,9 +147,83 @@ program.on('--watch', function watching () {
       square.logger.notice('changes detected, refreshing %s', files.join(', '));
 
       square.refresh(files);
-      square.build(program.extension);
+      square.build(program.extension, function finished (changes) {
+        // check if we are listening for live changes, if so, emit the changes
+        if (!socket) return;
+
+        socket.emit('refresh', changes);
+      });
     });
   });
+});
+
+/**
+ * Show a list of active plugins.
+ *
+ * @api private
+ */
+
+program.on('--list', function plugins () {
+  /**
+   * Pad a string
+   *
+   * @param {String} str
+   * @param {Number} len
+   * @param {String} prefix
+   * @returns {String}
+   * @api private
+   */
+
+  function pad (str, len, prefix) {
+    str = '' + str;
+    prefix = prefix || '    ';
+    return prefix + str + (new Array(len - str.length + 1).join(' '));
+  }
+
+  var dir = path.join(__dirname, '../plugins')
+    , files = require('fs').readdirSync(dir)
+    , len;
+
+  // remove pointless shit form the list
+  files = files.filter(function filter (file) {
+    return (/\.js$/).test(file);
+  });
+
+  // calculate maximum length of the plugin names
+  len = Math.max.apply(Math, files.map(function max (file) {
+    return file.length;
+  }));
+
+  console.log('  Available plugins:');
+  console.log('');
+
+  files.forEach(function (file) {
+    var plugin = require(dir + '/' + file)
+      , name = file.replace(/\.js$/, '')
+      , description = plugin.description
+      , line = [ pad(name, len) ]
+      , count = 0
+      , words;
+
+    if (!description) return;
+
+    description = description.toLowerCase().words();
+    while (description.length) {
+      count++;
+      words = description.splice(0, 15);
+      words = words.join(' ');
+
+      if (count !== 1) {
+        line.push('\n' + words.padLeft(' ', len + 4));
+      } else {
+        line.push(words);
+      }
+    }
+
+    console.log(line.join(''));
+  });
+
+  process.exit(0);
 });
 
 // output the help if it's called without arguments
@@ -192,7 +277,8 @@ square.stdout = !!program.output;
  * Trigger some events based on the params
  */
 
-if (program.watch) program.emit('--watch');
+if (program.watch) program.emit('--watch', program.watch);
+if (program.list) program.emit('--list', program.list);
 
 /**
  * Display a not found message.

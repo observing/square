@@ -80,6 +80,13 @@ module.exports = function setup (options) {
    */
 
   return function update (output, next) {
+    // setup the configuration based on the plugin configuration
+    var configuration = _.extend(
+        settings
+      , this.package.configuration.plugins.update || {}
+    );
+
+    // setup
     var bundles = this.package.bundle
       , files = Object.keys(bundles)
       , self = this;
@@ -101,7 +108,7 @@ module.exports = function setup (options) {
       if (!provider) provider = exports.request;
 
       // fetch that update
-      provider(bundle.latest, settings, function test (err, version, content) {
+      provider(bundle.latest, configuration, function test (err, version, content) {
         if (err) return cb(err);
         if (!version) return cb(new Error('unable to find and parse the version'));
         if (version === bundle.version) return cb();
@@ -159,6 +166,15 @@ module.exports = function setup (options) {
     }, next);
   };
 };
+
+/**
+ * Small description of what this plugin does.
+ *
+ * @type {String}
+ * @api private
+ */
+
+module.exports.description = 'Check the version of your third-party library if its out of it it will be updated automatically.';
 
 /**
  * Transforms a regular git url, to a raw file location.

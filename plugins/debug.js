@@ -33,14 +33,21 @@ module.exports = function setup (options) {
    */
 
   return function debug (output, next) {
+    // setup the configuration based on the plugin configuration
+    var configuration = _.extend(
+        settings
+      , this.package.configuration.plugins.debug
+    );
+
+    // setup
     var ignore = 0
       , code;
 
     // iterate over the lines
     code = output.content.split('\n').map(function map (line) {
       // check if there are tags in here
-      var start = settings.start.test(line)
-        , end = settings.end.test(line)
+      var start = configuration.start.test(line)
+        , end = configuration.end.test(line)
         , current = ignore;
 
       // ignore the current line
@@ -55,7 +62,7 @@ module.exports = function setup (options) {
 
       // oh it was an inline tag!
       if (start && end) {
-        line = line.replace(settings.inline, '');
+        line = line.replace(configuration.inline, '');
       }
 
       // check if we have no more ignores left, and that our prev. check also
@@ -77,3 +84,12 @@ module.exports = function setup (options) {
     });
   };
 };
+
+/**
+ * Small description of what this plugin does.
+ *
+ * @type {String}
+ * @api private
+ */
+
+module.exports.description = 'Removes special debug block statements from your code.';

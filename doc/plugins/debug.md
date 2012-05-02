@@ -1,12 +1,12 @@
-## debug
+## Debug
 
 The debug plugin allows you to wrap debug and development statements in your
 application that can be extracted during compilation. There are 2 different
-statements, a debug block and an inline debug line.
+statements, a *debug block* and an inline debug line.
 
 Debug is configured to use double curly braces as debug block indicators as it's
-valid javascript and pretty easy to type. If we where to use comments as debug
-statement identifiers they would be removed during minification. These
+valid JavaScript and pretty easy to type. If we where to use comments as debug
+statement identifiers they would be removed during compilation. These
 statements can still be included you code even when it's minified.
 
 ```javascript
@@ -18,14 +18,14 @@ statements can still be included you code even when it's minified.
 {{ console.log('inline statement'); }}
 ```
 
-### options
+### Options
 
-- `start`, the regexp that finds the start of a debug block.
-- `end`, the regexp that finds the ending of a debug block.
-- `inline` the regexp that removes inline statement from a string.
+- `start` the RegExp that finds the start of a debug block.
+- `end` the RegExp that finds the ending of a debug block.
+- `inline` the RegExp that removes inline statement from a string.
 
-### commandline usage
+### Command line usage
 
-```
+```bash
 square --bundle dir --plugin debug
 ```

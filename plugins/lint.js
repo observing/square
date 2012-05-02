@@ -1,6 +1,7 @@
 "use strict";
 
 var canihas = require('../lib/canihas')
+  , path = require('path')
   , async = require('async')
   , _ = require('underscore')._
   , fs = require('fs');
@@ -31,6 +32,13 @@ module.exports = function setup (options) {
    */
 
   return function linting (output, next) {
+    // setup the configuration based on the plugin configuration
+    var configuration = _.extend(
+        settings
+      , this.package.configuration.plugins.lint || {}
+    );
+
+    // setup
     var config = this.package.configuration
       , bundles = this.package.bundle
       , files = Object.keys(bundles)
@@ -39,11 +47,11 @@ module.exports = function setup (options) {
     // make sure that we have a parser for this extension
     if (!(output.extension in parsers)) return next();
 
-    if (!settings.seperate) {
+    if (!configuration.seperate) {
       return parsers[output.extension](output.content, config, function linted (err, failures) {
         if (err) return next(err);
         if (failures && failures.length) {
-          reporters.base.call(self, output, failures, settings);
+          reporters.base.call(self, output, failures, configuration);
         }
 
         next();
@@ -64,7 +72,7 @@ module.exports = function setup (options) {
       parsers[extension](content, config, function linted (err, failures) {
         if (err) fn(err);
         if (failures && failures.length) {
-          reporters.base.call(self, output, failures, settings);
+          reporters.base.call(self, output, failures, configuration);
         }
 
         fn();
@@ -72,6 +80,15 @@ module.exports = function setup (options) {
     }, next);
   };
 };
+
+/**
+ * Small description of what this plugin does.
+ *
+ * @type {String}
+ * @api private
+ */
+
+module.exports.description = 'Detect errors and potential problems in your code';
 
 /**
  * The actual hinters, linters and other parsers.
@@ -90,13 +107,17 @@ var parsers = {
      */
 
     js: function parser (content, options, fn) {
-      options = options.jshint;
+      var jshintrc = path.join(process.env.HOME, '.jshintrc')
+        , jshintninja = configurator(jshintrc)
+        , config = options.jshint;
+
+      // extend all the things
+      config = _.extend(config, jshintninja);
 
       canihas.jshint(function lazyload (err, jshint) {
         if (err) return fn(err);
 
-        // @TODO check for a ~/.jshintrc file
-        var validates = jshint.JSHINT(content, options)
+        var validates = jshint.JSHINT(content, config)
           , errors;
 
         if (!validates) errors = formatters.js(jshint.JSHINT.errors);
@@ -266,4 +287,21 @@ var reporters = {
 function pad (str, len) {
   str = '' + str;
   return new Array(len - str.length + 1).join(' ') + str;
+}
+
+/**
+ * Simple configuration parser, which is less strict then a regular JSON parser.
+ *
+ * @param {String} path
+ * @returns {Object}
+ */
+
+function configurator (location) {
+  return !(location && path.existsSync(location))
+    ? {}
+    : JSON.parse(
+        fs.readFileSync(location, 'UTF-8')
+          .replace(/\/\*[\s\S]*(?:\*\/)/g, '') // removes /* comments */
+          .replace(/\/\/[^\n\r]*/g, '') // removes // comments
+      );
 }

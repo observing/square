@@ -14,34 +14,41 @@ process and be more productive on a daily basis.
 
 #### Features
 
-- Transparent support for meta languages such as coffeescript, stylus, less and
+- Transparent support for meta languages such as CoffeeScript, stylus, less and
   sass. The only requirement for this is that the correct file extension is
   used so it can be matched with our compilers.
 - Packages that are not commonly used by developers are lazy installed using the
-  npm package. This reduces the amount of bloat that needs to be installed.
+  NPM package. This reduces the amount of bloat that needs to be installed.
 - Automatic inlining files based on special square comment statements, the only
-  restriction to this is that the same filetype should be used as these files
+  restriction to this is that the same file type should be used as these files
   are not transparently processed.
-- Fully customizeable by the user.
+- Fully customizable by the user.
 - Supports fucking awesomeness.
+
+![Pretty hinting](http://f.cl.ly/items/0V2Q0I150j1G2j043h2q/square-hint.png)
+![Watching](http://f.cl.ly/items/2z2z26213v111W2y141H/Screen%20Shot%202012-04-27%20at%209.25.55%20PM.png)
 
 ## Installation
 
 Square requires you to have a minimum version of Node 0.6.10 installed on your
-system. And it might require sudo privlages for installation as it needs to
+system. And it might require sudo privileges for installation as it needs to
 install the `square` binary in the `/user/bin` directory. As square comes with a
-commandline interface you should use the `-g` dash during npm installation:
+command line interface you should use the `-g` dash during NPM installation:
 
-```
+```bash
 npm install square -g
 ```
 
-If the installation fails because you don't have enough privlages you should
-add `sudo` in front of the npm installation command:
+If the installation fails because you don't have enough privileges you should
+add `sudo` in front of the NPM installation command:
 
-```
+```bash
 sudo npm install square -g
 ```
+
+If you want to minify your code you should also have the `java` binary
+installed on your machine as both YUI and Google Closure compiler are build
+on top of it.
 
 ### Development
 
@@ -50,48 +57,26 @@ this github repository and use the `make install && sudo make install` command.
 This step does require you to have both `git` and `make` installed on your
 system.
 
-```
+```bash
 git clone https://github.com/observing/square.git
 cd square
 make update
 sudo make install
 ```
 
-This ensures that the square binary is symlinked so every change you make to the
+This ensures that the square binary is symlink so every change you make to the
 source code is directly reflected in the binary.
 
-## Command line flags
+## Documentation
+### Command line flags
 
-### square -b, square --b
+1. [watch, --watch](/observing/square/blob/master/doc/flags/watch.md)
+2. [filename, --filename](/observing/square/blob/master/doc/flags/filename.md)
+3. [bundle, --bundle](/observing/square/blob/master/doc/flags/bundle.md)
+4. [extension, --extension](/observing/square/blob/master/doc/flags/extension.md)
 
-This flag indicates the location of the square.json bundle file. It does not
-have to be the exact location of the file as square will search that directory
-for possible bundle file matches.
+### Main pages
 
-It searches for either a `square.json` or a `bundle.json` in the specified
-directory. If you want to change the file name of this file you can use the
-`--filename` flag.
-
-```
-# search ./my/directory for a bundle file
-square --bundle ./my/directory
-```
-
-### square -f, square --filename
-
-This changes the name of the bundle file that square will be looking for, this
-allows you to specifiy multiple bundle files in one single directory without
-creating conflicts. This flag allows you to specify a commma sepeerated list of
-files that can be used to find the bundle file.
-
-Please note that it only allows you to specify the file name, not the extension.
-The `.json` extension is still required for your file and does not need to be in
-the filename that you specify using this command.
-
-```
-# search dir ./ for a package.json file
-square --bundle ./ --filename package
-```
-
-### square -e, square --extension
-
+1. [The square.json build file](/observing/square/blob/master/doc/square.json.md)
+2. [Transparent pre-processing](/observing/square/blob/master/doc/pre-processors.md)
+2. [Comment directives](/observing/square/blob/master/doc/directive.md)

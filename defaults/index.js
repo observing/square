@@ -13,7 +13,7 @@ module.exports = {
     }
 
     // plugin configuration
-  , plugin: {}
+  , plugins: {}
 
     // hinting and linting
   , jshint: require('./jshint')
