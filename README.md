@@ -79,4 +79,4 @@ source code is directly reflected in the binary.
 
 1. [The square.json build file](/observing/square/blob/master/doc/square.json.md)
 2. [Transparent pre-processing](/observing/square/blob/master/doc/pre-processors.md)
-2. [Comment directives](/observing/square/blob/master/doc/directives.md)
+2. [Comment directives](/observing/square/blob/master/doc/directive.md)
