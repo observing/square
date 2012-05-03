@@ -26,5 +26,18 @@
       , "stylus.styl": {
             "description": "Include me for additional flavor"
         }
+      , "template.jade": {
+            "description": "jade template for compilation testing"
+          , "group": [
+                "other"
+            ]
+        }
+      , "template2.jade": {
+            "description": "another jade"
+          , "group": [
+                "jadegroup"
+              , "other"
+            ]
+        }
     }
 }
