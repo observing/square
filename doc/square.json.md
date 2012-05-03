@@ -54,6 +54,11 @@ In additon to the list above, every key => value pair that you specify in the
           , "dev": "./path/file.name"       // defaults to: ~/square.{type}.{ext}
         }
 
+        // [optional] override the extensions that the watch flag should filter
+        // away. If you supply an array it will trigger a rebuild on every file
+        // change in the directory
+      , "watch": []
+
         // [optional] configuration options for the plugins, the key inside this
         // object directly maps to the name of the plugin, and value is the config
         // object that will be used to extend the default config
