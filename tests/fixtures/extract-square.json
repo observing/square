@@ -1,4 +1,7 @@
 {
+  "configuration": {
+    "dist": "~/square.extract.{ext}"
+  },
   "bundle": {
     "basic.js": {
       "description": "basic javascript file",
