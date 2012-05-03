@@ -134,8 +134,9 @@ program.on('--watch', function watching (live) {
       : null;
 
   square.once('build', function builded () {
-    var extensions = [ program.extension || 'js' ]
-      , dir = program.bundle;
+    var dir = program.bundle
+      , configuration = square.package.configuration
+      , extensions = configuration.watch || [ program.extension || 'js' ];
 
     // notify the user that we started watching for file changes
     square.logger.info('watching bundled *.%s for file changes', extensions[0].yellow);
