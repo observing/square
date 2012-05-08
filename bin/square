@@ -73,6 +73,7 @@ program
   .option('-i, --ignore [files]', 'ignore these files', filters.list)
   .option('-f, --filename <file>', 'alternate filenames', filters.list)
   .option('-p, --plugin <plugins>', 'which plugins should be included', filters.list)
+  .option('-g, --group <groups>', 'which groups should be processed', filters.list)
   .option('-l, --list', 'show a list of plugins');
 
 /**
@@ -148,7 +149,7 @@ program.on('--watch', function watching (live) {
       square.logger.notice('changes detected, refreshing %s', files.join(', '));
 
       square.refresh(files);
-      square.build(program.extension, function finished (changes) {
+      square.build(program.extension, program.group, function finished (changes) {
         // check if we are listening for live changes, if so, emit the changes
         if (!socket) return;
 
@@ -265,6 +266,10 @@ program.ignore = Array.isArray(program.ignore)
   ? program.ignore
   : [];
 
+program.group = Array.isArray(program.group)
+  ? program.group
+  : [];
+
 program.bundle = program.bundle || process.env.PWD;
 
 program.plugin = Array.isArray(program.plugin)
@@ -342,5 +347,5 @@ found.on('end', function end () {
     square.plugin(plugin);
   });
 
-  square.build(program.extension);
+  square.build(program.extension, program.group);
 });
