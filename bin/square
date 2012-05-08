@@ -266,6 +266,10 @@ program.ignore = Array.isArray(program.ignore)
   ? program.ignore
   : [];
 
+program.group = Array.isArray(program.group)
+  ? program.group
+  : [];
+
 program.bundle = program.bundle || process.env.PWD;
 
 program.plugin = Array.isArray(program.plugin)
