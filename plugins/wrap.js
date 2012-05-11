@@ -4,7 +4,7 @@ var _ = require('underscore')._
   , canihas = require('../lib/canihas');
 
 /**
- * Attempts to detect leaking globals and provides a wrapper for it.
+ * Can wrap you compiled code and plurge the leaked globals.
  *
  * Options:
  *
@@ -12,6 +12,7 @@ var _ = require('underscore')._
  * - `header` first section of the leak prevention, string.
  * - `body` content for the leak prevention function body, array.
  * - `footer` closing section of th leak prevention, string.
+ * - `leaks` should we detect globals and patch it, boolean
  *
  * @param {Object} options
  * @returns {Function} middleware
@@ -22,6 +23,7 @@ module.exports = function setup (options) {
   var settings = {
       timeout: 1000
     , header: '(function (expose) {'
+    , leaks: true
     , body: [
           'this.contentWindow = this.self = this.window = this;'
         , 'var window = this'
@@ -57,6 +59,11 @@ module.exports = function setup (options) {
     // setup
     var logger = this.logger
       , timeout = configuration.timeout;
+
+    if (!configuration.leaks) {
+      output.content = configuration.header + output.content + configuration.footer;
+      return next(null, output);
+    }
 
     // search for leaks
     exports.sandboxleak(output.content, timeout, function found (err, leaks) {
@@ -125,7 +132,7 @@ module.exports = function setup (options) {
  * @api private
  */
 
-module.exports.description = 'Tries to detect global leaks in your code and attempts to patch it.';
+module.exports.description = 'Can wrap you compiled code and plurge the leaked globals';
 
 /**
  * Detect leaking code.
@@ -138,6 +145,8 @@ module.exports.description = 'Tries to detect global leaks in your code and atte
 
 exports.sandboxleak = function sandboxleak (content, timeout, fn) {
   canihas.jsdom(function canihasJSDOM (err, jsdom) {
+    if (err) return err;
+
     var html = '<html><body></body></html>'
       , DOM = jsdom.jsdom;
 
@@ -151,15 +160,18 @@ exports.sandboxleak = function sandboxleak (content, timeout, fn) {
     jsdom.env({
       html: html
     , src: [ content ]
+    , features: {
+        FetchExternalResources: false
+      }
     , done: function done (err, window) {
-        if (err) return fn(err);
+        var globals;
 
-        var infected = Object.keys(window)
-          , globals = _.difference(infected, regular);
+        if (window) {
+          globals = _.difference(Object.keys(window), regular);
+          window.close();
+        }
 
-        window.close();
-
-        fn(null, globals);
+        fn(err, globals);
       }
     });
   });
