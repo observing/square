@@ -110,7 +110,7 @@ module.exports = function setup (options) {
       // fetch that update
       provider(bundle.latest, configuration, function test (err, version, content) {
         if (err) return cb(err);
-        if (!version) return cb(new Error('unable to find and parse the version'));
+        if (!version) return cb(new Error('unable to find and parse the version for ' + key));
         if (version === bundle.version) return cb();
 
         self.logger.notice('%s is out of date, latest version is %s', key, version.green);
@@ -163,7 +163,15 @@ module.exports = function setup (options) {
 
         exports.download(data, done);
       });
-    }, next);
+    }, function finished (err, data) {
+        if (err && err.forEach) {
+          err.forEach(function failed (err) {
+            self.logger.error(err);
+          });
+        }
+
+        next();
+    });
   };
 };
 
@@ -248,7 +256,13 @@ exports.selector = function fetch (uri, options, fn) {
 exports.version = function search (content, options) {
   var version;
 
-  return [options.strict, options.loose].some(function some (regexp) {
+  // a "feature" of calling exec on a regexp with a global flag is that it
+  // renders it useless for new calls as it will do checks based on the new
+  // matches. We can bypass this behavior by recompiling regexps
+  [
+      new RegExp(options.strict.source)
+    , new RegExp(options.loose.source)
+  ].some(function some (regexp) {
     var match = regexp.exec(content);
 
     if (match && match.length) {
@@ -260,7 +274,9 @@ exports.version = function search (content, options) {
     }
 
     return !!version;
-  }) ? version : null;
+  });
+
+  return version;
 };
 
 /**
