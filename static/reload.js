@@ -72,11 +72,14 @@
 
     while (i--) {
       var type = mimeTypes[i]
-        , extensions = type.split(',')
-        , j = extensions.length;
+        , extensions
+        , j;
 
       // we only want image types
-      if (type.type && type.type.indexOf('image') === -1) continue;
+      if (type.type && type.type.indexOf('image/') === -1 || !type.suffixes) continue;
+
+      extensions = type.suffixes.split(',');
+      j = extensions.length;
 
       // add the extensions to the defaults array if they don't exit there
       // already
