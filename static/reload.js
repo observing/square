@@ -59,8 +59,8 @@
    * @api private
    */
 
-  loader.images = (function images () {
-    var defaults = ['gif', 'jpg', 'jpeg', 'png']
+  loader.extension = (function images () {
+    var defaults = ['gif', 'jpg', 'jpeg', 'png', 'webp']
       , navigator = window.navigator;
 
     if (!('mimeTypes' in navigator)) return defaults;
@@ -118,7 +118,29 @@
   };
 
   loader.reload.styles = function styles () {};
-  loader.reload.images = function images () {};
+
+  /**
+   * A image related change occured so we need to refresh every image on the
+   * page. This includes images that are embeded in to stylesheets.
+   *
+   * @api public
+   */
+
+  loader.reload.images = function images () {
+    var set = document.images
+      , i = set.length
+      , image;
+
+    // update all the images on the page
+    while (i--) {
+      image = set[i];
+
+      if (!image.src) continue;
+      image.src = loader.bust(image.src);
+    }
+  };
+
+  loader.reload.cssImage = function cssImage () {};
 
   // Now for the big tricky part, we are going to load in all the dependencies
   // of our livereload plugin so we can establish a real time connection with

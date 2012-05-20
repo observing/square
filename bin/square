@@ -2,7 +2,7 @@
 "use strict";
 
 /**
- * Library modules
+ * Library modules.
  */
 
 var path = require('path')
@@ -23,7 +23,7 @@ program.silence = ~process.argv.indexOf('--output') || ~process.argv.indexOf('-o
 
 var Square = require('../lib/square')
   , npm = require('../package')
-  , square = new Square();
+  , square = new Square({ cli: true });
 
 /**
  * Argument filters for commander.
@@ -34,7 +34,7 @@ var Square = require('../lib/square')
 
 var filters = {
     /**
-     * Split the supplied argument to create a list (array)
+     * Split the supplied argument to create a list (array).
      *
      * @param {String} val the command line flag value
      * @returns {Array}
@@ -167,7 +167,7 @@ program.on('--watch', function watching (live) {
 
 program.on('--list', function plugins () {
   /**
-   * Pad a string
+   * Pad a string.
    *
    * @param {String} str
    * @param {Number} len
@@ -280,7 +280,7 @@ program.plugin = Array.isArray(program.plugin)
 square.stdout = !!program.output;
 
 /**
- * Trigger some events based on the params
+ * Trigger some events based on the params.
  */
 
 if (program.watch) program.emit('--watch', program.watch);
@@ -315,7 +315,7 @@ program.notFound = function notFound () {
 if (program.commands_exec) return;
 
 /**
- * Make sure that the bundle location exists, so we don't get any ENOENT errors
+ * Make sure that the bundle location exists, so we don't get any ENOENT errors.
  */
 
 if (!path.existsSync(program.bundle)) {
