@@ -140,7 +140,10 @@ program.on('--watch', function watching (live) {
       , extensions = configuration.watch || [ program.extension || 'js' ];
 
     // notify the user that we started watching for file changes
-    square.logger.info('watching bundled *.%s for file changes', extensions[0].yellow);
+    square.logger.info(
+        'watching bundled *.%s for file changes'
+      , (extensions.length ? extensions[0] : '*').yellow
+    );
 
     // start watching for file changes in the given directory
     watch(program.bundle, extensions, function update (files) {
