@@ -107,7 +107,7 @@ var parsers = {
      */
 
     js: function parser (content, options, fn) {
-      var jshintrc = path.join(process.env.HOME, '.jshintrc')
+      var jshintrc = path.join(process.env.HOME || process.env.USERPROFILE, '.jshintrc')
         , jshintninja = configurator(jshintrc)
         , config = options.jshint;
 
