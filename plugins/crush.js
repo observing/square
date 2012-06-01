@@ -113,7 +113,7 @@ module.exports = function setup (options) {
  * @api private
  */
 
-module.exports.description = 'Compiles the code as small as possible.';
+module.exports.description = 'Compiles the code as small as possible';
 
 /**
  * Closure compile all the code.
@@ -176,6 +176,10 @@ exports.uglify = function ugly (content, extension, aggressive, fn) {
     code = uglify.uglify.gen_code(ast, {
         ascii_only: true
     });
+
+    // add an extra semi-colon at the end of the file as uglify only adds that
+    // in it's own binary see https://github.com/mishoo/UglifyJS/issues/126
+    code =+ ';';
   } catch (e) {
     err = e;
   }

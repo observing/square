@@ -24,6 +24,7 @@
       , "devnull": "0.0.9"
       , "eventreactor": "0.0.6"
       , "findit": "0.1.2"
+      , "glob": "3.1.9"
       , "npm": "1.1.16"
       , "shelljs": "0.0.5pre4"
       , "sugar": "1.2.4"
