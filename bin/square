@@ -72,7 +72,7 @@ program
   // options that require argument filtering
   .option('-i, --ignore [files]', 'ignore these files', filters.list)
   .option('-f, --filename <file>', 'alternate filenames', filters.list)
-  .option('-p, --plugin <plugins>', 'which plugins should be included', filters.list)
+  .option('-p, --plugins <plugins>', 'which plugins should be included', filters.list)
   .option('-g, --group <groups>', 'which groups should be processed', filters.list)
   .option('-l, --list', 'show a list of plugins');
 
@@ -102,7 +102,7 @@ program.on('--help', function help () {
       '    # Building for development with multiple plugins \n'.grey
     , '    square --bundle '.cyan
     , './'.white
-    , ' --plugin '.cyan
+    , ' --plugins '.cyan
     , 'debug,crush'.white
   ].join(''));
 
@@ -111,7 +111,7 @@ program.on('--help', function help () {
       '    # Only build css files \n'.grey
     , '    square --bundle '.cyan
     , './other/directory'.white
-    , ' --plugin '.cyan
+    , ' --plugins '.cyan
     , 'crush'.white
     , ' --extension '.cyan
     , 'css'.white
@@ -275,8 +275,8 @@ program.group = Array.isArray(program.group)
 
 program.bundle = program.bundle || process.env.PWD;
 
-program.plugin = Array.isArray(program.plugin)
-  ? program.plugin
+program.plugins = Array.isArray(program.plugins)
+  ? program.plugins
   : [];
 
 // how do we need to output data
@@ -346,7 +346,7 @@ found.on('end', function end () {
   square.bundle(files[0]);
 
   // process the plugins
-  program.plugin.forEach(function load (plugin) {
+  program.plugins.forEach(function load (plugin) {
     square.plugin(plugin);
   });
 
