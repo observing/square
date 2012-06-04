@@ -7,18 +7,19 @@
 
 var path = require('path')
   , color = require('colors')
-  , findit = require('findit')
   , _ = require('underscore')._
   , program = require('commander');
 
 /**
  * Do we need to silence all the output because we spit the shit to std out?
+ * This needs to be checked before we parse the argv's using commander so we can
+ * silence the output before that.
  */
 
 program.silence = ~process.argv.indexOf('--output') || ~process.argv.indexOf('-o');
 
 /**
- * Square library.
+ * Square library internals.
  */
 
 var Square = require('../lib/square')
@@ -57,21 +58,16 @@ var filters = {
     }
 };
 
-/**
- * Setup the command line interface.
- */
-
+// Setup the command line interface.
 program
   .version(npm.version)
   .usage('[options]')
-  .option('-b, --bundle <dir>', 'the location of the package file')
+  .option('-b, --bundle <dir/file.json>', 'the location of the package file')
   .option('-e, --extension <extension>', 'filter on this file extension')
   .option('-w, --watch [port]', 'watch the bundled files for changes and rebuild', parseInt)
   .option('-o, --output', 'output the contents to stdout instead of a file')
 
   // options that require argument filtering
-  .option('-i, --ignore [files]', 'ignore these files', filters.list)
-  .option('-f, --filename <file>', 'alternate filenames', filters.list)
   .option('-p, --plugins <plugins>', 'which plugins should be included', filters.list)
   .option('-g, --group <groups>', 'which groups should be processed', filters.list)
   .option('-l, --list', 'show a list of plugins');
@@ -252,23 +248,7 @@ if (!program.silence)
 // this a sync call, we need to be 100% sure that every listener is added.
 program.parse(process.argv);
 
-/**
- * Set some defaults based on the flags.
- */
-
-program.filename = Array.isArray(program.filename)
-  ? program.filename
-  : ['square', 'bundle'];
-
-// remove the file extension
-program.filename = program.filename.map(function (file) {
-  return file.replace(path.extname(file), '');
-});
-
-program.ignore = Array.isArray(program.ignore)
-  ? program.ignore
-  : [];
-
+//Set some defaults based on the flags.
 program.group = Array.isArray(program.group)
   ? program.group
   : [];
@@ -282,10 +262,7 @@ program.plugins = Array.isArray(program.plugins)
 // how do we need to output data
 square.stdout = !!program.output;
 
-/**
- * Trigger some events based on the params.
- */
-
+// Trigger some events based on the params.
 if (program.watch) program.emit('--watch', program.watch);
 if (program.list) program.emit('--list', program.list);
 
@@ -310,17 +287,13 @@ program.notFound = function notFound () {
  });
 };
 
-/**
- * Check if an command is currently being executed, because we don't have to
- * start building the resting the data if this the case.
- */
-
+// Check if an command is currently being executed, because we don't have to
+// start building the resting the data if this the case.
+//
+// This is for example the case for the init/bootstrap commands.
 if (program.commands_exec) return;
 
-/**
- * Make sure that the bundle location exists, so we don't get any ENOENT errors.
- */
-
+// Make sure that the bundle location exists, so we don't get any ENOENT errors.
 if (!path.existsSync(program.bundle)) {
   return program.notFound();
 }
@@ -329,26 +302,12 @@ if (!path.existsSync(program.bundle)) {
  * Start search the given directory tree for square.json files.
  */
 
-var found = findit.find(program.bundle)
-  , filenames = new RegExp('\\/('+ program.filename.join('|') +')\\.json', 'gi')
-  , files = [];
+square.parse(program.bundle);
 
-found.on('file', function foundFile (file, fstat) {
-  if (!filenames.test(file)) return;
-  if (program.ignore.some(filters.ignore.bind(file))) return;
-
-  files.push(file);
+// process the plugins
+program.plugins.forEach(function load (plugin) {
+  square.plugin(plugin);
 });
 
-found.on('end', function end () {
-  if (!files.length) return program.notFound();
-
-  square.bundle(files[0]);
-
-  // process the plugins
-  program.plugins.forEach(function load (plugin) {
-    square.plugin(plugin);
-  });
-
-  square.build(program.extension, program.group);
-});
+// building all the things
+square.build(program.group);
