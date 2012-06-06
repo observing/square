@@ -60,7 +60,7 @@ module.exports = function setup (options) {
 
     // setup
     var logger = this.logger
-      , steps = level[configuration.level]
+      , steps = level[output.extension === 'js' ? configuration.level : 0]
       , compiled = output.content
       , errs = [];
 
