@@ -37,7 +37,7 @@ var level = [
 module.exports = function setup (options) {
   var settings = {
       aggressive: true
-    , level: 5
+    , level: 2
     , disabled: []
   };
 
@@ -60,7 +60,7 @@ module.exports = function setup (options) {
 
     // setup
     var logger = this.logger
-      , steps = level[configuration.level]
+      , steps = level[output.extension === 'js' ? configuration.level : 0]
       , compiled = output.content
       , errs = [];
 
