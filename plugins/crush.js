@@ -37,7 +37,7 @@ var level = [
 module.exports = function setup (options) {
   var settings = {
       aggressive: true
-    , level: 5
+    , level: 2
     , disabled: []
   };
 
