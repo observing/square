@@ -147,7 +147,7 @@ compressor.paths = {
  */
 
 compressor.yui = compressor('java', ['-jar', compressor.paths.yui], {
-    'charset': 'ascii'
+    'charset': 'UTF-8'
   , 'type': 'js'
   , 'line-break': compressor.maximum
   , 'verbose': false
@@ -163,7 +163,7 @@ compressor.yui = compressor('java', ['-jar', compressor.paths.yui], {
 
 var closure =
 compressor.closure = compressor('java', ['-jar', compressor.paths.closure], {
-    'charset': 'ascii'
+    'charset': 'UTF-8'
   , 'compilation_level': 'SIMPLE_OPTIMIZATIONS'
   , 'language_in': 'ECMASCRIPT5'
   , 'warning_level': 'QUIET'
