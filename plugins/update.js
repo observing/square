@@ -324,6 +324,9 @@ exports.github = function commits (uri, options, fn) {
 
 exports.request = function req (uri, options, fn) {
   exports.download(uri, function downloading (err, content) {
+    if (err) return fn(err);
+    if (!content) return fn(new Error('No content received from ' + uri));
+
     var lines = content.split(/(\r\n)|\r|\n/).splice(0, options.lines)
       , version;
 
