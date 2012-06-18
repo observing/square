@@ -1,7 +1,7 @@
 {
     "name": "square"
   , "description": "[square] The whole purpose of square is to provide you with building blocks to create an advanced and maintainable build system so you can streamline your development process and be more productive on a daily basis."
-  , "version": "0.0.5"
+  , "version": "0.0.6"
   , "author": "Arnout Kazemier <opensource@observe.it>"
   , "keywords": [
         "build"
