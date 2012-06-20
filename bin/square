@@ -131,8 +131,7 @@ program.on('--watch', function watching (live) {
       : null;
 
   square.once('build', function builded () {
-    var dir = program.bundle
-      , configuration = square.package.configuration
+    var configuration = square.package.configuration
       , extensions = configuration.watch || [ program.extension || 'js' ];
 
     // notify the user that we started watching for file changes
@@ -141,8 +140,21 @@ program.on('--watch', function watching (live) {
       , (extensions.length ? extensions[0] : '*').yellow
     );
 
+    // we want to find every single directory that has files for our bundle so
+    // we can actually search for those files and generate new files..
+    var dirs = Object.keys(square.package.bundle).map(function map(file) {
+      var meta = square.package.bundle[file].meta;
+
+      return path.dirname(meta.location);
+    });
+
+    // make sure we also add the bundle to the directories to watch, if it's
+    // already the dirs array it wouldn't matter as the duplicates will be
+    // removed
+    dirs.push(program.bundle);
+
     // start watching for file changes in the given directory
-    watch(program.bundle, extensions, function update (files) {
+    watch(_.unique(dirs), extensions, function update (files) {
       // empty line
       console.log('');
       square.logger.notice('changes detected, refreshing %s', files.join(', '));
