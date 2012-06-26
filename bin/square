@@ -5,7 +5,8 @@
  * Library modules
  */
 
-var path = require('path')
+var fs = require('fs')
+  , path = require('path')
   , color = require('colors')
   , findit = require('findit')
   , _ = require('underscore')._
@@ -333,7 +334,7 @@ if (program.commands_exec) return;
  * Make sure that the bundle location exists, so we don't get any ENOENT errors
  */
 
-if (!path.existsSync(program.bundle)) {
+if (!fs.existsSync(program.bundle)) {
   return program.notFound();
 }
 

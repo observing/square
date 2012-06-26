@@ -297,7 +297,7 @@ function pad (str, len) {
  */
 
 function configurator (location) {
-  return !(location && path.existsSync(location))
+  return !(location && fs.existsSync(location))
     ? {}
     : JSON.parse(
         fs.readFileSync(location, 'UTF-8')
