@@ -1,7 +1,7 @@
 "use strict";
 
 var _ = require('underscore')._
-  , canihas = require('../lib/canihas');
+  , canihaz = require('../lib/canihaz');
 
 /**
  * Can wrap you compiled code and plurge the leaked globals.
@@ -144,7 +144,7 @@ module.exports.description = 'Can wrap you compiled code and plurge the leaked g
  */
 
 exports.sandboxleak = function sandboxleak (content, timeout, fn) {
-  canihas.jsdom(function canihasJSDOM (err, jsdom) {
+  canihaz.jsdom(function canihazJSDOM (err, jsdom) {
     if (err) return err;
 
     var html = '<html><body></body></html>'

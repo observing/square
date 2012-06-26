@@ -1,7 +1,7 @@
 {
     "name": "square"
   , "description": "[square] The whole purpose of square is to provide you with building blocks to create an advanced and maintainable build system so you can streamline your development process and be more productive on a daily basis."
-  , "version": "0.0.5"
+  , "version": "0.0.6"
   , "author": "Arnout Kazemier <opensource@observe.it>"
   , "keywords": [
         "build"
@@ -31,12 +31,12 @@
       , "uglify-js": "1.3.1"
       , "underscore": "1.3.3"
     }
-  , "canihas": {
+  , "canihaz": {
         "active-x-obfuscator": "0.0.1"
       , "coffee-script": "1.3.3"
       , "csslint": "0.9.8"
       , "github": "0.1.3"
-      , "jade": "0.26.1"
+      , "jade": "0.26.3"
       , "jsdom": "0.2.14"
       , "jshint": "0.7.1"
       , "less": "1.3.0"
@@ -48,8 +48,8 @@
       , "watch": "0.5.1"
     }
   , "devDependencies": {
-        "should": "0.3.2"
-      , "mocha": "0.14.1"
+        "should": "0.6.3"
+      , "mocha": "1.2.1"
     }
   , "scripts": {
         "test": "make test"

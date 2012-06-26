@@ -1,6 +1,6 @@
 "use strict";
 
-var canihas = require('../lib/canihas')
+var canihaz = require('../lib/canihaz')
   , path = require('path')
   , async = require('async')
   , _ = require('underscore')._
@@ -114,7 +114,7 @@ var parsers = {
       // extend all the things
       config = _.extend(config, jshintninja);
 
-      canihas.jshint(function lazyload (err, jshint) {
+      canihaz.jshint(function lazyload (err, jshint) {
         if (err) return fn(err);
 
         var validates = jshint.JSHINT(content, config)
@@ -144,7 +144,7 @@ var parsers = {
         if (!options[key]) delete options[key];
       });
 
-      canihas.csslint(function lazyload (err, csslint) {
+      canihaz.csslint(function lazyload (err, csslint) {
         if (err) return fn(err);
 
         var validates = csslint.CSSLint.verify(content, options)

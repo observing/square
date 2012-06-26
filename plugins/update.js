@@ -4,7 +4,7 @@ var url = require('url')
   , fs = require('fs')
   , async = require('async')
   , _ = require('underscore')._
-  , canihas = require('../lib/canihas');
+  , canihaz = require('../lib/canihaz');
 
 /**
  * Semver compatible regexp.
@@ -233,7 +233,7 @@ exports.selector = function fetch (uri, options, fn) {
     return fn(null, exports.version(content, options));
   }
 
-  canihas.jsdom(function (err, jsdom) {
+  canihaz.jsdom(function (err, jsdom) {
     if (err) return fn(err);
 
     jsdom.env({
@@ -297,7 +297,7 @@ exports.github = function commits (uri, options, fn) {
   branch = chunks[3].substr(1); // remove the first /
   file = chunks[4];
 
-  canihas.github(function lazyload (err, Github) {
+  canihaz.github(function lazyload (err, Github) {
     if (err) return fn(err);
 
     var api = new Github({ version: "3.0.0" })
@@ -349,7 +349,7 @@ exports.request = function req (uri, options, fn) {
  */
 
 exports.download = function (uri, fn) {
-  canihas.request(function lazyload (err, request) {
+  canihaz.request(function lazyload (err, request) {
     if (err) return fn(err);
 
     request({ uri: uri }, function requested (err, res, body) {
