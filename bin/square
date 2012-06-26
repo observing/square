@@ -5,7 +5,8 @@
  * Library modules.
  */
 
-var path = require('path')
+var fs = require('fs')
+  , path = require('path')
   , color = require('colors')
   , _ = require('underscore')._
   , program = require('commander');
@@ -305,8 +306,11 @@ program.notFound = function notFound () {
 // This is for example the case for the init/bootstrap commands.
 if (program.commands_exec) return;
 
-// Make sure that the bundle location exists, so we don't get any ENOENT errors.
-if (!path.existsSync(program.bundle)) {
+/**
+ * Make sure that the bundle location exists, so we don't get any ENOENT errors
+ */
+
+if (!fs.existsSync(program.bundle)) {
   return program.notFound();
 }
 
