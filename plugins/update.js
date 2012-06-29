@@ -46,7 +46,7 @@ sillyver = new RegExp(sillyver.join(''), 'gim');
  * @api private
  */
 
-var githubRE = /github.com\/([\w\-]+)\/([\w\-]+)\/blob(\/[\w\-]+)\/(.*)/;
+var githubRE = /github.com\/([\w\.\-]+)\/([\w\.\-]+)\/blob(\/[\w\.\-]+)\/(.*)/;
 
 /**
  * Updates third party modules.
@@ -107,7 +107,6 @@ module.exports = function setup (options) {
       if (githubRE.test(bundle.latest)) provider = exports.github;
       if (!provider) provider = exports.request;
 
-      // fetch that update
       provider(bundle.latest, configuration, function test (err, version, content) {
         if (err) return cb(err);
         if (!version) return cb(new Error('unable to find and parse the version for ' + key));
