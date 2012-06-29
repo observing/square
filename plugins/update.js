@@ -4,7 +4,7 @@ var url = require('url')
   , fs = require('fs')
   , async = require('async')
   , _ = require('underscore')._
-  , canihaz = require('../lib/canihaz');
+  , canihaz = require('canihaz')('square');
 
 /**
  * Semver compatible regexp.

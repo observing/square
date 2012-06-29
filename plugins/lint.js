@@ -1,6 +1,6 @@
 "use strict";
 
-var canihaz = require('../lib/canihaz')
+var canihaz = require('canihaz')('square')
   , path = require('path')
   , async = require('async')
   , _ = require('underscore')._
