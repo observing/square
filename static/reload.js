@@ -4,7 +4,7 @@
  * @see https://github.com/observing/square
  */
 
-(function loader () {
+(function loader() {
   "use strict";
 
   /**
@@ -16,7 +16,7 @@
    * @api public
    */
 
-  loader.bust = function buster (url) {
+  loader.bust = function buster(url) {
     var now = + new Date()
       , prefix = '__square__'
       , token = prefix + now + '=' + now;
@@ -40,7 +40,7 @@
    * @api public
    */
 
-  loader.indexOf = function indexOf (arr, o, i) {
+  loader.indexOf = function indexOf(arr, o, i) {
     var j = arr.length;
     i = i < 0 ? i + j < 0 ? 0 : i + j : i || 0;
 
@@ -59,7 +59,7 @@
    * @api private
    */
 
-  loader.extension = (function images () {
+  loader.extension = (function images() {
     var defaults = ['gif', 'jpg', 'jpeg', 'png', 'webp']
       , navigator = window.navigator;
 
@@ -100,7 +100,7 @@
    * @api public
    */
 
-  loader.reload = function reload (type) {
+  loader.reload = function reload(type) {
     switch (type) {
       case 'js':
         // make sure we reload the page with a `true` to load it again from the
@@ -112,12 +112,14 @@
         loader.reload.styles();
         break;
 
+      // because there are so many different image formats we use the images
+      // reloader as default.
       default:
         loader.reload.images();
     }
   };
 
-  loader.reload.styles = function styles () {};
+  loader.reload.styles = function styles() {};
 
   /**
    * A image related change occured so we need to refresh every image on the
@@ -126,7 +128,7 @@
    * @api public
    */
 
-  loader.reload.images = function images () {
+  loader.reload.images = function images() {
     var set = document.images
       , i = set.length
       , image;
@@ -140,7 +142,7 @@
     }
   };
 
-  loader.reload.cssImage = function cssImage () {};
+  loader.reload.cssImage = function cssImage() {};
 
   // Now for the big tricky part, we are going to load in all the dependencies
   // of our livereload plugin so we can establish a real time connection with
@@ -168,24 +170,13 @@
   // bailout if we can't find the server
   if (!base) throw new Error('Can\'t find the [square] reload service');
 
-  var script = document.createElement('script');
-  script.async = true;
+ var socket = window.io.connect(base, {
+     'resource': 'live'
+ });
 
-  document.body.appendChild(script);
-  script.src = base + '/live/socket.io.js';
-
-  // a poorman's script onready checker
-  setTimeout(function has () {
-    if (!('io' in window)) return setTimeout(has, 250);
-
-    var socket = window.io.connect(base, {
-        'resource': 'live'
-    });
-
-    socket.on('refresh', function changes (files) {
-      // @TODO smarter reloading, so we only reload the files that are updated
-      // @TODO filter out files that are not on the page
-      window.location.reload();
-    });
-  }, 250);
+ socket.on('refresh', function changes(files) {
+   // @TODO smarter reloading, so we only reload the files that are updated
+   // @TODO filter out files that are not on the page
+   window.location.reload(true);
+ });
 }());
