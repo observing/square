@@ -1,6 +1,6 @@
 "use strict";
 
-var canihaz = require('../lib/canihaz');
+var canihaz = require('canihaz')('square');
 
 /**
  * Obfuscate JavaScript, there are firewalls that cannot handle ActiveX in the
