@@ -72,6 +72,14 @@ module.exports = function setup (options) {
       parsers[extension](content, config, function linted (err, failures) {
         if (err) fn(err);
         if (failures && failures.length) {
+          self.logger.info();
+          self.logger.info(
+              '%s Failures detected in %s file, scanned with a %s parser'
+            , ('' + failures.length).red
+            , key.cyan
+            , extension.cyan
+          );
+          self.logger.info();
           reporters.base.call(self, output, failures, configuration);
         }
 
