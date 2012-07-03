@@ -68,6 +68,7 @@ module.exports = function setup (options) {
 
       if ('lint' in bundle && bundle.lint === false) fn();
       if (!(extension in parsers)) return fn();
+      if (extension === output.extension) return fn();
 
       parsers[extension](content, config, function linted (err, failures) {
         if (err) fn(err);
@@ -80,7 +81,16 @@ module.exports = function setup (options) {
             , extension.cyan
           );
           self.logger.info();
-          reporters.base.call(self, output, failures, configuration);
+
+          reporters.base.call(
+              self
+            , {
+                  content: content
+                , extension: extension
+              }
+            , failures
+            , configuration
+          );
         }
 
         fn();
