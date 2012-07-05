@@ -7,12 +7,16 @@
 (function loader() {
   "use strict";
 
+  function is(obj, type) {
+    return Object.prototype.toString.call(obj).toLowerCase() === '[object '+ type +']';
+  }
+
   /**
    * Generate a cache buster querystring for the given url, if it already has
    * a generated cache buster url we are going to replace it with a new one.
    *
-   * @param {String} url
-   * @returns {String}
+   * @param String url
+   * @returns String
    * @api public
    */
 
@@ -34,9 +38,9 @@
    * Array#indexOf polyfill.
    *
    * @see bit.ly/a5Dxa2
-   * @param {Array} arr array to search in
-   * @param {Mixed} o item to search
-   * @param {Number} i optional start index
+   * @param Array arr array to search in
+   * @param Mixed o item to search
+   * @param Number i optional start index
    * @api public
    */
 
@@ -55,7 +59,7 @@
   /**
    * Generate a array of allowed images for hot reloading.
    *
-   * @type {Array}
+   * @type Array
    * @api private
    */
 
@@ -76,7 +80,9 @@
         , j;
 
       // we only want image types
-      if (type.type && type.type.indexOf('image/') === -1 || !type.suffixes) continue;
+      if (type.type && type.type.indexOf('image/') === -1 || !type.suffixes) {
+        continue;
+      }
 
       extensions = type.suffixes.split(',');
       j = extensions.length;
@@ -96,7 +102,7 @@
   /**
    * Reload the data without refreshing the page if we can.
    *
-   * @param {String} type extension
+   * @param String type extension
    * @api public
    */
 
@@ -140,9 +146,49 @@
       if (!image.src) continue;
       image.src = loader.bust(image.src);
     }
+
+    var locations = loader.reload.locations
+      , selector;
+
+    for (selector in locations) {
+      sizzle('[style*="'+ selector +'"]').forEach(function () {
+        loader.reload.cssImage(this, locations[selector]);
+      });
+    }
   };
 
-  loader.reload.cssImage = function cssImage() {};
+  loader.reload.imageStyles = {
+      background: ['backgroundImage']
+    , border: loader.prefixed('borderImage')
+  };
+
+  /**
+   * Reload images from the CSS.
+   *
+   * @param DOM element
+   * @param Array props
+   * @api private
+   */
+
+  loader.reload.cssImage = function cssImage(element, props) {
+
+  };
+
+  /**
+   * Generate prefixed properties for inline styles.
+   *
+   * @param Object rule
+   * @returns Array
+   * @api public
+   */
+
+  loader.prefixed = function prefix(rule) {
+    var style = ' -webkit- -moz- -o- -ms- '.split(' ')
+      , prefixes = 'Webkit Moz O ms'
+      , css = prefixes.split(' ')
+      , dom = prefixes.toLowerCase().split(' ');
+
+  };
 
   // Now for the big tricky part, we are going to load in all the dependencies
   // of our livereload plugin so we can establish a real time connection with
@@ -173,6 +219,13 @@
  var socket = window.io.connect(base, {
      'resource': 'live'
  });
+
+ /**
+  * Start listening to changes from the server.
+  *
+  * @param Array files
+  * @api private
+  */
 
  socket.on('refresh', function changes(files) {
    // @TODO smarter reloading, so we only reload the files that are updated

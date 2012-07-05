@@ -1,64 +1,80 @@
 {
-    "name": "square"
-  , "description": "[square] The whole purpose of square is to provide you with building blocks to create an advanced and maintainable build system so you can streamline your development process and be more productive on a daily basis."
-  , "version": "0.0.6"
-  , "author": "Arnout Kazemier <opensource@observe.it>"
-  , "keywords": [
-        "build"
-      , "build tool"
-      , "client"
-      , "jake"
-      , "make"
-      , "square"
-      , "tool"
-    ]
-  , "repository": {
-        "type": "git"
-      , "url": "https://github.com/observing/square.git"
+  "name": "square",
+  "description": "[square] The whole purpose of square is to provide you with building blocks to create an advanced and maintainable build system so you can streamline your development process and be more productive on a daily basis.",
+  "version": "0.0.6",
+  "author": "Arnout Kazemier <opensource@observe.it>",
+  "keywords": [
+    "build",
+    "build tool",
+    "client",
+    "jake",
+    "make",
+    "square",
+    "tool"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/observing/square.git"
+  },
+  "dependencies": {
+    "async": "0.1.22",
+    "canihaz": "0.0.x",
+    "codesurgeon": "0.3.2",
+    "colors": "0.6.0-1",
+    "commander": "0.6.1",
+    "devnull": "0.0.9",
+    "eventreactor": "0.0.6",
+    "findit": "0.1.2",
+    "glob": "3.1.10",
+    "shelljs": "0.0.6pre2",
+    "sugar": "1.2.5",
+    "uglify-js": "1.3.1",
+    "underscore": "1.3.3"
+  },
+  "canihaz": {
+    "active-x-obfuscator": "0.0.1",
+    "coffee-script": "1.3.3",
+    "csslint": "0.9.8",
+    "github": "0.1.3",
+    "jade": "0.26.3",
+    "jsdom": "0.2.14",
+    "jshint": "0.7.1",
+    "less": "1.3.0",
+    "nib": "0.5.0",
+    "request": "2.9.202",
+    "sass": "0.5.0",
+    "socket.io": "0.9.6",
+    "stylus": "0.27.2",
+    "watch": "0.5.1"
+  },
+  "devDependencies": {
+    "should": "0.6.3",
+    "mocha": "1.2.1"
+  },
+  "scripts": {
+    "test": "make test"
+  },
+  "preferGlobal": true,
+  "engines": {
+    "node": ">=0.8.0"
+  },
+  "bin": {
+    "square": "./bin/square"
+  },
+  "configuration": {
+    "dist": {
+      "min": "./dist/release/reload.{ext}",
+      "dev": "./dist/debug/reload.{ext}"
     }
-  , "dependencies": {
-        "async": "0.1.22"
-      , "canihaz": "0.0.x"
-      , "codesurgeon": "0.3.2"
-      , "colors": "0.6.0-1"
-      , "commander": "0.6.1"
-      , "devnull": "0.0.9"
-      , "eventreactor": "0.0.6"
-      , "findit": "0.1.2"
-      , "glob": "3.1.10"
-      , "shelljs": "0.0.6pre2"
-      , "sugar": "1.2.5"
-      , "uglify-js": "1.3.1"
-      , "underscore": "1.3.3"
+  },
+  "bundle": {
+    "static/reload.js": {
+      "description": "The actual library that takes care of reloading the resources"
+    },
+    "vendor/sizzle.js": {
+      "description": "Sizzle CSS3 selector engine",
+      "version": "e0ffa9e448620b19d9a2797084100418320cea01",
+      "latest": "https://github.com/jquery/sizzle/blob/master/sizzle.js"
     }
-  , "canihaz": {
-        "active-x-obfuscator": "0.0.1"
-      , "coffee-script": "1.3.3"
-      , "csslint": "0.9.8"
-      , "github": "0.1.3"
-      , "jade": "0.26.3"
-      , "jsdom": "0.2.14"
-      , "jshint": "0.7.1"
-      , "less": "1.3.0"
-      , "nib": "0.5.0"
-      , "request": "2.9.202"
-      , "sass": "0.5.0"
-      , "socket.io": "0.9.6"
-      , "stylus": "0.27.2"
-      , "watch": "0.5.1"
-    }
-  , "devDependencies": {
-        "should": "0.6.3"
-      , "mocha": "1.2.1"
-    }
-  , "scripts": {
-        "test": "make test"
-    }
-  , "preferGlobal": true
-  , "engines": {
-      "node": ">=0.8.0"
-    }
-  , "bin": {
-        "square": "./bin/square"
-    }
+  }
 }
