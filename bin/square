@@ -343,7 +343,7 @@ if (!fs.existsSync(program.bundle)) {
  */
 
 var found = findit.find(program.bundle)
-  , filenames = new RegExp('\\/('+ program.filename.join('|') +')\\.json', 'gi')
+  , filenames = new RegExp('\\/('+ program.filename.join('|') +')\\.json$', 'gi')
   , files = [];
 
 found.on('file', function foundFile (file, fstat) {
