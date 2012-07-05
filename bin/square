@@ -346,7 +346,13 @@ var found = findit.find(program.bundle)
   , filenames = new RegExp('\\/('+ program.filename.join('|') +')\\.json$', 'gi')
   , files = [];
 
+// check if the bundle is maybe a file..
+if (fs.existsSync(program.bundle) && filenames.test(program.bundle)) {
+  files.push(program.bundle);
+}
+
 found.on('file', function foundFile (file, fstat) {
+
   if (!filenames.test(file)) return;
   if (program.ignore.some(filters.ignore.bind(file))) return;
 
