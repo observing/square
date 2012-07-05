@@ -156,7 +156,7 @@ program.on('--watch', function watching (live) {
     // make sure we also add the bundle to the directories to watch, if it's
     // already the dirs array it wouldn't matter as the duplicates will be
     // removed
-    dirs.push(program.bundle);
+    dirs.push(path.dirname(program.bundle));
 
     // start watching for file changes in the given directory
     watch(_.unique(dirs), extensions, function update (files) {
@@ -347,7 +347,7 @@ var found = findit.find(program.bundle)
   , files = [];
 
 // check if the bundle is maybe a file..
-if (fs.existsSync(program.bundle) && filenames.test(program.bundle)) {
+if (filenames.test(program.bundle)) {
   files.push(program.bundle);
 }
 
