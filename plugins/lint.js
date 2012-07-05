@@ -68,11 +68,29 @@ module.exports = function setup (options) {
 
       if ('lint' in bundle && bundle.lint === false) fn();
       if (!(extension in parsers)) return fn();
+      if (extension === output.extension) return fn();
 
       parsers[extension](content, config, function linted (err, failures) {
         if (err) fn(err);
         if (failures && failures.length) {
-          reporters.base.call(self, output, failures, configuration);
+          self.logger.info();
+          self.logger.info(
+              '%s Failures detected in %s file, scanned with a %s parser'
+            , ('' + failures.length).red
+            , key.cyan
+            , extension.cyan
+          );
+          self.logger.info();
+
+          reporters.base.call(
+              self
+            , {
+                  content: content
+                , extension: extension
+              }
+            , failures
+            , configuration
+          );
         }
 
         fn();
