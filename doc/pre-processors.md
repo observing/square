@@ -1,50 +1,67 @@
 ## Pre-processors
 
 Pre-processors are transparently integrated in to square, it currently supports
-a range of different pre-processors that compile to either `css` or `js`. The
-transparent integration of the pre-processors is made possible because we lazy
-install the required modules on the fly. If you don't use CoffeeScript in your
-bundles then this module will not installed on your system.
+a range of different pre-processors. The transparent integration of the
+pre-processors modules is made possible because we lazy install the required NPM
+modules on the fly. This way we don't have to install CoffeeScript on your
+system unless we actually find a file that uses CoffeeScript.
 
-The pre-processors are not limited to "meta" langauges such as stylus and
-CoffeeScript but it's also possible to pre-process template languages and store
-the compiled function.
+The pre-processors are not limited to "meta" languages such as Stylus and
+CoffeeScript that compile in to a different language but it's also possible to
+pre-process template languages and store the compiled template generation
+function and re-use that in your code.
 
-There is only one catch, in order to trigger the pre-processors you will need to
-use the correct file extension for that specific pre-processor.
+To trigger these transparent pre-processors you will need to use the correct
+file extension that is tied to the pre-processor of your choice. See the list
+below for the supported pre-processors and the file extensions that they
+require.
 
 ## Supported pre-processors
 
 ### [Stylus](http://learnboost.github.com/stylus/)
 
-- Required file extension: `.styl`
-- [NIB](http://visionmedia.github.com/nib/) is imported by default
-- Compiles to `.css`
+- Stylus is an expressive CSS language for Node.js, [NIB](http://visionmedia.github.com/nib/)
+  the library full of CSS3 mixins is included automatically.
+
+- **Extension** `.styl`
+- **Compiles to** `.css`
 
 ### [Less](http://lesscss.org/)
 
-- Required file extension: `.less`
-- Compiles to `.css`
+- Less, the dynamic stylesheet language.
+
+- **Extension** `.less`
+- **Compiles to** `.css`
 
 ### [Sass](http://sass-lang.com/)
 
-- Required file extension: `.sass`
 - There isn't a really good Node.js based parser for this, so use at your own
-  risk.
-- Compiles to `.css`
+  risk. There is a new node-sass compiler in the making so that might be an
+  alternate option once it stablizes. (Accepting pull requests for it)
+
+- **Extension** `.sass`
+- **Compiles to** `.css`
 
 ### [CoffeeScript](http://coffeescript.org/)
 
-- Required file extension: `.coffee`
-- Compiles to `.js`
+- CoffeeScript is a programming language that transcompiles to JavaScript. The
+  language adds syntactic sugar inspired by Ruby, Python and Haskell
+
+- **Extension** `.coffee`
+- **Compiles to** `.js`
 
 ### [Jade](http://jade-lang.com/)
 
-- Required file extension: `.jade`
-- It automatically bundles the runtime for client-side rendering
-- Templates are exported under the global `jade` namespace.
-- Compiles to `.js`
+- Jade is a high performance template engine heavily influenced by Haml and
+  implemented with JavaScript for node. Square automatically bundles a runtime for
+  client-side rendering. The templates are exported under the global `jade` name
+  space.
+
+- **Extension** `.jade`
+- **Compiles to** `.js`
+
+#### Example output:
 
 ```js
-jade.file_name_underscored = function (locals) { .. }
+jade.file_name_underscored = function file_name_underscored(locals) { .. }
 ```
