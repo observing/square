@@ -1,7 +1,7 @@
 "use strict";
 
-var uglify = require('uglify-js')
-  , child = require('./lib/child')
+var child = require('./lib/child')
+  , canihaz = require('canihaz')('square')
   , _ = require('underscore')._;
 
 /**
@@ -160,27 +160,29 @@ exports.yui.css = true;
 exports.uglify = function ugly (content, extension, aggressive, fn) {
   var err, ast, code;
 
-  try {
-    ast = uglify.parser.parse(content);
-    ast = uglify.uglify.ast_mangle(ast);
-    ast = uglify.uglify.ast_squeeze(ast);
+  canihaz['uglify-js'](function lazyload (err, uglify) {
+    if (err) return fn(err);
 
-    // do even more aggressive optimizing
-    if (aggressive) {
-      ast = uglify.uglify.ast_lift_variables(ast);
-      ast = uglify.uglify.ast_squeeze_more(ast);
+    try {
+      ast = uglify.parser.parse(content);
+      ast = uglify.uglify.ast_mangle(ast);
+      ast = uglify.uglify.ast_squeeze(ast);
+
+      // do even more aggressive optimizing
+      if (aggressive) {
+        ast = uglify.uglify.ast_lift_variables(ast);
+        ast = uglify.uglify.ast_squeeze_more(ast);
+      }
+
+      // the ascii makes sure we don't fuck up Socket.IO's utf8 message
+      // separators.
+      code = uglify.uglify.gen_code(ast, {
+          ascii_only: true
+      });
+    } catch (e) {
+      err = e;
     }
 
-    // the ascii makes sure we don't fuck up Socket.IO's utf8 message
-    // separators.
-    code = uglify.uglify.gen_code(ast, {
-        ascii_only: true
-    });
-  } catch (e) {
-    err = e;
-  }
-
-  process.nextTick(function nextTick () {
     fn(err, code || content);
   });
 };
