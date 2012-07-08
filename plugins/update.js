@@ -4,7 +4,7 @@ var url = require('url')
   , fs = require('fs')
   , async = require('async')
   , _ = require('underscore')._
-  , canihas = require('../lib/canihas');
+  , canihaz = require('canihaz')('square');
 
 /**
  * Semver compatible regexp.
@@ -46,7 +46,7 @@ sillyver = new RegExp(sillyver.join(''), 'gim');
  * @api private
  */
 
-var githubRE = /github.com\/([\w\-]+)\/([\w\-]+)\/blob(\/[\w\-]+)\/(.*)/;
+var githubRE = /github.com\/([\w\.\-]+)\/([\w\.\-]+)\/blob(\/[\w\.\-]+)\/(.*)/;
 
 /**
  * Updates third party modules.
@@ -107,7 +107,6 @@ module.exports = function setup (options) {
       if (githubRE.test(bundle.latest)) provider = exports.github;
       if (!provider) provider = exports.request;
 
-      // fetch that update
       provider(bundle.latest, configuration, function test (err, version, content) {
         if (err) return cb(err);
         if (!version) return cb(new Error('unable to find and parse the version for ' + key));
@@ -233,7 +232,7 @@ exports.selector = function fetch (uri, options, fn) {
     return fn(null, exports.version(content, options));
   }
 
-  canihas.jsdom(function (err, jsdom) {
+  canihaz.jsdom(function (err, jsdom) {
     if (err) return fn(err);
 
     jsdom.env({
@@ -297,7 +296,7 @@ exports.github = function commits (uri, options, fn) {
   branch = chunks[3].substr(1); // remove the first /
   file = chunks[4];
 
-  canihas.github(function lazyload (err, Github) {
+  canihaz.github(function lazyload (err, Github) {
     if (err) return fn(err);
 
     var api = new Github({ version: "3.0.0" })
@@ -324,6 +323,9 @@ exports.github = function commits (uri, options, fn) {
 
 exports.request = function req (uri, options, fn) {
   exports.download(uri, function downloading (err, content) {
+    if (err) return fn(err);
+    if (!content) return fn(new Error('No content received from ' + uri));
+
     var lines = content.split(/(\r\n)|\r|\n/).splice(0, options.lines)
       , version;
 
@@ -346,7 +348,7 @@ exports.request = function req (uri, options, fn) {
  */
 
 exports.download = function (uri, fn) {
-  canihas.request(function lazyload (err, request) {
+  canihaz.request(function lazyload (err, request) {
     if (err) return fn(err);
 
     request({ uri: uri }, function requested (err, res, body) {

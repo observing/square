@@ -13,8 +13,8 @@ VENDOR = ./vendor
 TMP = ./.build_tmp
 
 download:
-	@rm -Rf $(VENDOR)
-	@mkdir $(VENDOR) $(TMP)
+	@rm $(VENDOR)/*.jar
+	@mkdir $(TMP)
 	@cd $(TMP) && curl $(LATESTCLOSURE) -o closure.zip && unzip closure.zip && mv compiler.jar .$(VENDOR)/closure.jar
 	@cd $(TMP) && curl $(LATESTYUI) -o yui.zip && unzip yui.zip && mv $(YUIVERSION)/build/$(YUIVERSION).jar .$(VENDOR)/yui.jar
 	@rm -Rf $(TMP)
@@ -27,6 +27,9 @@ test:
 		--ui $(UI) \
 		--growl \
 		$(ALL_TESTS)
+
+client:
+	@square --bundle ./package.json --plugin update,crush --filename package
 
 update:
 	@git submodule update --init --recursive

@@ -4,19 +4,23 @@
  * @see https://github.com/observing/square
  */
 
-(function loader () {
+(function loader() {
   "use strict";
+
+  function is(obj, type) {
+    return Object.prototype.toString.call(obj).toLowerCase() === '[object '+ type +']';
+  }
 
   /**
    * Generate a cache buster querystring for the given url, if it already has
    * a generated cache buster url we are going to replace it with a new one.
    *
-   * @param {String} url
-   * @returns {String}
+   * @param String url
+   * @returns String
    * @api public
    */
 
-  loader.bust = function buster (url) {
+  loader.bust = function buster(url) {
     var now = + new Date()
       , prefix = '__square__'
       , token = prefix + now + '=' + now;
@@ -34,13 +38,13 @@
    * Array#indexOf polyfill.
    *
    * @see bit.ly/a5Dxa2
-   * @param {Array} arr array to search in
-   * @param {Mixed} o item to search
-   * @param {Number} i optional start index
+   * @param Array arr array to search in
+   * @param Mixed o item to search
+   * @param Number i optional start index
    * @api public
    */
 
-  loader.indexOf = function indexOf (arr, o, i) {
+  loader.indexOf = function indexOf(arr, o, i) {
     var j = arr.length;
     i = i < 0 ? i + j < 0 ? 0 : i + j : i || 0;
 
@@ -55,11 +59,11 @@
   /**
    * Generate a array of allowed images for hot reloading.
    *
-   * @type {Array}
+   * @type Array
    * @api private
    */
 
-  loader.extension = (function images () {
+  loader.extension = (function images() {
     var defaults = ['gif', 'jpg', 'jpeg', 'png', 'webp']
       , navigator = window.navigator;
 
@@ -76,7 +80,9 @@
         , j;
 
       // we only want image types
-      if (type.type && type.type.indexOf('image/') === -1 || !type.suffixes) continue;
+      if (type.type && type.type.indexOf('image/') === -1 || !type.suffixes) {
+        continue;
+      }
 
       extensions = type.suffixes.split(',');
       j = extensions.length;
@@ -96,11 +102,11 @@
   /**
    * Reload the data without refreshing the page if we can.
    *
-   * @param {String} type extension
+   * @param String type extension
    * @api public
    */
 
-  loader.reload = function reload (type) {
+  loader.reload = function reload(type) {
     switch (type) {
       case 'js':
         // make sure we reload the page with a `true` to load it again from the
@@ -112,12 +118,14 @@
         loader.reload.styles();
         break;
 
+      // because there are so many different image formats we use the images
+      // reloader as default.
       default:
         loader.reload.images();
     }
   };
 
-  loader.reload.styles = function styles () {};
+  loader.reload.styles = function styles() {};
 
   /**
    * A image related change occured so we need to refresh every image on the
@@ -126,7 +134,7 @@
    * @api public
    */
 
-  loader.reload.images = function images () {
+  loader.reload.images = function images() {
     var set = document.images
       , i = set.length
       , image;
@@ -138,9 +146,49 @@
       if (!image.src) continue;
       image.src = loader.bust(image.src);
     }
+
+    var locations = loader.reload.locations
+      , selector;
+
+    for (selector in locations) {
+      sizzle('[style*="'+ selector +'"]').forEach(function () {
+        loader.reload.cssImage(this, locations[selector]);
+      });
+    }
   };
 
-  loader.reload.cssImage = function cssImage () {};
+  loader.reload.imageStyles = {
+      background: ['backgroundImage']
+    , border: loader.prefixed('borderImage')
+  };
+
+  /**
+   * Reload images from the CSS.
+   *
+   * @param DOM element
+   * @param Array props
+   * @api private
+   */
+
+  loader.reload.cssImage = function cssImage(element, props) {
+
+  };
+
+  /**
+   * Generate prefixed properties for inline styles.
+   *
+   * @param Object rule
+   * @returns Array
+   * @api public
+   */
+
+  loader.prefixed = function prefix(rule) {
+    var style = ' -webkit- -moz- -o- -ms- '.split(' ')
+      , prefixes = 'Webkit Moz O ms'
+      , css = prefixes.split(' ')
+      , dom = prefixes.toLowerCase().split(' ');
+
+  };
 
   // Now for the big tricky part, we are going to load in all the dependencies
   // of our livereload plugin so we can establish a real time connection with
@@ -168,24 +216,20 @@
   // bailout if we can't find the server
   if (!base) throw new Error('Can\'t find the [square] reload service');
 
-  var script = document.createElement('script');
-  script.async = true;
+ var socket = window.io.connect(base, {
+     'resource': 'live'
+ });
 
-  document.body.appendChild(script);
-  script.src = base + '/live/socket.io.js';
+ /**
+  * Start listening to changes from the server.
+  *
+  * @param Array files
+  * @api private
+  */
 
-  // a poorman's script onready checker
-  setTimeout(function has () {
-    if (!('io' in window)) return setTimeout(has, 250);
-
-    var socket = window.io.connect(base, {
-        'resource': 'live'
-    });
-
-    socket.on('refresh', function changes (files) {
-      // @TODO smarter reloading, so we only reload the files that are updated
-      // @TODO filter out files that are not on the page
-      window.location.reload();
-    });
-  }, 250);
+ socket.on('refresh', function changes(files) {
+   // @TODO smarter reloading, so we only reload the files that are updated
+   // @TODO filter out files that are not on the page
+   window.location.reload(true);
+ });
 }());
