@@ -143,19 +143,17 @@ program.on('--watch', function watching (live) {
 
     // we want to find every single directory that has files for our bundle so
     // we can actually search for those files and generate new files..
-    var dirs = Object.keys(square.package.bundle).map(function map(file) {
-      var meta = square.package.bundle[file].meta;
-
-      return path.dirname(meta.location);
+    var files = Object.keys(square.package.bundle).map(function map(file) {
+      return square.package.bundle[file].meta.location;
     });
 
-    // make sure we also add the bundle to the directories to watch, if it's
-    // already the dirs array it wouldn't matter as the duplicates will be
-    // removed
-    dirs.push(program.bundle);
-
     // start watching for file changes in the given directory
-    watch(_.unique(dirs), extensions, function update (files) {
+    watch(files, extensions, function update (err, files) {
+      if (err) return square.logger.error(
+          'Watcher error %s, canceling watch operations on %s'
+        , err.message, files
+      );
+
       // empty line
       console.log('');
       square.logger.notice('changes detected, refreshing %s', files.join(', '));

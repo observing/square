@@ -26,6 +26,7 @@
     "devnull": "0.0.9",
     "eventreactor": "0.0.6",
     "findit": "0.1.2",
+    "fs.notify": "0.0.x",
     "glob": "3.1.10",
     "shelljs": "0.0.6pre2",
     "sugar": "1.2.5",

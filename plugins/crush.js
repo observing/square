@@ -1,7 +1,7 @@
 "use strict";
 
-var uglify = require('uglify-js')
-  , child = require('./lib/child')
+var child = require('./lib/child')
+  , canihaz = require('canihaz')('square')
   , _ = require('underscore')._;
 
 /**
@@ -34,7 +34,7 @@ var level = [
  * @api public
  */
 
-module.exports = function setup (options) {
+module.exports = function setup(options) {
   var settings = {
       aggressive: true
     , level: 2
@@ -51,7 +51,7 @@ module.exports = function setup (options) {
    * @api private
    */
 
-  return function crush (output, next) {
+  return function crush(output, next) {
     // setup the configuration based on the plugin configuration
     var configuration = _.extend(
         settings
@@ -71,7 +71,7 @@ module.exports = function setup (options) {
      * @api private
      */
 
-    function walk () {
+    function walk() {
       if (!steps.length || errs.lenght) {
         if (errs.length) return next(new Error(errs.toString()), output);
 
@@ -89,7 +89,7 @@ module.exports = function setup (options) {
       }
 
       // process the data
-      crusher(compiled, output.extension, configuration.aggressive, function min (err, code) {
+      crusher(compiled, output.extension, configuration.aggressive, function min(err, code) {
         if (err) {
           errs.push(err.message);
         } else {
@@ -125,7 +125,7 @@ module.exports.description = 'Compiles the code as small as possible';
  * @api private
  */
 
-exports.closure = function googleclosure (content, extension, aggressive, fn) {
+exports.closure = function googleclosure(content, extension, aggressive, fn) {
   child.closure('js', content, {}, fn);
 };
 
@@ -141,7 +141,7 @@ exports.closure.js = true;
  * @api private
  */
 
-exports.yui = function yui (content, extension, aggressive, fn) {
+exports.yui = function yui(content, extension, aggressive, fn) {
   child.yui(extension, content, {}, fn);
 };
 
@@ -157,34 +157,36 @@ exports.yui.css = true;
  * @api private
  */
 
-exports.uglify = function ugly (content, extension, aggressive, fn) {
+exports.uglify = function ugly(content, extension, aggressive, fn) {
   var err, ast, code;
 
-  try {
-    ast = uglify.parser.parse(content);
-    ast = uglify.uglify.ast_mangle(ast);
-    ast = uglify.uglify.ast_squeeze(ast);
+  canihaz['uglify-js'](function lazyload(err, uglify) {
+    if (err) return fn(err);
 
-    // do even more aggressive optimizing
-    if (aggressive) {
-      ast = uglify.uglify.ast_lift_variables(ast);
-      ast = uglify.uglify.ast_squeeze_more(ast);
+    try {
+      ast = uglify.parser.parse(content);
+      ast = uglify.uglify.ast_mangle(ast);
+      ast = uglify.uglify.ast_squeeze(ast);
+
+      // do even more aggressive optimizing
+      if (aggressive) {
+        ast = uglify.uglify.ast_lift_variables(ast);
+        ast = uglify.uglify.ast_squeeze_more(ast);
+      }
+
+      // the ascii makes sure we don't fuck up Socket.IO's utf8 message
+      // separators.
+      code = uglify.uglify.gen_code(ast, {
+          ascii_only: true
+      });
+
+      // add an extra semi-colon at the end of the file as uglify only adds that
+      // in it's own binary see https://github.com/mishoo/UglifyJS/issues/126
+      code =+ ';';
+    } catch (e) {
+      err = e;
     }
 
-    // the ascii makes sure we don't fuck up Socket.IO's utf8 message
-    // separators.
-    code = uglify.uglify.gen_code(ast, {
-        ascii_only: true
-    });
-
-    // add an extra semi-colon at the end of the file as uglify only adds that
-    // in it's own binary see https://github.com/mishoo/UglifyJS/issues/126
-    code =+ ';';
-  } catch (e) {
-    err = e;
-  }
-
-  process.nextTick(function nextTick () {
     fn(err, code || content);
   });
 };
