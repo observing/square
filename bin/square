@@ -313,10 +313,12 @@ if (!fs.existsSync(program.bundle)) {
 }
 
 /**
- * Start search the given directory tree for square.json files.
+ * Start search the given directory tree for square.json files. If we cannot
+ * parse the bundle we are just gonna return because don't need to do any more
+ * processing in this run.
  */
 
-square.parse(program.bundle);
+if (!square.parse(program.bundle)) return;
 
 // process the plugins
 program.plugins.forEach(function load (plugin) {
