@@ -2,7 +2,7 @@
 
 var spawn = require('child_process').spawn
   , path = require('path')
-  , _ = require('underscore')._;
+  , _ = require('lodash');
 
 /**
  * Configures a new child process spawn that is used to minify files. We use

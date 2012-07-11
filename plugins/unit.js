@@ -1,7 +1,7 @@
 "use strict";
 
-var _ = require('underscore')._
-  , exec = require('shelljs').exec;
+var exec = require('shelljs').exec
+  , _ = require('lodash');
 
 /**
  * Run unit tests against a headless WebKit instance (phantomjs).

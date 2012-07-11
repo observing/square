@@ -1,10 +1,10 @@
 "use strict";
 
-var url = require('url')
-  , fs = require('fs')
+var canihaz = require('canihaz')('square')
   , async = require('async')
-  , _ = require('underscore')._
-  , canihaz = require('canihaz')('square');
+  , _ = require('lodash')
+  , url = require('url')
+  , fs = require('fs');
 
 /**
  * Semver compatible regexp.

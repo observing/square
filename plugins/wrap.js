@@ -1,7 +1,7 @@
 "use strict";
 
-var _ = require('underscore')._
-  , canihaz = require('canihaz')('square');
+var canihaz = require('canihaz')('square')
+  , _ = require('lodash');
 
 /**
  * Can wrap you compiled code and plurge the leaked globals.

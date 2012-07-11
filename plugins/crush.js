@@ -2,7 +2,7 @@
 
 var child = require('./lib/child')
   , canihaz = require('canihaz')('square')
-  , _ = require('underscore')._;
+  , _ = require('lodash');
 
 /**
  * Compression levels, the lower the faster, the higher the better.

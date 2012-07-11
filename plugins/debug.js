@@ -1,7 +1,3 @@
-"use strict";
-
-var _ = require('underscore')._;
-
 /**
  * Removes debug block statements from the code.
  *
@@ -16,11 +12,14 @@ var _ = require('underscore')._;
  */
 
 module.exports = function setup (options) {
-  var settings = {
-      start: /\{\{/
-    , end: /\}\}/
-    , inline: /\{\{[^\{\{]+?\}\}\n?\r?/
-  };
+  "use strict";
+
+  var _ = require('lodash')
+    , settings = {
+        start: /\{\{/
+      , end: /\}\}/
+      , inline: /\{\{[^\{\{]+?\}\}\n?\r?/
+    };
 
   _.extend(settings, options || {});
 

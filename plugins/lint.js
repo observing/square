@@ -1,9 +1,9 @@
 "use strict";
 
 var canihaz = require('canihaz')('square')
-  , path = require('path')
   , async = require('async')
-  , _ = require('underscore')._
+  , path = require('path')
+  , _ = require('lodash')
   , fs = require('fs');
 
 /**

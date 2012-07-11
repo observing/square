@@ -8,7 +8,7 @@
 var fs = require('fs')
   , path = require('path')
   , color = require('colors')
-  , _ = require('underscore')._
+  , _ = require('lodash')
   , program = require('commander');
 
 /**
