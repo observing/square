@@ -283,7 +283,7 @@ values of it.
 
         // [optional] extra variables that you want to have available for every
         // function that makes use of the template tag helper function
-      , vars: {}
+      , tags: {}
     }
 
     ..
