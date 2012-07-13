@@ -32,9 +32,55 @@ square.json:
   - Object of options that is used to configure square and it's output locations.
     See the configuration section of this file for more details.
 
-## The bundle fields
+## The bundle object
 
-## The configuration fields
+The bundle is where you specify which files you want to have included in your
+distributions.
+
+
+### The desciption field
+
+The discription is a optional but adviced field, this allows you to explain what
+the file is used for or what it provides. This allows newcomers to get a quick
+overview on what each file does and why it's included in the bundle.
+
+This field might be used in the future to automatically generate documentation
+or information.
+
+### The version and latest fields
+
+The version and latest fields are used by the update plugin, which allows you to
+easily download and keep track of third-party assets such as underscore.js,
+jQuery or your other favorite library.
+
+The version field is a the current version of the file that you are using. It
+can be a semver compatible version number, SHA1 from github or a sillyver
+version number (which is a softer version of semver ;))
+
+The latest field contains the url of the third-party asset this is usually set
+to the development version of the file hosted somewhere online by the
+third-party.
+
+More information about these fields can be found in the [update plugin]()
+documentation.
+
+### The extract field
+### The dependencies field
+### The weight field
+### The extract field
+### The pre-process configuration fields
+TO BE DONE
+
+### The group field
+
+The group field is used to group different files that you specified in a single
+square.json file. This is usefull if different "group" require the same base
+files.
+
+However, the groups functionality is depricated and will be replaced with an
+alternate and more usefull replacement as outlined in observing/square#30.
+
+## The configuration object
 
 The configuration field allows you to globally configure square and it's output.
 The most important property in the configuration is the `dist` field.
@@ -284,7 +330,7 @@ values of it.
 
         // [optional] extra variables that you want to have available for every
         // function that makes use of the template tag helper function
-      , vars: {}
+      , tags: {}
     }
 
     ..
