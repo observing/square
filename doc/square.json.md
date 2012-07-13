@@ -243,3 +243,49 @@ self by adding an **tags** `object` to the configuration section. Where the key
 of the object is name of the tag. If you have a `package.json` specified in
 working directory we will automatically pre-fill the `tags` field with key =>
 values of it.
+
+## Full configuration example:
+
+```js
+{
+    "configuration": {
+        // [required] the "dist" object tells square where it should output the
+        // final builds. It can either be a relative or absolute path including the
+        // file name
+        "dist": {
+            "min": "/random/path/filename"  // defaults to: ~/square.{type}.{ext}
+          , "dev": "./path/file.name"       // defaults to: ~/square.{type}.{ext}
+        }
+
+        // [optional] override the extensions that the watch flag should filter
+        // away. If you supply an array it will trigger a rebuild on every file
+        // change in the directory
+      , "watch": []
+
+        // [optional] configuration options for the plugins, the key inside this
+        // object directly maps to the name of the plugin, and value is the config
+        // object that will be used to extend the default config
+      , "plugins": {
+            "crush": { .. options .. }
+        }
+
+        // [optional] jshint configuration, or it will try to use your .jshintrc
+        // from your home directory
+      , jshint: {}
+
+        // [optional] csslint configuration, use boolean values to enable or
+        // disable rules
+      , csslint: {}
+
+        // [optional] license header that needs to be added on top of every
+        // output file
+      , license: 'path to license file for each bundled file'
+
+        // [optional] extra variables that you want to have available for every
+        // function that makes use of the template tag helper function
+      , vars: {}
+    }
+
+    ..
+}
+```
