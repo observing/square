@@ -1,7 +1,0 @@
-{
-  "bundle": {
-    "csslint.css": {
-      "description": "basic css file, with csslint failures"
-    }
-  }
-}

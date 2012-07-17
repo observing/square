@@ -1,9 +1,0 @@
-{
-  "bundle": {
-    "sizzle.js": {
-      "description": "CSS3 selector engine without version number github SHA1",
-      "version": "feebbd7e053bff426444c7b348c776c99c7490ee",
-      "latest": "https://github.com/jquery/sizzle/blob/master/sizzle.js"
-    }
-  }
-}

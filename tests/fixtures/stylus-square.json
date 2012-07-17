@@ -1,7 +1,0 @@
-{
-  "bundle": {
-    "stylus.styl": {
-      "description": "simple stylus file for pre-process testing"
-    }
-  }
-}
