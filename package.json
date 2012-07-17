@@ -3,7 +3,7 @@
   "description": "[square] The whole purpose of square is to provide you with building blocks to create an advanced and maintainable build system so you can streamline your development process and be more productive on a daily basis.",
   "version": "0.0.6",
   "author": "Arnout Kazemier <opensource@observe.it>",
-  "main": "lib/square.js"
+  "main": "lib/square.js",
   "keywords": [
     "build",
     "build tool",
@@ -19,7 +19,7 @@
   },
   "dependencies": {
     "async": "0.1.22",
-    "eson": "0.2.0"
+    "eson": "0.2.0",
     "canihaz": "0.0.x",
     "colors": "0.6.0-1",
     "commander": "0.6.1",
@@ -48,7 +48,7 @@
     "uglify-js": "1.3.1"
   },
   "devDependencies": {
-    "should": "0.6.3",
+    "chai": "1.1.0",
     "mocha": "1.2.1"
   },
   "scripts": {

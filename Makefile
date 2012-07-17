@@ -4,9 +4,7 @@ LATESTCLOSURE= http://closure-compiler.googlecode.com/files/compiler-latest.zip
 LATESTYUI = http://yui.zenfs.com/releases/yuicompressor/$(YUIVERSION).zip
 
 # configuration for the test suite
-ALL_TESTS = $(shell find tests/ -name '*.test.js')
-REPORTER = spec
-UI = exports
+ALL_TESTS = $(shell find test/ -name '*.test.js')
 
 # location of the vendor folder where all external tools are downloaded to
 VENDOR = ./vendor
@@ -20,13 +18,7 @@ download:
 	@rm -Rf $(TMP)
 
 test:
-	@./node_modules/.bin/mocha \
-		--require should \
-		--reporter $(REPORTER) \
-		--timeout 4000 \
-		--ui $(UI) \
-		--growl \
-		$(ALL_TESTS)
+	@./node_modules/.bin/mocha $(ALL_TESTS)
 
 client:
 	@square --bundle ./package.json --plugin update,crush --filename package
