@@ -19,23 +19,22 @@
   },
   "dependencies": {
     "async": "0.1.22",
+    "eson": "0.2.0"
     "canihaz": "0.0.x",
-    "codesurgeon": "0.3.2",
     "colors": "0.6.0-1",
     "commander": "0.6.1",
     "devnull": "0.0.9",
     "eventreactor": "0.0.6",
-    "findit": "0.1.2",
-    "fs.notify": "0.0.x",
-    "glob": "3.1.10",
     "lodash": "0.4.0",
     "shelljs": "0.0.6pre2",
     "sugar": "1.2.5"
   },
   "canihaz": {
     "active-x-obfuscator": "0.0.1",
+    "codesurgeon": "0.3.2",
     "coffee-script": "1.3.3",
     "csslint": "0.9.8",
+    "fs.notify": "0.0.x",
     "github": "0.1.3",
     "jade": "0.26.3",
     "jsdom": "0.2.14",
