@@ -10,13 +10,45 @@ describe('[square] API', function () {
   });
 
   describe('.extend', function () {
-    it('should extend the Square.prototype');
+    it('should extend the Square.prototype', function () {
+      expect(Square.prototype.cowsack).to.be.an('undefined');
 
-    it('should override existing prototypes');
+      Square.extend({
+          cowsack: function () {}
+      });
+
+      expect(Square.prototype.cowsack).to.be.an('function');
+      delete Square.prototype.cowsack;
+    });
+
+    it('should override existing prototypes', function () {
+      expect(Square.prototype.configure).to.be.an('function');
+
+      var backup = Square.prototype.configure;
+
+      function noop() { /* dummy function*/ }
+
+      Square.extend({
+          configure: noop
+      });
+
+      expect(Square.prototype.configure).to.equal(noop);
+      Square.prototype.configure = backup;
+    });
   });
 
   describe('@construction', function () {
-    it('should construct without any errors');
+    it('should construct without any errors', function () {
+      var square = new Square();
+    });
+
+    it('should be configured using the options parameter', function () {
+      var square = new Square();
+      expect(square.env).to.not.equal('whoopwhoop');
+
+      var square2 = new Square({ env: 'whoopwhoop' });
+      expect(square.env).to.equal('whoopwhoop');
+    });
 
     it('should not override private properties');
 
