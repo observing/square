@@ -153,6 +153,16 @@ describe('[square] API', function () {
 
   describe('#build', function () {});
 
+  describe('#outofdate', function () {
+    it('should check the upstream repo for its version number');
+
+    it('should check different branches of the upstream');
+
+    it('should randomly check for an upstream');
+
+    it('should not check upstream if forbidden by configuration');
+  });
+
   describe('#tag', function () {
     it('should return the branch name, as this is a git repository');
 

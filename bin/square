@@ -2,30 +2,31 @@
 "use strict";
 
 /**
- * Library modules.
+ * Native modules.
  */
 
 var fs = require('fs')
-  , path = require('path')
-  , color = require('colors')
-  , _ = require('lodash')
-  , program = require('commander');
+  , path = require('path');
 
 /**
- * Do we need to silence all the output because we spit the shit to std out?
- * This needs to be checked before we parse the argv's using commander so we can
- * silence the output before that.
+ * Third party modules.
  */
 
-program.silence = ~process.argv.indexOf('--output') || ~process.argv.indexOf('-o');
+var _ = require('lodash')
+  , color = require('colors')
+  , program = require('commander');
 
 /**
  * Square library internals.
  */
 
 var Square = require('../lib/square')
-  , npm = require('../package')
   , square = new Square({ cli: true });
+
+// Do we need to silence all the output because we spit the shit to std out?
+// This needs to be checked before we parse the argv's using commander so we can
+// silence the output before that.
+program.silence = ~process.argv.indexOf('--output') || ~process.argv.indexOf('-o');
 
 /**
  * Argument filters for commander.
@@ -61,7 +62,7 @@ var filters = {
 
 // Setup the command line interface.
 program
-  .version(npm.version)
+  .version(require('../package.json').version)
   .usage('[options]')
   .option('-b, --bundle <dir/file.json>', 'the location of the package file')
   .option('-e, --extension <extension>', 'filter on this file extension')
@@ -246,7 +247,7 @@ if (!program.silence)
 [
     ''
   , 'o-o  o-o o  o o-o o-o o-o '.cyan
-  , ' \\  |  | |  | |-| |   |- '.cyan + ('      version: ' + npm.version).white
+  , ' \\  |  | |  | |-| |   |- '.cyan + ('      version: ' + program._version).white
   , 'o-o  o-O o--o o o-o   o-o '.cyan
   , '       |                  '.cyan
   , '       o                  '.cyan
@@ -304,26 +305,45 @@ program.notFound = function notFound () {
 // This is for example the case for the init/bootstrap commands.
 if (program.commands_exec) return;
 
-/**
- * Make sure that the bundle location exists, so we don't get any ENOENT errors
- */
+// Make sure that the bundle location exists, so we don't get any ENOENT errors
+if (!fs.existsSync(program.bundle)) return program.notFound();
 
-if (!fs.existsSync(program.bundle)) {
-  return program.notFound();
-}
-
-/**
- * Start search the given directory tree for square.json files. If we cannot
- * parse the bundle we are just gonna return because don't need to do any more
- * processing in this run.
- */
-
+// Start search the given directory tree for square.json files. If we cannot
+// parse the bundle we are just gonna return because don't need to do any more
+// processing in this run.
 if (!square.parse(program.bundle)) return;
+
+
+/**
+ * Called when our version is no longer the same version as our upstream
+ * repository.
+ *
+ * @param {String} latest upstream version
+ * @param {String} current current version
+ */
+
+function outofdate(latest, current) {
+  [
+     'The [square] build system is out of date, the latest version is '.white
+      + latest.green + '.'.white
+    , 'but you are still running version '.white + current.red
+      + '. Please consider upgrading to the'
+    , 'latest version to receive all bugfixes and new features.'
+    , ''
+    , 'type: '.white + 'npm install square -g'.green
+      + ' to download the latest version.'.white
+    , ''
+  ].forEach(function log (line) {
+    square.logger.warning(line);
+  });
+}
 
 // process the plugins
 program.plugins.forEach(function load (plugin) {
   square.plugin(plugin);
 });
 
-// building all the things
-square.build(program.group);
+square
+  .once('outofdate', outofdate)
+  .outofdate(true)
+  .build();
