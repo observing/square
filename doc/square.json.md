@@ -1,47 +1,297 @@
-## square.json
+# Square.json specification / configuration file
 
-The `square.json` files are the build files for the square build system. It
-allows you to configure you own build process and tell the builder which files
-needs to be processed to create your desired end result.
+The square.json specification is inspired by the common.js package specification
+that is used in Node.js. Instead of following the same specification it tries to
+be an addition to it so you can actually use the square.json keys directly in to
+your package.json.
 
-### Configuring
+## Naming convention
 
-There are couple settings that can be configured in the `square.json` file. The
-most important property in the configuration is the `dist` object. This is
-allows you to configure where square should write the final build files and what
-file name they should have. It writes the dev (development) and min (minified)
-files in your home directory.
+`square.json` in the preferred name for the configuration file. But if you
+already have an `package.json` file in the directory you can use that instead.
 
-The `min` and `dev` value are processed by a special template tag helper so you
-can easily generate powerfull builds based on some tags:
+If your file is using `.json` extension it should be valid JSON, not just an
+object literal. However we do pre-process the `.json` files and remove single
+line and multi line JavaScript comments from the file. Which makes using `.json`
+files for configurations a bit easier to work with.
+
+_**(note)**With the release of Square 1.0 we will support the usage of object
+literals if you use `.js` files for your configuration. These files do need to
+follow the Node.js module specification and export it self as an object using
+`module.exports = { .. your configuration }`._
+
+## Required fields
+
+Each file must provide the following fields in it's configuration descriptor,
+square.json:
+
+- **bundle**
+  - Object of files which should be build with square.
+
+- **configuration**
+  - Object of options that is used to configure square and it's output locations.
+    See the configuration section of this file for more details.
+
+## The bundle object
+
+The bundle is where you specify which files you want to have included in your
+distributions.
+
+
+### The desciption field
+
+The discription is a optional but adviced field, this allows you to explain what
+the file is used for or what it provides. This allows newcomers to get a quick
+overview on what each file does and why it's included in the bundle.
+
+This field might be used in the future to automatically generate documentation
+or information.
+
+### The version and latest fields
+
+The version and latest fields are used by the update plugin, which allows you to
+easily download and keep track of third-party assets such as underscore.js,
+jQuery or your other favorite library.
+
+The version field is a the current version of the file that you are using. It
+can be a semver compatible version number, SHA1 from github or a sillyver
+version number (which is a softer version of semver ;))
+
+The latest field contains the url of the third-party asset this is usually set
+to the development version of the file hosted somewhere online by the
+third-party.
+
+More information about these fields can be found in the [update plugin]()
+documentation.
+
+### The extract field
+### The dependencies field
+### The weight field
+### The extract field
+### The pre-process configuration fields
+TO BE DONE
+
+### The group field
+
+The group field is used to group different files that you specified in a single
+square.json file. This is usefull if different "group" require the same base
+files.
+
+However, the groups functionality is depricated and will be replaced with an
+alternate and more usefull replacement as outlined in observing/square#30.
+
+## The configuration object
+
+The configuration field allows you to globally configure square and it's output.
+The most important property in the configuration is the `dist` field.
+
+- [The configuration defaults](/observing/square/blob/master/static/index.js)
+
+### The dist field
+
+The dist field tells square where it should output the final builds
+(distributions). There are current 2 different type's of distributions supported,
+`min` (minified) and `dev` (development)
+
+The path and file names can be changed by using tags, see the dedicated
+[tagging](#tagging) section about more information about this concept.
+
+#### Example Object notation
 
 ```js
-"dist" : {
-    "min": "~/square.{type}.{ext}" // -> ~/square.min.css
-  , "dev": "/path/{ext}/{type}/core.{ext}" // -> /path/dev/css/core.css
+{
+  "configuration": {
+    "dist": {
+        "min": "~/square.{type}.{ext}" // -> ~/square.min.css
+      , "dev": "/path/{ext}/{type}/core.{ext}" // -> /path/dev/css/core.css
+    }
+  }
 }
 ```
 
-To see a full list of available tags, take a look at the tags section below.
+#### Example String notation
 
-#### Tags
+```js
+{
+  "configuration": {
+    "dist": "~/square.{type}.{ext}" // -> ~/square.min.css
+  }
+}
+```
 
-- `{type}` output type, either `min` or `dev`
-- `{md5}` a MD5 hash of the file's content
-- `{branch}` if the square command is executed in a git repository, this will
-  hold the branch name
-- `{sha}` if the square command is executed in a git repository, this will hold
-  last SHA value.
-- `{ext}` output extension, either `css` or `js`
-- `{date}` current in the following format: `Sunday, April 29, 2012`
-- `{year}` current year
-- `{user}` value of the environment USER
-- `{host}` hostname of the machine
+### The watch field
 
-In additon to the list above, every key => value pair that you specify in the
-`configuration.vars` will also be made available as tag.
+The watch field allows you to watch different extensions for updates than those
+in that are defined in your square.json bundles. For example might have a `.js`
+file that  uses [square directive comments]() to inline `.json` files for you.
+And you want to have a re-build triggered when one of those `.json` files
+changes so if you put `.json` in the watch field square will also re-build your
+bundle when a `.json` file is changed.
 
-#### Full configuration example:
+The extensions that you put in the watch field do not need to be prefixed with a
+`.` this is automatically done by square.
+
+#### Example
+
+```js
+{
+  "configuration": {
+    "watch": ["json"]
+  }
+}
+```
+
+_**(note)** This field only works if you are using the
+[--watch](observing/square/blob/master/doc/flags/watch.md) command line flag._
+
+### The plugins field
+
+Most of the time when you are using square's [plugins]() you don't need to
+configure anything as they are configured to serve the most common use case. How
+ever it could be possible that you want to configure the plugins.
+
+The key of this Object should be the name of the plugin (in lowercase) and the
+value would be an Object with options that you want to configure.
+
+To see find out which options each plugin supports, you would have to checkout
+the [relevant documentation for each plugin](/observing/square/tree/master/doc/plugins).
+
+#### Example configuration for the crush plugin
+
+```js
+{
+  "configuration": {
+    "plugins": {
+        "crush": {
+            "level": 5 // use crush level 5, yui + closure + uglify
+        }
+    }
+  }
+}
+```
+
+_**(note)** This field only works if you are using the
+[--plugin](/observing/square/tree/master/doc/flags/plugin.md) command line
+flag._
+
+### The (jshint|csslint) fields
+
+Code quality is something that most front-end developers hold close to their
+hearts, these fields allow you to specify your rules.
+
+In addition to the jshint field, we also check for a `.jshintrc` file in your
+home directory and have that override the configuration supplied in the
+square.json file.
+
+#### Example JSHint configuration
+
+```js
+{
+  "configuration": {
+    "jshin": {
+        "laxcomma": true
+      , "strict": true
+    }
+  }
+}
+```
+
+_**(note)** This field only works if you are using the
+[--plugin](/observing/square/tree/master/doc/flags/plugin.md) command line flag
+combined with the actual `lint` plugin._
+
+### The license field
+
+The license field allows you to add an optional license header at the top of
+each distribution. The license field's value should be a path to a license file.
+
+At the this time of writing you need to make sure that your license file is
+commented correctly for the file that needs to be included as square just puts
+the complete file's content above your distribution.
+
+The contents of the license header can be changed by using tags, see the
+dedicated [tagging](#tagging) for more information about this concept.
+
+#### Example license file
+
+```plain
+/*! 
+ * Copyright {year}, Observe.it
+ * Licensed under MIT
+ * Build generated by {user} on {host}
+ * Rollback: {sha} / {branch}
+ */
+```
+
+#### Example license configuration
+
+```js
+{
+  "configuration": {
+    "license": "./LICENSE"
+  }
+}
+```
+
+## Tagging
+
+Square has a concept of tagging, which allows you to construct file contents or
+pathnames based on tags. The are couple places where you can use these tags:
+
+- License file that you specified in the configuration field.
+- File names & paths of you specified in the configuration field.
+
+The following tags are available for usage:
+
+<table>
+<tr>
+<td>type</td>
+<td>The distribution type, either <strong>min</strong> or <strong>dev</strong>.</td>
+</tr>
+<tr>
+<td>md5</td>
+<td>MD5 hash of the file contents without any optional license headers.</td>
+</tr>
+<tr>
+<td>ext</td>
+<td>The expected output extension.</td>
+</tr>
+<tr>
+<td>date</td>
+<td>The current date, formatted as: <em>Sunday, April 29, 2012.</em></td>
+</tr>
+<tr>
+<td>year</td>
+<td>The current year.</td>
+</tr>
+<tr>
+<td>user</td>
+<td>The USER environment flag.</td>
+</tr>
+<tr>
+<td>host</td>
+<td>The host name of the machine that generated the output.</td>
+</tr>
+<tr>
+<td>branch <strong>(git)</strong></td>
+<td>The current branch that is checked out in your git repository.</td>
+</tr>
+<tr>
+<td>sha <strong>(git)</strong></td>
+<td>The SHA1 of your current checkout.</td>
+</tr>
+</table>
+
+_**(git)** The requirement for these tags is that the square.json file is in a
+git repository._
+
+In addition the tags fields specified above, it's also possible to add tags your
+self by adding an **tags** `object` to the configuration section. Where the key
+of the object is name of the tag. If you have a `package.json` specified in
+working directory we will automatically pre-fill the `tags` field with key =>
+values of it.
+
+## Full configuration example:
 
 ```js
 {
@@ -80,23 +330,9 @@ In additon to the list above, every key => value pair that you specify in the
 
         // [optional] extra variables that you want to have available for every
         // function that makes use of the template tag helper function
-      , vars: {}
+      , tags: {}
     }
 
     ..
 }
 ```
-
-### Specifying your bundles
-
-Specifying the files in the bundle.
-
-```js
-{
-    "configuration" { .. see above .. }
-  , "bundle": {
-  
-    }
-}
-```
-
