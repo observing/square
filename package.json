@@ -19,7 +19,7 @@
   },
   "dependencies": {
     "async": "0.1.22",
-    "eson": "0.2.0",
+    "eson": "0.3.0",
     "canihaz": "0.0.x",
     "colors": "0.6.0-1",
     "commander": "0.6.1",
