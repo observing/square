@@ -369,3 +369,31 @@ found.on('end', function end () {
 
   square.build(program.extension, program.group);
 });
+
+// Check if we are still running the latest version of square.
+var minimum = 1
+  , maximum = 10
+  , random = Math.floor(Math.random() * (maximum - minimum + 1)) + minimum;
+
+// silly random value, so we can do some rate limiting on this check as we don't
+// always to check the version on start-up.. as it is a CLI after all, but it's
+// but users should be notified when their build system is out of date..
+if (random === 7) {
+  square.on('outofdate', function outofdate(latest, current) {
+    [
+       'The [square] build system is out of date, the latest version is '.white
+        + latest.green + '.'.white
+      , 'but you are still running version '.white + current.red
+        + '. Please consider upgrading to the'
+      , 'latest version to receive all bugfixes and new features.'
+      , ''
+      , 'type: '.white + 'npm install square -g'.green
+        + ' to download the latest version.'.white
+      , ''
+    ].forEach(function log (line) {
+      square.logger.warning(line);
+    });
+  });
+
+  square.outofdate();
+}
