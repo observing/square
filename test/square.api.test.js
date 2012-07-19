@@ -190,7 +190,32 @@ describe('[square] API', function () {
       square.plugin('plugin.fixture', options);
     });
 
-    it('should merge the configuration with the supplied options');
+    it('should merge the configuration with the supplied options', function (done) {
+      var square = new Square();
+      square.paths.push(require('path').join(process.env.PWD, 'test/fixtures'));
+      square.package = {
+          configuration: {
+              plugins: {
+                  'plugin.fixture': {
+                      foo: 'bar'
+                    , bar: 'foo'
+                    , baz: 'afdasfas'
+                  }
+              }
+          }
+      };
+
+      square.on('plugin.fixture:init', function (pluginoptions) {
+        expect(pluginoptions).to.have.property('foo', 'choochoo');
+        expect(pluginoptions).to.have.property('bar', 'foo');
+        expect(pluginoptions).to.have.property('baz', 'afdasfa');
+
+        done();
+      });
+
+      var options = { foo: 'choochoo' };
+      square.plugin('plugin.fixture', options);
+    });
 
     it('should log an critical error when it fails');
   });
