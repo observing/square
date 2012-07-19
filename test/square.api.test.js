@@ -1,8 +1,14 @@
-/*global expect */
+/*global expect, Square, execSync */
 describe('[square] API', function () {
   "use strict";
 
-  var Square = require('../lib/square');
+  /**
+   * Simple dummy function that is used for testing.
+   *
+   * @api private
+   */
+
+  function noop() { console.log(/* dummy function*/); }
 
   it('exposes the current version number', function () {
     expect(Square.version).to.match(/^\d+\.\d+\.\d+$/);
@@ -22,11 +28,8 @@ describe('[square] API', function () {
     });
 
     it('should override existing prototypes', function () {
-      expect(Square.prototype.configure).to.be.an('function');
-
       var backup = Square.prototype.configure;
-
-      function noop() { /* dummy function*/ }
+      expect(Square.prototype.configure).to.be.an('function');
 
       Square.extend({
           configure: noop
@@ -47,32 +50,107 @@ describe('[square] API', function () {
       expect(square.env).to.not.equal('whoopwhoop');
 
       var square2 = new Square({ env: 'whoopwhoop' });
-      expect(square.env).to.equal('whoopwhoop');
+      expect(square2.env).to.equal('whoopwhoop');
     });
 
-    it('should not override private properties');
+    it('should not override private properties', function () {
+      var privates = {
+              middleware: 'pewpew'
+            , config: 'pewpew'
+            , package: 'pewpew'
+          }
+        , square = new Square(privates);
 
-    it('should silence the logger when stdout is changed');
+      Object.keys(privates).forEach(function (key) {
+        expect(square[key]).to.not.equal(privates[key]);
+      });
+    });
 
-    it('should set the correct env based on NODE_ENV');
+    it('should silence the logger when stdout option is changed', function () {
+      var square = new Square({ stdout: true });
+      expect(square.logger.level).to.equal(-1);
 
-    it('should find the correct $HOME directory');
+      square.stdout = false;
+      expect(square.logger.level).to.be.above(-1);
+    });
+
+    it('should set the correct env based on NODE_ENV', function () {
+      var square = new Square();
+      expect(square.env).to.equal('testing');
+    });
+
+    it('should find the correct $HOME directory', function () {
+      // @TODO make this test pass on non unix platforms, as pwd and cd ~/ will
+      // probably output something else on windows ;)
+      var home = execSync('cd ~/ && pwd', { silent: true }).output.replace('\n', '');
+
+      var square = new Square();
+      expect(square.home).to.equal(home);
+    });
+
+    it('should be able to configure the logger', function () {
+      var square = new Square({
+          'log notification level': 1337
+        , 'log level': 7331
+        , 'disable log transport': true
+      });
+
+      expect(square.logger.level).to.equal(7331);
+      expect(square.logger.notification).to.equal(1337);
+      expect(square.logger.transports).to.have.length(0);
+    });
   });
 
   describe('#has', function () {
-    it('should find duplicate plugins');
+    it('should find duplicate plugins', function () {
+      var square = new Square();
+
+      square.middleware.push(noop);
+      expect(square.has(noop)).to.equal(true);
+    });
+
+    it('shouldnt find non-existing plugins', function () {
+      var square = new Square();
+      expect(square.has(noop)).to.equal(false);
+    });
   });
 
   describe('#use', function () {
-    it('should only accept functions');
+    it('should only accept functions', function (done) {
+      var square = new Square({ 'disable log transport': true });
 
-    it('should not add duplicate plugins');
+      // assure that there is a small possibility that an event emitter can
+      // execute async.. if this is not the case, we wrapped it in a tick
+      square.logger.on('error', function (args, stack) {
+        expect(args[0]).to.have.string('function');
+
+        process.nextTick(done);
+      });
+
+      square.use('string');
+      expect(square.middleware).to.have.length(0);
+    });
+
+    it('should not add duplicate plugins', function () {
+      var square = new Square();
+
+      square.use(noop);
+      expect(square.middleware).to.have.length(1);
+
+      // silent failure
+      square.use(noop);
+      expect(square.middleware).to.have.length(1);
+    });
   });
 
   describe('#plugin', function () {
     it('should require the given plugin by name');
 
+    it('should for the plugin in multiple locations');
+
     it('should proxy the configuration to the plugin');
+
+    it('should merge the configuration with the supplied options');
 
     it('should log an critical error when it fails');
   });

@@ -17,8 +17,11 @@ download:
 	@cd $(TMP) && curl $(LATESTYUI) -o yui.zip && unzip yui.zip && mv $(YUIVERSION)/build/$(YUIVERSION).jar .$(VENDOR)/yui.jar
 	@rm -Rf $(TMP)
 
-test:
+test-suite:
 	@./node_modules/.bin/mocha $(ALL_TESTS)
+
+test:
+	NODE_ENV=testing $(MAKE) test-suite
 
 client:
 	@square --bundle ./package.json --plugin update,crush --filename package
