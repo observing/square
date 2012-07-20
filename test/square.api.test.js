@@ -208,7 +208,7 @@ describe('[square] API', function () {
       square.on('plugin.fixture:init', function (pluginoptions) {
         expect(pluginoptions).to.have.property('foo', 'choochoo');
         expect(pluginoptions).to.have.property('bar', 'foo');
-        expect(pluginoptions).to.have.property('baz', 'afdasfa');
+        expect(pluginoptions).to.have.property('baz', 'afdasfas');
 
         done();
       });
