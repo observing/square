@@ -231,11 +231,36 @@ describe('[square] API', function () {
   });
 
   describe('#configure', function () {
-    it('should call the function if no evn variable is given');
+    it('should call the function if no evn variable is given', function (done) {
+      var square = new Square();
 
-    it('should not execute the function if the env doesnt match');
+      square.configure(done);
+    });
 
-    it('should execute the function on evn match');
+    it('should not execute the function if the env doesnt match', function () {
+      var square = new Square()
+        , execution = 0;
+
+      square.configure('trololol', function () {
+        execution++;
+      });
+
+      expect(execution).to.equal(0);
+    });
+
+    it('should execute the function on evn match', function (done) {
+      var square = new Square();
+
+      square.configure('testing', done);
+    });
+
+    it('should execute with the correct function context', function () {
+      var square = new Square();
+
+      square.on('configure', function () {
+        expect(this).to.equal(square);
+      });
+    });
   });
 
   describe('#forEach', function () {
