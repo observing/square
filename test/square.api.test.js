@@ -410,7 +410,27 @@ describe('[square] API', function () {
   });
 
   describe('#commentWrap', function () {
-    it('should not place the comment if we dont have a comment style');
+    /**
+     * Simple string single line comment string.
+     *
+     * @type {String}
+     */
+
+    var plain = 'hello world';
+
+    /**
+     * Multi line line.
+     *
+     * @type {String}
+     */
+
+    var multiline = ['hello', 'world'].join('\n');
+
+    it('should not place the comment if we dont have a comment style', function () {
+      var square = new Square();
+
+      expect(square.commentWrap(plain, 'pew pew')).to.equal('');
+    });
 
     it('should wrap multi-line comments');
 
