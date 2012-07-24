@@ -11,6 +11,6 @@
 - [delete] Removed pointless packages that can be lazy loaded using canihaz
 - [fix] fixed the linter to lint the files with the correct based on file
   extension.
-- [fix][breaking] square threats output destinations relative to the square.json
+- [fix][breaking] square treats output destinations relative to the square.json
   file's location
 - [upgrade] use the new closure compiler
