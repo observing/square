@@ -67,6 +67,28 @@ documentation.
 ### The extract field
 ### The dependencies field
 ### The weight field
+
+The weight field is used to determine the order in which files you specified in
+square.json will be added to your final file. The higher the weight, the
+earlier on your file will be read, processed and implemented.
+
+```js
+{
+  "bundle": {
+      "jquery.js": {
+          "description": "jQuery JavaScript Library."
+        , "weight": 2
+      }
+    , "development.js": {
+          "description": "My own JavaScript madness. Depends on jQuery."
+        , "weight": 1
+    }
+  }
+}
+```
+
+Here the custom JavaScript will always be loaded after jQuery.
+
 ### The extract field
 ### The pre-process configuration fields
 TO BE DONE
