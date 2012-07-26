@@ -424,7 +424,7 @@ describe('[square] API', function () {
      * @type {String}
      */
 
-    var multiline = ['hello', 'world'].join('\n');
+    var multiline = ['hello', 'silly', 'world'].join('\n');
 
     it('should not place the comment if we dont have a comment style', function () {
       var square = new Square();
@@ -432,10 +432,43 @@ describe('[square] API', function () {
       expect(square.commentWrap(plain, 'pew pew')).to.equal('');
     });
 
-    it('should wrap multi-line comments');
+    it('should wrap multi-line comments', function () {
+      var square = new Square()
+        , comments = square.commentWrap(multiline, 'js')
+        , counts = 0;
 
-    it('should wrap single-line comments');
+      comments.split('\n').forEach(function (line) {
+        if (line.trim() === '') return;
 
-    it('should wrap the comment is the correct comment style based on type');
+        expect(line.trim()).to.match(/\/|\*/);
+      });
+    });
+
+    it('should wrap single-line comments', function () {
+      var square = new Square()
+        , comment = square.commentWrap(plain, 'js');
+
+      expect(comment).to.have.string('/*');
+      expect(comment).to.have.string('*/');
+      expect(comment).to.have.string('\n');
+
+      // should have starting \n, actual string, closing \n
+      expect(comment.split('\n')).to.have.length(3);
+    });
+
+    it('should wrap the comment is the correct comment style based on type', function () {
+      var square = new Square()
+        , comment = square.commentWrap(plain, 'js')
+        , comments = square.commentWrap(multiline, 'js')
+        , style = square.commentStyles.js;
+
+      expect(comment).to.have.string(style.header);
+      expect(comment).to.have.string(style.body);
+      expect(comment).to.have.string(style.footer);
+
+      expect(comments).to.have.string(style.header);
+      expect(comments).to.have.string(style.body);
+      expect(comments).to.have.string(style.footer);
+    });
   });
 });
