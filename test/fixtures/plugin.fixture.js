@@ -16,6 +16,7 @@ module.exports = function fixture(options) {
       , 'no-content': false
       , 'change-content': false
       , 'error-argument': false
+      , 'unique-id': 0
     };
 
   square.emit('plugin.fixture:init', options, this);
@@ -23,6 +24,12 @@ module.exports = function fixture(options) {
 
   return function middleware(output, next) {
     square.emit('plugin.fixture:call', output, this);
+
+    // we need to emit an id, so we can see if the plugins are processed in the
+    // correct order
+    if (settings['unique-id'] > 0) {
+      square.emit('plugin.fixture:id', settings['unique-id']);
+    }
 
     // throwing does not trigger the next function, which is awesome as we can
     // see if we can change the content
