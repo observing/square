@@ -1,0 +1,6 @@
+// starting comments here
+// but spread over multiple lines
+{
+  // this comment is about foo, and is indented
+  "foo": "bar"
+}

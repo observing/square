@@ -398,15 +398,53 @@ describe('[square] API', function () {
   });
 
   describe('#fromJSON', function () {
-    it('should validate the location');
+    var dir = require('path').join(fixtures, '/fromJSON');
 
-    it('should remove // comments from the JSON');
+    it('should validate the location', function () {
+      var square = new Square();
 
-    it('should remove /**/ comments from the JSON');
+      // non existing
+      expect(square.fromJSON(dir + '/nonexisting.json')).to.be.a('object');
+      expect(square.fromJSON(dir + '/nonexisting.json')).to.deep.equal({});
 
-    it('should not give a fuck about the extension');
+      // existing
+      expect(square.fromJSON(dir + '/foo.json')).to.be.a('object');
+      expect(square.fromJSON(dir + '/foo.json')).to.have.property('foo', 'bar');
+    });
 
-    it('should return an Error when it fails to parse');
+    it('should remove // comments from the JSON', function () {
+      var square = new Square();
+
+      expect(square.fromJSON(dir + '/singlecomment.json')).to.be.a('object');
+      expect(square.fromJSON(dir + '/singlecomment.json')).to.have.property('foo', 'bar');
+    });
+
+    it('should remove /**/ comments from the JSON', function () {
+      var square = new Square();
+
+      expect(square.fromJSON(dir + '/multicomment.json')).to.be.a('object');
+      expect(square.fromJSON(dir + '/multicomment.json')).to.have.property('foo', 'bar');
+    });
+
+    it('should remove both comments from the JSON', function () {
+      var square = new Square();
+
+      expect(square.fromJSON(dir + '/combinedcomment.json')).to.be.a('object');
+      expect(square.fromJSON(dir + '/combinedcomment.json')).to.have.property('foo', 'bar');
+    });
+
+    it('should not give a fuck about the extension', function () {
+      var square = new Square();
+
+      expect(square.fromJSON(dir + '/noextension')).to.be.a('object');
+      expect(square.fromJSON(dir + '/noextension')).to.have.property('foo', 'bar');
+    });
+
+    it('should return an Error when it fails to parse', function () {
+      var square = new Square();
+
+      expect(square.fromJSON(dir + '/broken.json')).to.be.an.instanceof(Error);
+    });
   });
 
   describe('#critical', function () {

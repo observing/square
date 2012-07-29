@@ -1,0 +1,16 @@
+/**
+ * Multi line comment
+ * is pretty awesome <3
+ */
+
+/**
+ * Zoom zoom, more comments
+ */
+{
+  /**
+   * This is a multi-line
+   * comment, that is indented
+   */
+
+  "foo": "bar"
+}
