@@ -490,13 +490,44 @@ describe('[square] API', function () {
   });
 
   describe('#tag', function () {
-    it('should return the branch name, as this is a git repository');
+    it('should return the branch name, as this is a git repository', function () {
+      var square = new Square()
+        , collection = { content: '', extension: 'js' }
+        , data = square.tag(collection, 'dev');
 
-    it('should return the last SHA, as this is a git repository');
+      expect(data.branch).to.match(/^(master|development)$/);
+    });
 
-    it('should contain the default tags');
+    it('should return the last SHA, as this is a git repository', function () {
+      var square = new Square()
+        , collection = { content: '', extension: 'js' }
+        , data = square.tag(collection, 'dev');
 
-    it('should override the tags with our configured tags');
+      expect(data.sha).to.match(/^[0-9a-fA-F]{40}$/);
+    });
+
+    it('should contain the default tags', function () {
+      var square = new Square()
+        , collection = { content: '', extension: 'js' }
+        , data = square.tag(collection);
+
+      expect(data.type).to.equal('min');
+      expect(data.ext).to.equal('js');
+      expect(data.date).to.equal((new Date).toLocaleDateString());
+      expect(data.year).to.equal((new Date).getFullYear());
+      expect(data.user).to.equal(process.env.USER || 'anonymous');
+      expect(data.env).to.equal('testing');
+    });
+
+    it('should override the tags with our configured tags', function () {
+      var square = new Square()
+        , collection = { content: '', extension: 'js' };
+
+      square.package.configuration = { tags: { user: 'trolololololol' }};
+      var data = square.tag(collection);
+
+      expect(data.user).to.equal('trolololololol');
+    });
   });
 
   describe('#template', function () {
