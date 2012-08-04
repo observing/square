@@ -407,6 +407,21 @@ describe('[square] API', function () {
       expect(square.package.bundle).to.be.a('object');
     });
 
+    it('should return false when it fails to read the file', function (done) {
+      var square = new Square();
+
+      // we need to assign an error handler and failing to read a json file is
+      // a critical error
+      square.on('error', function (err) {
+        expect(err).to.be.instanceof(Error);
+        expect(err.message).to.contain('Failed');
+
+        done();
+      });
+
+      expect(square.read({ string: fixtures + '/wtftrololol.json' })).to.equal(false);
+    });
+
     it('should generate inclusion details', function () {
       var square = new Square()
         , source = require('fs').readFileSync(fixtures + '/read/test.json', 'utf8');
@@ -452,11 +467,12 @@ describe('[square] API', function () {
       });
     });
 
-    it('should tag {tags} using eson');
+    it('should tag {tags} using eson', function () {
+      var square = new Square();
 
-    it('should return false when it fails to read the file');
-
-    it('should return true when it sucessfully read the file');
+      expect(square.read({ string: fixtures + '/read/tags.json' })).to.equal(true);
+      expect(square.package.type).to.equal('min');
+    });
   });
 
   describe('#fromJSON', function () {
