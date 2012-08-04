@@ -1,0 +1,4 @@
+{
+  "bundles": "glob ./glob/*.json",
+  "moo": "im a cow"
+}

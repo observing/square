@@ -1,0 +1,8 @@
+{
+  "configuration": {
+    "foo": "enabled",
+    "bar": "no"
+  },
+  "bundle": {
+  }
+}

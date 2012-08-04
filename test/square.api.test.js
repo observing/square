@@ -378,19 +378,81 @@ describe('[square] API', function () {
   });
 
   describe('#read', function () {
-    it('should read .json files');
+    it('should read .json files', function () {
+      var square = new Square();
 
-    it('should require .js files');
+      expect(square.read({ string: fixtures + '/read/test.json' })).to.equal(true);
+      expect(square.package).to.be.a('object');
+      expect(square.package.configuration).to.be.a('object');
+      expect(square.package.bundle).to.be.a('object');
+    });
 
-    it('should also read objects');
+    it('should require .js files', function () {
+      var square = new Square();
 
-    it('should generate inclusion details');
+      expect(square.read({ string: fixtures + '/read/test.js' })).to.equal(true);
+      expect(square.package).to.be.a('object');
+      expect(square.package.configuration).to.be.a('object');
+      expect(square.package.bundle).to.be.a('object');
+    });
 
-    it('should parse boolean values using eson');
+    it('should also read objects', function () {
+      var square = new Square();
 
-    it('should parse include statements using eson');
+      var structure = { configuration: {}, bundle: {} };
 
-    it('should glob directories using eson');
+      expect(square.read({ object: structure })).to.equal(true);
+      expect(square.package).to.be.a('object');
+      expect(square.package.configuration).to.be.a('object');
+      expect(square.package.bundle).to.be.a('object');
+    });
+
+    it('should generate inclusion details', function () {
+      var square = new Square()
+        , source = require('fs').readFileSync(fixtures + '/read/test.json', 'utf8');
+
+      expect(square.read({ string: fixtures + '/read/test.json' })).to.equal(true);
+
+      // simple tests
+      expect(square.package.path).to.be.a('string');
+      expect(square.package.source).to.be.a('string');
+      expect(square.package.location).to.be.a('string');
+
+      expect(square.package.location).to.equal(fixtures + '/read/test.json');
+      expect(square.package.path).to.equal(fixtures + '/read');
+      expect(square.package.source).to.equal(source);
+    });
+
+    it('should parse boolean values using eson', function () {
+      var square = new Square();
+
+      expect(square.read({ string: fixtures + '/read/eson-boolean.json' })).to.equal(true);
+      expect(square.package.configuration).to.be.a('object');
+      expect(square.package.configuration.foo).to.equal(true);
+      expect(square.package.configuration.bar).to.equal(false);
+    });
+
+    it('should parse include statements using eson', function () {
+      var square = new Square();
+
+      expect(square.read({ string: fixtures + '/read/eson-include.json' })).to.equal(true);
+      expect(square.package.configuration).to.be.a('object');
+      expect(square.package.configuration.foo).to.equal('bar');
+    });
+
+    it('should glob directories using eson', function () {
+      var square = new Square();
+
+      expect(square.read({ string: fixtures + '/read/glob.json' })).to.equal(true);
+      expect(square.package.bundles).to.be.a('array');
+
+      square.package.bundles.forEach(function (match) {
+        expect(match).to.contain('glob');
+        expect(match).to.contain('json');
+      });
+    });
+
+    it('should tag {tags} using eson');
 
     it('should return false when it fails to read the file');
 
