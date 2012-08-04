@@ -531,11 +531,44 @@ describe('[square] API', function () {
   });
 
   describe('#template', function () {
-    it('should replace the {} tags in a string');
+    it('should replace the {tags} in a string', function () {
+      var square = new Square()
+        , tpl = square.template;
 
-    it('should find keys using dot notations for deeper object nesting');
+      expect(tpl('hello {world}', { world: 'foo' })).to.equal('hello foo');
+      expect(tpl('{hi}', { hi: 'foo' })).to.equal('foo');
+    });
 
-    it('should use #tag if no data is provided');
+    it('should remove the {tags} if no data has been found', function () {
+      var square = new Square()
+        , tpl = square.template;
+
+      expect(tpl('hello {world}', {})).to.equal('hello ');
+    });
+
+    it('should find keys using dot notations for deeper object nesting', function () {
+      var square = new Square()
+        , tpl = square.template;
+
+      var data = {
+          bar: 'foo'
+        , foo: {
+            bar: 'baz'
+          }
+        , baz: [{ foo: 'bar' }]
+      };
+
+      expect(tpl('hi {bar}', data)).to.equal('hi foo');
+      expect(tpl('hi {foo.bar}', data)).to.equal('hi baz');
+      expect(tpl('hi {baz.0.foo}', data)).to.equal('hi bar');
+      expect(tpl('{bar}{foo.bar}{baz.0.foo}', data)).to.equal('foobazbar');
+    });
+
+    it('should use the #tag() method to get data if no data is provided', function () {
+      var square = new Square();
+
+      expect(square.template('hi {type}')).to.equal('hi min');
+    });
   });
 
   describe('#write', function () {
