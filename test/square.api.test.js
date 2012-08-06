@@ -372,6 +372,10 @@ describe('[square] API', function () {
 
     it('should parse objects');
 
+    it('should parse configuration.import');
+
+    it('should parse configuration.import recursively');
+
     it('should return true when it parses correctly');
 
     it('should return false when it fails to parse');
@@ -381,7 +385,7 @@ describe('[square] API', function () {
     it('should read .json files', function () {
       var square = new Square();
 
-      expect(square.read({ string: fixtures + '/read/test.json' })).to.equal(true);
+      expect(square.read(fixtures + '/read/test.json')).to.equal(true);
       expect(square.package).to.be.a('object');
       expect(square.package.configuration).to.be.a('object');
       expect(square.package.bundle).to.be.a('object');
@@ -390,7 +394,7 @@ describe('[square] API', function () {
     it('should require .js files', function () {
       var square = new Square();
 
-      expect(square.read({ string: fixtures + '/read/test.js' })).to.equal(true);
+      expect(square.read(fixtures + '/read/test.js')).to.equal(true);
       expect(square.package).to.be.a('object');
       expect(square.package.configuration).to.be.a('object');
       expect(square.package.bundle).to.be.a('object');
@@ -401,7 +405,7 @@ describe('[square] API', function () {
 
       var structure = { configuration: {}, bundle: {} };
 
-      expect(square.read({ object: structure })).to.equal(true);
+      expect(square.read(structure)).to.equal(true);
       expect(square.package).to.be.a('object');
       expect(square.package.configuration).to.be.a('object');
       expect(square.package.bundle).to.be.a('object');
@@ -419,14 +423,14 @@ describe('[square] API', function () {
         done();
       });
 
-      expect(square.read({ string: fixtures + '/wtftrololol.json' })).to.equal(false);
+      expect(square.read(fixtures + '/wtftrololol.json')).to.equal(false);
     });
 
     it('should generate inclusion details', function () {
       var square = new Square()
         , source = require('fs').readFileSync(fixtures + '/read/test.json', 'utf8');
 
-      expect(square.read({ string: fixtures + '/read/test.json' })).to.equal(true);
+      expect(square.read(fixtures + '/read/test.json')).to.equal(true);
 
       // simple tests
       expect(square.package.path).to.be.a('string');
@@ -441,7 +445,7 @@ describe('[square] API', function () {
     it('should parse boolean values using eson', function () {
       var square = new Square();
 
-      expect(square.read({ string: fixtures + '/read/eson-boolean.json' })).to.equal(true);
+      expect(square.read(fixtures + '/read/eson-boolean.json')).to.equal(true);
       expect(square.package.configuration).to.be.a('object');
       expect(square.package.configuration.foo).to.equal(true);
       expect(square.package.configuration.bar).to.equal(false);
@@ -450,7 +454,7 @@ describe('[square] API', function () {
     it('should parse include statements using eson', function () {
       var square = new Square();
 
-      expect(square.read({ string: fixtures + '/read/eson-include.json' })).to.equal(true);
+      expect(square.read(fixtures + '/read/eson-include.json')).to.equal(true);
       expect(square.package.configuration).to.be.a('object');
       expect(square.package.configuration.foo).to.equal('bar');
     });
@@ -458,7 +462,7 @@ describe('[square] API', function () {
     it('should glob directories using eson', function () {
       var square = new Square();
 
-      expect(square.read({ string: fixtures + '/read/glob.json' })).to.equal(true);
+      expect(square.read(fixtures + '/read/glob.json')).to.equal(true);
       expect(square.package.bundles).to.be.a('array');
 
       square.package.bundles.forEach(function (match) {
@@ -470,7 +474,7 @@ describe('[square] API', function () {
     it('should tag {tags} using eson', function () {
       var square = new Square();
 
-      expect(square.read({ string: fixtures + '/read/tags.json' })).to.equal(true);
+      expect(square.read(fixtures + '/read/tags.json')).to.equal(true);
       expect(square.package.type).to.equal('min');
     });
   });
