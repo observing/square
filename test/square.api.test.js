@@ -535,6 +535,14 @@ describe('[square] API', function () {
     it('should exit the process with 1 when running in cli');
   });
 
+  describe('createMeta', function () {
+    it('should generate meta');
+  });
+
+  describe('createBundle', function () {
+    it('should generate a bundle');
+  });
+
   describe('#refresh', function () {
     it('should refresh the contents of the changed files');
 
