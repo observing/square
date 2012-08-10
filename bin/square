@@ -152,7 +152,7 @@ program.on('--watch', function watching (live) {
     });
 
     // start watching for file changes in the given directory
-    watch(files, extensions, function update (err, files) {
+    watch.call(square, files, extensions, function update (err, files) {
       if (err) return square.logger.error(
           'Watcher error %s, canceling watch operations on %s'
         , err.message, files
