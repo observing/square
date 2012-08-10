@@ -565,6 +565,10 @@ describe('[square] API', function () {
     it('should giving meaning full errors for recursion');
 
     it('should add debug comments for each include');
+
+    it('should prepend a semicolon if file doesnt start with one');
+
+    it('should only prepend the semicolon for JavaScript files');
   });
 
   describe('#build', function () {});
