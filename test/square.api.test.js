@@ -376,6 +376,10 @@ describe('[square] API', function () {
 
     it('should parse configuration.import recursively');
 
+    it('should sort the bundles based on weight');
+
+    it('should create a bundle.meta for each supplied bundle');
+
     it('should return true when it parses correctly');
 
     it('should return false when it fails to parse');
