@@ -385,6 +385,16 @@ describe('[square] API', function () {
     it('should return false when it fails to parse');
   });
 
+  describe('#reduced', function () {
+    it('should add semi-colons to concatinated js files');
+
+    it('should return errors as first argument');
+
+    it('should run files over the pre-processor');
+
+    it('should process files per platform');
+  });
+
   describe('#read', function () {
     it('should read .json files', function () {
       var square = new Square();
