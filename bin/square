@@ -218,8 +218,7 @@ program.on('--list', function plugins() {
       , words;
 
     if (!description) return;
-
-    description = description.toLowerCase().words();
+    description = description.words();
     while (description.length) {
       count++;
       words = description.splice(0, 15);
