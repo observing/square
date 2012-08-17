@@ -629,12 +629,13 @@ describe('[square] API', function () {
 
     it('should override the tags with our configured tags', function () {
       var square = new Square()
-        , collection = { content: '', extension: 'js' };
+        , collection = { content: '', extension: 'js', type: 'wtf' };
 
       square.package.configuration = { tags: { user: 'trolololololol' }};
       var data = square.tag(collection);
 
       expect(data.user).to.equal('trolololololol');
+      expect(data.type).to.equal('wtf');
     });
   });
 
