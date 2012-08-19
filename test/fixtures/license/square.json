@@ -1,0 +1,11 @@
+{
+  "configuration": {
+    "dist": "/tmp/license",
+    "license": "./LICENSE"
+  },
+  "bundle": {
+    "../base.js": {
+      "description": "basic file"
+    }
+  }
+}

@@ -754,7 +754,11 @@ describe('[square] API', function () {
   });
 
   describe('#license', function () {
-    it('should prefix the content with a license');
+    it('should prefix the content with a license', function () {
+      var square = new Square();
+
+      square.parse(fixtures + '/license/square.json');
+    });
 
     it('shouldnt prrefix if theres no license');
 
