@@ -555,6 +555,18 @@ describe('[square] API', function () {
 
   describe('createBundle', function () {
     it('should generate a bundle');
+
+    it('should generate an empty content property if the location doesnt exist');
+
+    it('should add a compiler if we can preprocess it');
+
+    it('should set the correct output extension based the pre-processor');
+
+    it('should set the override the output extension using the `as` field');
+
+    it('should parse the file extension');
+
+    it('should parse the filename');
   });
 
   describe('#refresh', function () {
@@ -755,13 +767,59 @@ describe('[square] API', function () {
 
   describe('#license', function () {
     it('should prefix the content with a license', function () {
-      var square = new Square();
+      var square = new Square()
+        , result
+        , chunks;
 
       square.parse(fixtures + '/license/square.json');
+      result = square.license({
+          content: 'pew pew'
+        , extension: 'js'
+        , type: 'min'
+      });
+
+      chunks = result.split('\n');
+
+      expect(chunks.pop()).to.equal('pew pew');
+      expect(result).to.contain('observe.it');
+      expect(result).to.contain('Permission is hereby granted, free of charge');
     });
 
-    it('shouldnt prrefix if theres no license');
+    it('shouldnt prrefix if theres no license', function () {
+      var square = new Square()
+        , result;
 
-    it('should correclty comment the license header');
+      square.parse(fixtures + '/license/no-license.json');
+      result = square.license({
+          content: 'pew pew'
+        , extension: 'js'
+        , type: 'min'
+      });
+
+      expect(result).to.equal('pew pew');
+    });
+
+    it('should correclty comment the license header', function () {
+      var square = new Square()
+        , result
+        , chunks;
+
+      square.parse(fixtures + '/license/square.json');
+      result = square.license({
+          content: 'pew pew'
+        , extension: 'js'
+        , type: 'min'
+      });
+
+      chunks = result.split('\n');
+
+      chunks.pop(); // remove the content
+      chunks.shift(); // remove the first empty line
+
+      chunks.forEach(function forEach(line) {
+
+        expect(line.slice(0, 5)).to.include('*');
+      });
+    });
   });
 });
