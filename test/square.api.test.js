@@ -550,23 +550,89 @@ describe('[square] API', function () {
   });
 
   describe('createMeta', function () {
-    it('should generate meta');
+    var struct = { path: fixtures };
+
+    it('should generate a meta object', function () {
+      var square = new Square()
+        , meta;
+
+      meta = square.createMeta.call(struct, {
+
+      }, 'base.js');
+
+      expect(meta).to.be.an('object');
+
+      expect(meta).to.have.property('content');
+      expect(meta).to.have.property('extension');
+      expect(meta).to.have.property('output');
+      //expect(meta).to.have.property('compiler');
+      expect(meta).to.have.property('key');
+      expect(meta).to.have.property('location');
+      expect(meta).to.have.property('filename');
+
+      expect(meta.content).to.not.equal('');
+      expect(meta.extension).to.equal('js');
+      expect(meta.output).to.equal('js');
+      expect(meta.key).to.equal('base.js');
+      expect(meta.filename).to.equal('base.js');
+    });
+
+    it('should generate an empty content property if the location doesnt exist', function () {
+      var square = new Square()
+        , meta;
+
+      meta = square.createMeta.call(struct, {
+
+      }, '../base.js');
+
+      expect(meta.content).to.equal('');
+      expect(meta.extension).to.equal('js');
+      expect(meta.output).to.equal('js');
+      expect(meta.key).to.equal('../base.js');
+      expect(meta.filename).to.equal('base.js');
+    });
+
+    it('should add a compiler if we can preprocess it', function () {
+      var square = new Square()
+        , meta;
+
+      meta = square.createMeta.call(struct, {
+
+      }, '../base.styl');
+
+      expect(meta.content).to.equal('');
+      expect(meta.extension).to.equal('styl');
+      expect(meta.compiler).to.be.a('function');
+      expect(meta.output).to.equal('css');
+      expect(meta.key).to.equal('../base.styl');
+      expect(meta.filename).to.equal('base.styl');
+    });
+
+    it('should set the override the output extension using the `as` field', function () {
+      var square = new Square()
+        , meta;
+
+      meta = square.createMeta.call(struct, {
+          as: 'html'
+      }, 'base.jade');
+
+      expect(meta.content).to.equal('');
+      expect(meta.extension).to.equal('jade');
+      expect(meta.compiler).to.be.a('function');
+      expect(meta.output).to.equal('html');
+      expect(meta.key).to.equal('base.jade');
+      expect(meta.filename).to.equal('base.jade');
+
+      // make sure that it normally exports as something else
+      meta = square.createMeta.call(struct, {
+      }, 'base.jade');
+
+      expect(meta.output).to.equal('js');
+    });
   });
 
   describe('createBundle', function () {
     it('should generate a bundle');
-
-    it('should generate an empty content property if the location doesnt exist');
-
-    it('should add a compiler if we can preprocess it');
-
-    it('should set the correct output extension based the pre-processor');
-
-    it('should set the override the output extension using the `as` field');
-
-    it('should parse the file extension');
-
-    it('should parse the filename');
   });
 
   describe('#refresh', function () {
@@ -817,7 +883,6 @@ describe('[square] API', function () {
       chunks.shift(); // remove the first empty line
 
       chunks.forEach(function forEach(line) {
-
         expect(line.slice(0, 5)).to.include('*');
       });
     });
