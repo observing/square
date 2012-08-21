@@ -33,4 +33,7 @@ update:
 install:
 	@npm link .
 
+todo:
+	grep "@TODO" -R ./
+
 .PHONY: test
