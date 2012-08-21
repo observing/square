@@ -1,0 +1,2 @@
+/*! [square] directive: ./imported.js */
+var foo = "bar";

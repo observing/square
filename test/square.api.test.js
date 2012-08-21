@@ -7,7 +7,9 @@ describe('[square] API', function () {
    *
    * @type {String}
    */
-  var fixtures = require('path').join(process.env.PWD, 'test/fixtures');
+  var path = require('path')
+    , fixtures = path.join(process.env.PWD, 'test/fixtures')
+    , expected = path.join(process.env.PWD, 'test/expected');
 
   /**
    * Simple dummy function that is used for testing.
@@ -644,15 +646,52 @@ describe('[square] API', function () {
   });
 
   describe('#directive', function () {
-    it('should ignore regular comments');
+    var fs = require('fs');
 
-    it('should ignore invalid comments');
+    // fs.writeFileSync(expected + '/directive/import.out', square.directive(content, 'js'), 'utf8');
+    it('should ignore regular comments', function () {
+      var square = new Square()
+        , content = fs.readFileSync(fixtures + '/directive/comments.js', 'utf8').trim();
 
-    it('should include the linked file');
+      expect(square.directive(content, 'js')).to.equal(content);
+    });
 
-    it('should work with import, require, include');
+    it('should ignore invalid comments', function () {
+      var square = new Square()
+        , content = fs.readFileSync(fixtures + '/directive/invalid.js', 'utf8').trim();
 
-    it('should process the files recusively');
+      expect(square.directive(content, 'js')).to.equal(content);
+    });
+
+    it('should include the linked file', function () {
+      var square = new Square()
+        , content = fs.readFileSync(fixtures + '/directive/import.js', 'utf8').trim()
+        , expectation = fs.readFileSync(expected + '/directive/import.out', 'utf8').trim();
+
+      // normally this is set by square#read
+      square.package.location = fixtures + '/directive/';
+      expect(square.directive(content, 'js')).to.equal(expectation);
+    });
+
+    it('should work with import, require, include', function () {
+      var square = new Square()
+        , content = fs.readFileSync(fixtures + '/directive/statements.js', 'utf8').trim()
+        , expectation = fs.readFileSync(expected + '/directive/statements.out', 'utf8').trim();
+
+      // normally this is set by square#read
+      square.package.location = fixtures + '/directive/';
+      expect(square.directive(content, 'js')).to.equal(expectation);
+    });
+
+    it('should process the files recusively', function () {
+      var square = new Square()
+        , content = fs.readFileSync(fixtures + '/directive/recursive.1.js', 'utf8').trim()
+        , expectation = fs.readFileSync(expected + '/directive/recursive.out', 'utf8').trim();
+
+      // normally this is set by square#read
+      square.package.location = fixtures + '/directive/';
+      expect(square.directive(content, 'js')).to.equal(expectation);
+    });
 
     it('should giving meaning full errors for recursion');
 

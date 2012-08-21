@@ -1,0 +1,1 @@
+// [square] @import "./imported.js"

@@ -1,0 +1,6 @@
+/*! [square] directive: ./imported.1.js */
+var foo = "bar";
+/*! [square] directive: ./imported.2.js */
+var foo = "bar";
+/*! [square] directive: ./imported.3.js */
+var foo = "bar";
