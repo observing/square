@@ -693,11 +693,29 @@ describe('[square] API', function () {
       expect(square.directive(content, 'js')).to.equal(expectation);
     });
 
-    it('should giving meaning full errors for recursion');
+    it('should giving meaning full errors for recursion', function (done) {
+      var square = new Square()
+        , content = fs.readFileSync(fixtures + '/directive/recursive.js', 'utf8');
 
-    it('should add debug comments for each include');
+      square.on('error', function (err) {
+        expect(err.message).to.contain('recursive [square] import');
+        done();
+      });
 
-    it('should prepend a semicolon if file doesnt start with one');
+      // normally this is set by square#read
+      square.package.location = fixtures + '/directive/';
+      square.directive(content, 'js');
+    });
+
+    it('should prepend a semicolon if file doesnt start with one', function (){
+      var square = new Square()
+        , content = fs.readFileSync(fixtures + '/directive/concat.1.js', 'utf8').trim()
+        , expectation = fs.readFileSync(expected + '/directive/concat.out', 'utf8').trim();
+
+      // normally this is set by square#read
+      square.package.location = fixtures + '/directive/';
+      expect(square.directive(content, 'js')).to.equal(expectation);
+    });
 
     it('should only prepend the semicolon for JavaScript files');
   });
