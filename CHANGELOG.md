@@ -1,3 +1,9 @@
+## v0.0.8
+- [fix] Added semicolon when concating javascript files.
+- [fix] Don't queue up changes if a build fails
+- [fix] Watching should watch all files again
+- [fix] Bumped versions
+
 ## v0.0.7
 
 - [new] Added outofdate functionality where syncs with the latest version in
