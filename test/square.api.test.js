@@ -738,7 +738,7 @@ describe('[square] API', function () {
         , collection = { content: '', extension: 'js' }
         , data = square.tag(collection, 'dev');
 
-      expect(data.branch).to.match(/^(master|development)$/);
+      expect(data.branch).to.match(/^(master|development|)$/);
     });
 
     it('should return the last SHA, as this is a git repository', function () {
