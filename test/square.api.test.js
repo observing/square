@@ -76,10 +76,11 @@ describe('[square] API', function () {
 
     it('should silence the logger when stdout option is changed', function () {
       var square = new Square({ stdout: true });
-      expect(square.logger.level).to.equal(-1);
+
+      expect(square.logger.level).to.equal(square.logger.levels.error);
 
       square.stdout = false;
-      expect(square.logger.level).to.be.above(-1);
+      expect(square.logger.level).to.be.above(square.logger.levels.error);
     });
 
     it('should set the correct env based on NODE_ENV', function () {
