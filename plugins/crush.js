@@ -83,8 +83,12 @@ module.exports = function setup (options) {
         , crusher = exports[step];
 
       // check if this crusher supports this file type, or if this type has been
-      // disabled by the user
-      if (!crusher[output.extension] || ~configuration.disabled.indexOf(step)) {
+      // disabled by the user, or if we don't have any data to process.
+      if (
+          !crusher[output.extension]
+        || ~configuration.disabled.indexOf(step)
+        || !compiled
+      ) {
         return process.nextTick(walk);
       }
 
