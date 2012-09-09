@@ -72,7 +72,7 @@ module.exports = function setup(options) {
      */
 
     function walk() {
-      if (!steps.length || errs.lenght) {
+      if (!steps.length || errs.length) {
         if (errs.length) return next(new Error(errs.toString()), output);
 
         output.content = compiled;
