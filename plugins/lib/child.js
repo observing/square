@@ -90,7 +90,7 @@ function compressor (type, flags, configuration) {
      * @api private
      */
 
-    compressor.on('exit', function exit (code) {
+    compressor.on('close', function close (code) {
       // invalid states
       if (errors.length) return fn(new Error(errors));
       if (code !== 0) return fn(new Error('process exited with code ' + code));
@@ -161,7 +161,6 @@ compressor.yui = compressor('java', ['-jar', compressor.paths.yui], {
  * @api public
  */
 
-var closure =
 compressor.closure = compressor('java', ['-jar', compressor.paths.closure], {
     'charset': 'ascii'
   , 'compilation_level': 'SIMPLE_OPTIMIZATIONS'
