@@ -114,7 +114,7 @@ module.exports = function setup (options) {
         }
 
         // output some compile information
-        if (!newleaks.lenght) logger.info('Successfully patched all leaks');
+        if (!newleaks.length) logger.info('Successfully patched all leaks');
         else if (newleaks.length < leaks.length) logger.info('Patched some leaks, but not all', newleaks);
         else logger.info('Patching the code did not help, it avoided the sandbox');
 
