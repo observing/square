@@ -90,7 +90,7 @@ function compressor (type, flags, configuration) {
      * @api private
      */
 
-    compressor.on('exit', function exit (code) {
+    compressor.on('close', function exit (code) {
       // invalid states
       if (errors.length) return fn(new Error(errors));
       if (code !== 0) return fn(new Error('process exited with code ' + code));
