@@ -3,7 +3,7 @@ o-o  o-o o  o o-o o-o o-o       | Square is a modulair build system for building
  \  |  | |  | |-| |   |-        | front-end code.
 o-o  o-O o--o o o-o   o-o       |
        |                        | Current status: Stablizing
-       o                        | Version: 0.0.8
+       o                        | Version: 0.0.9
 ```
 
 # Square
