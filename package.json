@@ -32,11 +32,12 @@
     , "commander": "1.0.4"
     , "devnull": "0.0.9"
     , "eventreactor": "0.0.6"
+    , "expirable": "0.0.x"
     , "findit": "0.1.2"
+    , "fs.notify": "0.0.x"
     , "shelljs": "0.0.6"
     , "sugar": "1.3.1"
     , "underscore": "1.3.3"
-    , "fs.notify": "0.0.x"
   }
   , "devDependencies": {
       "should": "1.1.0"
