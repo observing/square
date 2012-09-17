@@ -19,7 +19,7 @@ describe('[square] API', function () {
   function noop() { console.log(/* dummy function*/); }
 
   it('exposes the current version number', function () {
-    expect(Square.version).to.match(/^\d+\.\d+\.\d+$/);
+    expect(Square.version).to.match(/^\d+\.\d+\.\d+(\-(api|alpha|dev|beta|pre))?$/);
     expect(Square.version).to.eql(require('../package.json').version);
   });
 

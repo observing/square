@@ -2,7 +2,7 @@
   "author": "Arnout Kazemier <opensource@observe.it>",
   "name": "square",
   "description": "[square] The whole purpose of square is to provide you with building blocks to create an advanced and maintainable build system so you can streamline your development process and be more productive on a daily basis.",
-  "version": "0.0.6",
+  "version": "0.1.0-api",
   "homepage": "https://github.com/observing/square",
   "main": "lib/square.js",
   "keywords": [
@@ -14,7 +14,6 @@
     "square",
     "tool"
   ],
-  "preferGlobal": true,
   "repository": {
     "type": "git",
     "url": "https://github.com/observing/square.git"
@@ -39,8 +38,9 @@
     "devnull": "0.0.x",
     "eson": "0.3.x",
     "eventreactor": "0.0.x",
-    "lodash": "0.6.x",
+    "lodash": "0.7.x",
     "shelljs": "0.0.x",
+    "expirable": "0.0.x",
     "sugar": "1.3.x"
   },
   "devDependencies": {
@@ -51,15 +51,15 @@
     "active-x-obfuscator": "0.0.1",
     "codesurgeon": "0.3.4",
     "coffee-script": "1.3.3",
-    "csslint": "0.9.8",
+    "csslint": "0.9.9",
     "fs.notify": "0.0.x",
-    "github": "0.1.4",
+    "github": "0.1.5",
     "jade": "0.27.2",
     "jsdom": "0.2.15",
-    "jshint": "0.8.2",
+    "jshint": "0.9.0",
     "less": "1.3.0",
     "nib": "0.8.2",
-    "request": "2.11.2",
+    "request": "2.11.1",
     "node-sass": "0.2.4",
     "socket.io": "0.9.10",
     "stylus": "0.29.0",
