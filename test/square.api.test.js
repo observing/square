@@ -824,6 +824,10 @@ describe('[square] API', function () {
     it('should emit a write with metrics');
 
     it('should prefix the file content with a license header');
+
+    it('should not write to disk when the ENV is set to testing');
+
+    it('should not write to disk when writable is set to false');
   });
 
   describe('#commentWrap', function () {
