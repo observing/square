@@ -23,11 +23,11 @@ describe('[square] API', function () {
     expect(Square.version).to.eql(require('../package.json').version);
   });
 
-  describe('.extend', function () {
+  describe('.load', function () {
     it('should extend the Square.prototype', function () {
       expect(Square.prototype.cowsack).to.be.an('undefined');
 
-      Square.extend({
+      Square.load({
           cowsack: function () {}
       });
 
@@ -39,7 +39,7 @@ describe('[square] API', function () {
       var backup = Square.prototype.configure;
       expect(Square.prototype.configure).to.be.an('function');
 
-      Square.extend({
+      Square.load({
           configure: noop
       });
 
