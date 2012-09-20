@@ -828,6 +828,8 @@ describe('[square] API', function () {
     it('should not write to disk when the ENV is set to testing');
 
     it('should not write to disk when writable is set to false');
+
+    it('should merge the collection with tags and send to the callback');
   });
 
   describe('#commentWrap', function () {
