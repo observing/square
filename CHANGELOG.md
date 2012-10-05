@@ -1,3 +1,6 @@
+## v0.0.10
+- [Fix] Fixed compatiblity issue with the latest `fs.notify` module.
+
 ## v0.0.9
 - [fix] If the wrap module is specified, also wrap the development version.
 - [fix] Don't send data to the crush child processes, if the content is empty
