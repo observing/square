@@ -147,8 +147,10 @@ compressor.paths = {
  */
 
 compressor.yui = compressor('java', ['-jar', compressor.paths.yui], {
-    'charset': 'ascii'
-  , 'type': 'js'
+  // Don't set the 'charset': 'ascii' option for the YUI compressor, it will
+  // break utf-8 chars. Other compilers do require this flag, or they will
+  // transform escaped utf-8 chars to real utf-8 chars.
+    'type': 'js'
   , 'line-break': compressor.maximum
   , 'verbose': false
 });
