@@ -1,6 +1,6 @@
 /*global expect, Square, execSync */
 describe('[square] API', function () {
-  "use strict";
+  'use strict';
 
   /**
    * The location of our testing fixtures.
@@ -45,6 +45,21 @@ describe('[square] API', function () {
 
       expect(Square.prototype.configure).to.equal(noop);
       Square.prototype.configure = backup;
+    });
+  });
+
+  describe('.plugins', function () {
+    it('should return a Array of available plugsin', function () {
+      expect(Square.plugins()).to.be.an('array');
+    });
+
+    it('should contain name, filename, path and description', function () {
+      Square.plugins().forEach(function (plugin) {
+        expect(plugin).to.have.property('path');
+        expect(plugin).to.have.property('name');
+        expect(plugin).to.have.property('filename');
+        expect(plugin).to.have.property('description');
+      });
     });
   });
 
@@ -108,6 +123,13 @@ describe('[square] API', function () {
       expect(square.logger.notification).to.equal(1337);
       expect(square.logger.transports).to.have.length(0);
     });
+  });
+
+  describe('#storage', function () {
+    it('should find the correct storage engine');
+    it('should accept strings as storage engine');
+    it('should accept functions as storage engine');
+    it('should add multiple storage engines');
   });
 
   describe('#has', function () {
@@ -821,15 +843,15 @@ describe('[square] API', function () {
 
     it('should transform ~ to the $HOME path in file names');
 
-    it('should emit a write with metrics');
-
     it('should prefix the file content with a license header');
 
-    it('should not write to disk when the ENV is set to testing');
+    it('should not write when the ENV is set to testing');
 
-    it('should not write to disk when writable is set to false');
+    it('should not write when writable is set to false');
 
     it('should merge the collection with tags and send to the callback');
+
+    it('should iterate over the storage engines');
   });
 
   describe('#commentWrap', function () {
