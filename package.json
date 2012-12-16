@@ -34,9 +34,9 @@
     "async": "0.1.x",
     "canihaz": "0.0.x",
     "colors": "0.6.x",
-    "commander": "1.0.x",
+    "commander": "1.1.x",
     "devnull": "0.0.x",
-    "eson": "0.3.x",
+    "eson": "0.4.x",
     "eventreactor": "0.0.x",
     "expirable": "0.0.x",
     "extendable": "0.0.x",
@@ -45,26 +45,26 @@
     "sugar": "1.3.x"
   },
   "devDependencies": {
-    "chai": "1.2.x",
-    "mocha": "1.4.x"
+    "chai": "1.4.x",
+    "mocha": "1.7.x"
   },
   "canihaz": {
     "active-x-obfuscator": "0.0.1",
     "codesurgeon": "0.3.4",
-    "coffee-script": "1.3.3",
+    "coffee-script": "1.4.0",
     "csslint": "0.9.9",
     "fs.notify": "0.0.x",
-    "github": "0.1.5",
-    "jade": "0.27.2",
-    "jsdom": "0.2.15",
-    "jshint": "0.9.0",
-    "less": "1.3.0",
-    "nib": "0.8.2",
-    "request": "2.11.1",
-    "node-sass": "0.2.4",
-    "socket.io": "0.9.10",
-    "stylus": "0.29.0",
-    "uglify-js": "1.3.3"
+    "github": "0.1.7",
+    "jade": "0.27.7",
+    "jsdom": "0.3.1",
+    "jshint": "0.9.1",
+    "less": "1.3.1",
+    "nib": "0.9.0",
+    "request": "2.12.0",
+    "node-sass": "0.2.5",
+    "socket.io": "0.9.13",
+    "stylus": "0.31.0",
+    "uglify-js": "2.2.2"
   },
   "configuration": {
     "dist": {
