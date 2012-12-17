@@ -37,7 +37,6 @@
     "commander": "1.1.x",
     "devnull": "0.0.x",
     "eson": "0.4.x",
-    "eventreactor": "0.0.x",
     "expirable": "0.0.x",
     "extendable": "0.0.x",
     "lodash": "0.7.x",
