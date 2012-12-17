@@ -217,6 +217,48 @@ exports.crushers = {
      */
   , jsmin: function jsmin(type, collection, cb) {
       if (type !== 'js') return cb(new Error('Type is not supported'));
+
+      canihaz['jsmin-sourcemap'](function fetch(err, jsmin) {
+        if (err) return cb(err);
+
+      });
+    }
+
+    /**
+     * @see https://github.com/Constellation/esmangle
+     */
+  , esmangle: function esmangle(type, collection, cb) {
+      if (type !== 'js') return cb(new Error('Type is not supported'));
+
+      canihaz.all('esprima', 'escodegen', 'esmangle', function all(err, esprima, escodegen, esmangle) {
+        if (err) return cb(err);
+
+        var tree;
+        try {
+          tree = esprima.parse(collection.content, { loc: true });
+          tree = esmangle.optimize(tree, null, {
+              destructive: true
+            , directive: true
+          });
+          tree = esmangle.mangle(tree, {
+              destructive: true
+          });
+
+          cb(undefined, escodegen.generate(tree, {
+              format: {
+                  renumber: true
+                , hexadecimal: true
+                , escapeless: true
+                , compact: true
+                , semicolons: false
+                , parentheses: false
+              }
+            , directive: true
+          }));
+        } catch(fail) {
+          cb(fail);
+        }
+      });
     }
 
     /**
@@ -245,6 +287,7 @@ exports.js = {
   , closure: exports.crushers.closure.bind(exports.crushers, 'js')
   , yuglyif: exports.crushers.yuglyif.bind(exports.crushers, 'js')
   , jsmin: exports.crushers.jsmin.bind(exports.crushers, 'js')
+  , esmangle: exports.crushers.esmangle.bind(exports.crushers, 'js')
 };
 
 /**
