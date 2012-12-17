@@ -33,14 +33,34 @@ var canihaz = require('canihaz')('square')
  * @param {Object} task
  */
 process.on('message', function message(task) {
+  var engines = exports[task.extension];
+
   async.reduce(
       task.engines.split(/\,\s+?/)
-    , task.content
+    , task
     , function reduce(memo, engine, done) {
+        var backup = memo.content;
 
+        // Compile the shizzle.
+        if (engine in engines) return engines[engine](memo, function crush(err, content) {
+          if (err) {
+            memo.content = backup;
+            return done(err, memo);
+          }
+
+          // Update the content and process all the things again, and again and
+          // again.
+          memo.content = content;
+          done(err, memo);
+        });
+
+        // The engine does not exist, send an error response
+        process.nextTick(function () {
+          done(new Error('The engine '+ engine +' does not exist'), memo);
+        });
       }
     , function done(err, result) {
-        process.send();
+        process.send(err, result || task);
       }
   );
 });
@@ -51,10 +71,13 @@ process.on('message', function message(task) {
  * @param {String}
  * @api public
  */
-exports.send = function send() {
+exports.send = function send(task, cb) {
   if (!exports.initialized) exports.initialize();
 
   var worker = exports.workers.pop();
+
+  task.id = task.id || Date.now();  // use an id to tie a task to a callback
+  worker.queue[task.id] = cb;
   worker.send.apply(worker.send, arguments);
 
   // Add it back at the end of the array, so we implement a round robin load
@@ -103,9 +126,16 @@ exports.workers = [];
  * @api private
  */
 exports.initialize = function initialize(workers) {
-  var i = workers || os.cpus().length;
+  var i = workers || os.cpus().length
+    , fork;
 
-  while (i--) exports.workers.push(cluster.fork());
+  while (i--) {
+    fork = cluster.fork();
+    fork.queue = [];
+
+    exports.workers.push(fork);
+  }
+
   exports.initialized = true;
 };
 
