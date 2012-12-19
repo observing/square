@@ -423,6 +423,7 @@ describe('[square] API', function () {
           }
         , function (err, content) {
             expect(content).to.be.a('string');
+            expect(content).to.contain('[square] bundle:');
             expect(content).to.contain('[square] dependency:');
 
             bundle.dependencies.forEach(function (location) {
@@ -434,7 +435,31 @@ describe('[square] API', function () {
       );
     });
 
-    it('should process the [square] comment directives');
+    it('should process the [square] comment directives', function (done) {
+      var square = new Square()
+        , bundle;
+
+      square.paths.push(fixtures);
+
+      square.parse(fixtures +'/preprocess/directive.json');
+      bundle = square.package.bundle['../directive/statements.js'];
+
+      square.preprocess(
+          bundle
+        , {
+              index: 0
+            , count: 1
+            , platform: 'web'
+          }
+        , function (err, content) {
+            expect(content).to.be.a('string');
+            expect(content).to.contain('[square] bundle:');
+            expect(content).to.contain('[square] directive:');
+
+            done();
+          }
+      );
+    });
 
     it('should process the content with an compiler');
 
@@ -720,75 +745,80 @@ describe('[square] API', function () {
   });
 
   describe('#directive', function () {
-    var fs = require('fs');
+    var fs = require('fs')
+      , multi = /\/\*![\s\S]*?\*\//g;
 
-    // fs.writeFileSync(expected + '/directive/import.out', square.directive(content, 'js'), 'utf8');
     it('should ignore regular comments', function () {
       var square = new Square()
-        , content = fs.readFileSync(fixtures + '/directive/comments.js', 'utf8').trim();
+        , location = fixtures + '/directive/comments.js'
+        , content = fs.readFileSync(location, 'utf8').trim();
 
-      expect(square.directive(content, 'js')).to.equal(content);
+      expect(square.directive(content, 'js', path.dirname(location))).to.equal(content);
     });
 
     it('should ignore invalid comments', function () {
       var square = new Square()
-        , content = fs.readFileSync(fixtures + '/directive/invalid.js', 'utf8').trim();
+        , location = fixtures + '/directive/invalid.js'
+        , content = fs.readFileSync(location, 'utf8').trim();
 
-      expect(square.directive(content, 'js')).to.equal(content);
+      expect(square.directive(content, 'js', path.dirname(location))).to.equal(content);
     });
 
     it('should include the linked file', function () {
       var square = new Square()
-        , content = fs.readFileSync(fixtures + '/directive/import.js', 'utf8').trim()
+        , location = fixtures + '/directive/import.js'
+        , content = fs.readFileSync(location, 'utf8').trim()
         , expectation = fs.readFileSync(expected + '/directive/import.out', 'utf8').trim();
 
-      // normally this is set by square#read
-      square.package.location = fixtures + '/directive/';
-      expect(square.directive(content, 'js')).to.equal(expectation);
+      expectation = expectation.replace(multi, '');
+      content = square.directive(content, 'js', path.dirname(location)).replace(multi, '');
+      expect(content).to.equal(expectation);
     });
 
     it('should work with import, require, include', function () {
       var square = new Square()
-        , content = fs.readFileSync(fixtures + '/directive/statements.js', 'utf8').trim()
+        , location = fixtures + '/directive/statements.js'
+        , content = fs.readFileSync(location, 'utf8').trim()
         , expectation = fs.readFileSync(expected + '/directive/statements.out', 'utf8').trim();
 
-      // normally this is set by square#read
-      square.package.location = fixtures + '/directive/';
-      expect(square.directive(content, 'js')).to.equal(expectation);
+        expectation = expectation.replace(multi, '');
+        content = square.directive(content, 'js', path.dirname(location)).replace(multi, '');
+        expect(content).to.equal(expectation);
     });
 
     it('should process the files recusively', function () {
       var square = new Square()
-        , content = fs.readFileSync(fixtures + '/directive/recursive.1.js', 'utf8').trim()
+        , location = fixtures + '/directive/recursive.1.js'
+        , content = fs.readFileSync(location, 'utf8').trim()
         , expectation = fs.readFileSync(expected + '/directive/recursive.out', 'utf8').trim();
 
-      // normally this is set by square#read
-      square.package.location = fixtures + '/directive/';
-      expect(square.directive(content, 'js')).to.equal(expectation);
+        expectation = expectation.replace(multi, '');
+        content = square.directive(content, 'js', path.dirname(location)).replace(multi, '');
+        expect(content).to.equal(expectation);
     });
 
     it('should giving meaning full errors for recursion', function (done) {
       var square = new Square()
-        , content = fs.readFileSync(fixtures + '/directive/recursive.js', 'utf8');
+        , location = fixtures + '/directive/recursive.js'
+        , content = fs.readFileSync(location, 'utf8');
 
       square.on('error', function (err) {
         expect(err.message).to.contain('recursive [square] import');
         done();
       });
 
-      // normally this is set by square#read
-      square.package.location = fixtures + '/directive/';
-      square.directive(content, 'js');
+      square.directive(content, 'js', path.dirname(location));
     });
 
     it('should prepend a semicolon if file doesnt start with one', function (){
       var square = new Square()
-        , content = fs.readFileSync(fixtures + '/directive/concat.1.js', 'utf8').trim()
+        , location = fixtures + '/directive/concat.1.js'
+        , content = fs.readFileSync(location, 'utf8').trim()
         , expectation = fs.readFileSync(expected + '/directive/concat.out', 'utf8').trim();
 
-      // normally this is set by square#read
-      square.package.location = fixtures + '/directive/';
-      expect(square.directive(content, 'js')).to.equal(expectation);
+        expectation = expectation.replace(multi, '');
+        content = square.directive(content, 'js', path.dirname(location)).replace(multi, '');
+        expect(content).to.equal(expectation);
     });
 
     it('should only prepend the semicolon for JavaScript files');

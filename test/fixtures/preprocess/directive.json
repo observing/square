@@ -1,0 +1,8 @@
+{
+  "configuration": {},
+  "bundle": {
+    "../directive/statements.js": {
+      "description": "ensure that [square] statements are processed"
+    }
+  }
+}
