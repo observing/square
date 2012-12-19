@@ -11,6 +11,7 @@
  */
 var child = require('child_process')
   , cluster = require('cluster')
+  , zlib = require('zlib')
   , path = require('path')
   , os = require('os');
 
@@ -28,11 +29,12 @@ var canihaz = require('canihaz')('square')
  *
  * task.engines: Comma seperated list of compressors that need to be used
  * task.content: The actual content that needs to be processed
- * task.analyze: Analyze which compression pattern would be optimal for the content
+ * task.gzip: Calculate the size of content after gzipping it
+ * task.id: The id of this task (private)
  *
  * @param {Object} task
  */
-process.on('message', function message(task) {
+if (!cluster.isMaster) process.on('message', function message(task) {
   var engines = exports[task.extension];
 
   async.reduce(
@@ -60,7 +62,20 @@ process.on('message', function message(task) {
         });
       }
     , function done(err, result) {
-        process.send(err, result || task);
+        result = result || task;
+
+        if (!result.gzip || err) return process.send(err, result);
+
+        // We want to calculate the size of the generated code once it has been
+        // gzipped as that might be more important to users than the actual file
+        // size after minification.
+        result.gzip = 0;
+        zlib.gzip(result.content, function gzip(err, buff) {
+          if (err) return process.send(err, result);
+
+          result.gzip = buff.length;
+          process.send(err, result);
+        });
       }
   );
 });
@@ -68,7 +83,9 @@ process.on('message', function message(task) {
 /**
  * Send a message to the workers that they need to start processing something.
  *
- * @param {String}
+ *
+ * @param {Object} task work for the workers
+ * @param {Function} cb callback
  * @api public
  */
 exports.send = function send(task, cb) {
@@ -77,12 +94,33 @@ exports.send = function send(task, cb) {
   var worker = exports.workers.pop();
 
   task.id = task.id || Date.now();  // use an id to tie a task to a callback
-  worker.queue[task.id] = cb;
+  worker.queue[task.id] = cb || function noop(){};
   worker.send.apply(worker.send, arguments);
 
   // Add it back at the end of the array, so we implement a round robin load
   // balancing technique for our workers.
   exports.workers.push(worker);
+};
+
+/**
+ * Kill all the workers, as we are closing down.
+ *
+ * @api public
+ */
+exports.kill = function kill(workers) {
+  if (!workers) workers = exports.workers;
+  if (!Array.isArray(workers)) workers = [workers];
+
+  workers.forEach(function shutdown(worker) {
+    // Remove the worker from the array, so it will not be used again in the
+    // `exports#send` method
+    var index = exports.workers.indexOf(worker);
+    if (~index) exports.workers.splice(index, 1);
+
+    // @TODO Do we need to trigger any queued callbacks? If so with an error?
+    worker.queue.length = 0;
+    worker.destroy();
+  });
 };
 
 /**
@@ -129,9 +167,26 @@ exports.initialize = function initialize(workers) {
   var i = workers || os.cpus().length
     , fork;
 
+  function message(worker, err, task) {
+    var callback = worker.queue[task.id];
+
+    // Kill the whole fucking system, we are in a fucked up state and should die
+    // badly, so just throw something and have the process.uncaughtException
+    // handle it.
+    if (!callback) {
+      console.error(task);
+      throw new Error('Unable to process message from worker, can\'t locate the callback!');
+    }
+
+    callback(err, task);
+    delete worker.queue[task.id];
+  }
+
   while (i--) {
+    // Configure the forked things
     fork = cluster.fork();
     fork.queue = [];
+    fork.on('message', message.bind(message, fork));
 
     exports.workers.push(fork);
   }

@@ -26,8 +26,5 @@ describe('[square][plugin] Crush', function () {
   it('should process the content multiple times');
   it('should detect JAVA and enable compilers based on that');
   it('should minify CSS and JavaScript');
-
-  describe('.uglify', function () {
-    it('should add a closing semi-colon to the end of the file');
-  });
+  it('should detect the best compression algorithm');
 });
