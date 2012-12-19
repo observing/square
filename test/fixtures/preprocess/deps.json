@@ -1,0 +1,11 @@
+{
+  "configuration": {},
+  "bundle": {
+    "../base.js": {
+      "description": "basic file",
+      "dependencies": [
+        "../plugin.fixture.js"
+      ]
+    }
+  }
+}

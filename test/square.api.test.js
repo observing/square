@@ -379,9 +379,60 @@ describe('[square] API', function () {
   });
 
   describe('#preprocess', function () {
-    it('should add debugging comments for each included file');
+    it('should add debugging comments for each included file', function (done) {
+      var square = new Square()
+        , bundle;
 
-    it('should add the bundles dependencies');
+      square.paths.push(fixtures);
+
+      square.parse(fixtures +'/preprocess/basic.json');
+      bundle = square.package.bundle['../base.js'];
+
+      square.preprocess(
+          bundle
+        , {
+              index: 0
+            , count: 1
+            , platform: 'web'
+          }
+        , function (err, content) {
+            expect(content).to.be.a('string');
+            expect(content).to.contain('[square] bundle:');
+            expect(content).to.contain(bundle.meta.location);
+
+            done();
+          }
+      );
+    });
+
+    it('should add the bundle.dependencies', function (done) {
+      var square = new Square()
+        , bundle;
+
+      square.paths.push(fixtures);
+
+      square.parse(fixtures +'/preprocess/deps.json');
+      bundle = square.package.bundle['../base.js'];
+
+      square.preprocess(
+          bundle
+        , {
+              index: 0
+            , count: 1
+            , platform: 'web'
+          }
+        , function (err, content) {
+            expect(content).to.be.a('string');
+            expect(content).to.contain('[square] dependency:');
+
+            bundle.dependencies.forEach(function (location) {
+              expect(content).to.contain(location);
+            });
+
+            done();
+          }
+      );
+    });
 
     it('should process the [square] comment directives');
 

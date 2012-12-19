@@ -1,0 +1,8 @@
+{
+  "configuration": {},
+  "bundle": {
+    "../base.js": {
+      "description": "basic file"
+    }
+  }
+}
