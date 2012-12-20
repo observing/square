@@ -1,0 +1,17 @@
+{
+  "configuration": {},
+  "bundle": {
+    "../coffeescript.coffee": {
+      "description": "Compile CoffeeScript files to JavaScript"
+    },
+    "../jade.jade": {
+      "description": "Compile Jade to compiled JavaScript functions"
+    },
+    "../less.less": {
+      "description": "Compile Less to a StyleSheet"
+    },
+    "../stylus.styl": {
+      "description": "Compile Stylus to a StyleSheet"
+    }
+  }
+}

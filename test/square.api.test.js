@@ -12,6 +12,11 @@ describe('[square] API', function () {
     , expected = path.join(process.env.PWD, 'test/expected');
 
   /**
+   * Async helpers.
+   */
+  var async = require('async');
+
+  /**
    * Simple dummy function that is used for testing.
    *
    * @api private
@@ -390,17 +395,13 @@ describe('[square] API', function () {
 
       square.preprocess(
           bundle
-        , {
-              index: 0
-            , count: 1
-            , platform: 'web'
-          }
+        , { index: 0, count: 1, platform: 'web' }
         , function (err, content) {
             expect(content).to.be.a('string');
             expect(content).to.contain('[square] bundle:');
             expect(content).to.contain(bundle.meta.location);
 
-            done();
+            done(err);
           }
       );
     });
@@ -416,11 +417,7 @@ describe('[square] API', function () {
 
       square.preprocess(
           bundle
-        , {
-              index: 0
-            , count: 1
-            , platform: 'web'
-          }
+        , { index: 0, count: 1, platform: 'web' }
         , function (err, content) {
             expect(content).to.be.a('string');
             expect(content).to.contain('[square] bundle:');
@@ -430,7 +427,7 @@ describe('[square] API', function () {
               expect(content).to.contain(location);
             });
 
-            done();
+            done(err);
           }
       );
     });
@@ -446,22 +443,43 @@ describe('[square] API', function () {
 
       square.preprocess(
           bundle
-        , {
-              index: 0
-            , count: 1
-            , platform: 'web'
-          }
+        , { index: 0, count: 1, platform: 'web' }
         , function (err, content) {
             expect(content).to.be.a('string');
             expect(content).to.contain('[square] bundle:');
             expect(content).to.contain('[square] directive:');
 
-            done();
+            done(err);
           }
       );
     });
 
-    it('should process the content with an compiler');
+    it('should process the content with an compiler', function (done) {
+      var square = new Square();
+
+      square.paths.push(fixtures);
+      square.parse(fixtures +'/preprocess/compile.json');
+
+      this.timeout(50E4);
+
+      async.forEach(
+          Object.keys(square.package.bundle)
+        , function (key, callback) {
+            var bundle = square.package.bundle[key];
+
+            square.preprocess(
+                bundle
+              , { index: 0, count: 1, platform: 'web'}
+              , function (err, content) {
+                  callback(err, content);
+                }
+            );
+          }
+        , function (err) {
+            done(err);
+          }
+      );
+    });
 
     it('should process the content without any compiler');
   });
