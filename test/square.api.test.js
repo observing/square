@@ -986,7 +986,7 @@ describe('[square] API', function () {
       var square = new Square()
         , comment = square.commentWrap(plain, 'js')
         , comments = square.commentWrap(multiline, 'js')
-        , style = square.commentStyles.js;
+        , style = square.commentStyles.ext.js;
 
       expect(comment).to.have.string(style.header);
       expect(comment).to.have.string(style.body);
