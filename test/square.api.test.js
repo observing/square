@@ -1015,9 +1015,34 @@ describe('[square] API', function () {
       });
     });
 
-    it('should merge the collection with tags and send to the callback');
+    it('should iterate over the storage engines', function (done) {
+      var square = new Square()
+        , engines = 0;
 
-    it('should iterate over the storage engines');
+      square.paths.push(fixtures);
+
+      square.storage('eventemitter');
+      square.storage('eventemitter');
+      square.storage('eventemitter');
+      square.storage('eventemitter');
+      square.storage('eventemitter');
+      square.storage('eventemitter');
+      square.storage('eventemitter');
+      square.storage('eventemitter');
+      square.storage('eventemitter');
+
+      square.parse(fixtures + '/write/square.json');
+
+      square.on('write', function write(collection) {
+        ++engines;
+      });
+
+      square.build(function building(err) {
+        expect(engines).to.equal(9);
+
+        done();
+      });
+    });
   });
 
   describe('#commentWrap', function () {
@@ -1029,11 +1054,19 @@ describe('[square] API', function () {
     var plain = 'hello world';
 
     /**
-     * Multi line line.
+     * Multi line.
+     *
+     * @type {Array}
+     */
+    var multiple = ['hello', 'silly', 'world'];
+
+    /**
+     * Multi line.
      *
      * @type {String}
      */
-    var multiline = ['hello', 'silly', 'world'].join('\n');
+    var multiline = multiple.join('\n');
+
 
     it('should not place the comment if we dont have a comment style', function () {
       var square = new Square();
@@ -1044,6 +1077,18 @@ describe('[square] API', function () {
     it('should wrap multi-line comments', function () {
       var square = new Square()
         , comments = square.commentWrap(multiline, 'js')
+        , counts = 0;
+
+      comments.split('\n').forEach(function (line) {
+        if (line.trim() === '') return;
+
+        expect(line.trim()).to.match(/\/|\*/);
+      });
+    });
+
+    it('accepts arrays', function () {
+      var square = new Square()
+        , comments = square.commentWrap(multiple, 'js')
         , counts = 0;
 
       comments.split('\n').forEach(function (line) {
