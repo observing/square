@@ -1009,6 +1009,7 @@ describe('[square] API', function () {
 
       square.build(function building(err) {
         expect(!!err).to.equal(true);
+        expect(err.message).to.include('prevent writes');
         expect(failures).to.equal(1);
 
         done();

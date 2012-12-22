@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 
 /**!
  * [square]
@@ -68,9 +68,9 @@ var jade = module.exports = function jade(content, context, done) {
     if (context.index > 0) return done(null, compile);
 
     // Prepend the client.
-    var client = path.join(__dirname, '../../static', 'jade.js');
+    var client = path.join(__dirname, '../static', 'jade.js');
 
-    try { done(null, fs.readFileSync(client, 'utf-8') + compile); }
+    try { done(undefined, fs.readFileSync(client, 'utf-8') + compile); }
     catch (e) { done(e); }
   });
 };
@@ -87,12 +87,12 @@ jade.imports = function imports(location, paths) {
   paths = paths || [];
   if (!fs.existsSync(location)) return paths;
 
-  // get the file, unparsed so we can minimize the overhead of parsing it
+  // Get the file, unparsed so we can minimize the overhead of parsing it
   var content = fs.readFileSync(location, 'utf8')
     , directory = path.dirname(location)
     , ext = path.extname(location);
 
-  // parse out require statements for the files, supporting the following
+  // Parse out require statements for the files, supporting the following
   // formats: require 'fs', require "fs", require('fs') and require("fs")
   content.replace(/include\s(.*)/gm, function detect(x, match) {
     if (!path.extname(path.basename(match))) match += ext;
@@ -101,8 +101,8 @@ jade.imports = function imports(location, paths) {
     if (!~paths.indexOf(match)) paths.push(match);
   });
 
-  // iterate over all the paths to see if required files also contains files
-  // that we need to watch
+  // Iterate over all the paths to see if required files also contains files
+  // that we need to watch.
   paths.forEach(function recursive(location) {
     paths = jade.imports(location, paths);
   });

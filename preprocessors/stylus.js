@@ -7,7 +7,7 @@
  */
 
 /**
- * Native modules
+ * Native modules.
  */
 var fs = require('fs')
   , path = require('path');
@@ -18,20 +18,48 @@ var fs = require('fs')
 var canihaz = require('canihaz')('square');
 
 /**
- * Process sass files.
+ * Process Stylus files.
  *
  * @param {String} content the raw file content that needs to be processed
  * @param {Object} context processing details
  * @param {Function} done
  * @api public
  */
-var sass = module.exports = function sass(content, context, done) {
-  var bundle = this;
+var styl = module.exports = function stylus(content, context, done) {
+  var bundle = this
+    , configuration = bundle['pre:stylus'] || {};
 
-  canihaz['node-sass'](function omgktnxbai(err, sass) {
+  canihaz.stylus(function omgktnxbai(err, stylus) {
     if (err) return done(err);
 
-    sass.render(content, done);
+    // You can't have stylus without some nibbles.
+    canihaz.nib(function omgktnxbai(err, nib) {
+      if (err) return done(err);
+
+      var compiler = stylus(content)
+        .set('filename', bundle.meta.location)
+        .use(nib())
+        .import('nib');
+
+      // Process the options.
+      if (configuration.compress) compiler.define('compress', true);
+      if (configuration.datauri) compiler.define('url', stylus.url());
+
+      // @TODO process the platform list by exposing them as modules.
+      if (configuration.define) {
+        Object.keys(configuration.define).forEach(function each(def) {
+          compiler.define(
+              def
+            , configuration.define[def]
+              ? stylus.nodes.true
+              : stylus.nodes.false
+          );
+        });
+      }
+
+      // Everything is configured, compile.
+      compiler.render(done);
+    });
   });
 };
 
@@ -43,16 +71,16 @@ var sass = module.exports = function sass(content, context, done) {
  * @returns {Array} absolute paths
  * @api public
  */
-sass.imports = function imports(location, paths) {
+styl.imports = function imports(location, paths) {
   paths = paths || [];
   if (!fs.existsSync(location)) return paths;
 
-  // get the file, unparsed so we can minimize the overhead of parsing it
+  // Get the file, unparsed so we can minimize the overhead of parsing it
   var content = fs.readFileSync(location, 'utf8')
     , directory = path.dirname(location)
     , ext = path.extname(location);
 
-  // parse out require statements for the files, supporting the following
+  // Parse out require statements for the files, supporting the following
   // formats: require 'fs', require "fs", require('fs') and require("fs")
   content.replace(/@import\s[\"\']?([^\'\"]+)[\"\']?/gm, function detect(x, match) {
     // if there is no file extension, assume .styl
@@ -62,10 +90,10 @@ sass.imports = function imports(location, paths) {
     if (!~paths.indexOf(match)) paths.push(match);
   });
 
-  // iterate over all the paths to see if required files also contains files
-  // that we need to watch
+  // Iterate over all the paths to see if required files also contains files
+  // that we need to watch.
   paths.forEach(function recursive(location) {
-    paths = sass.imports(location, paths);
+    paths = styl.imports(location, paths);
   });
 
   return paths;
@@ -77,4 +105,4 @@ sass.imports = function imports(location, paths) {
  *
  * @type {Array}
  */
-sass.extensions = [ 'css' ];
+styl.extensions = [ 'css' ];
