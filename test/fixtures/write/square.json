@@ -1,0 +1,15 @@
+{
+  "configuration": {
+    "dist": "~/square.{ninja}.{platform}.{ext}",
+    "license": "LICENSE",
+    "tags": {
+      "foo": "bar",
+      "ninja": "go"
+    }
+  },
+  "bundle": {
+    "../coffeescript.coffee": {
+      "description": "simple coffeescript coffee"
+    }
+  }
+}

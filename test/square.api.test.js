@@ -460,6 +460,8 @@ describe('[square] API', function () {
       square.paths.push(fixtures);
       square.parse(fixtures +'/preprocess/compile.json');
 
+      // Set a big timeout as we might need to lazy install dependencies, all of
+      // them
       this.timeout(50E4);
 
       async.forEach(
@@ -480,8 +482,6 @@ describe('[square] API', function () {
           }
       );
     });
-
-    it('should process the content without any compiler');
   });
 
   describe('#parse', function () {
@@ -938,15 +938,82 @@ describe('[square] API', function () {
   });
 
   describe('#write', function () {
-    it('should process the tags inside the configuration file name');
+    it('should process the tags inside the configuration file name', function (done) {
+      var square = new Square();
+      square.paths.push(fixtures);
 
-    it('should transform ~ to the $HOME path in file names');
+      square.storage('eventemitter');
+      square.parse(fixtures + '/write/square.json');
 
-    it('should prefix the file content with a license header');
+      square.on('write', function (collection) {
+        expect(collection).to.have.property('foo');
+        expect(collection.foo).to.equal('bar');
+        expect(collection).to.have.property('ninja');
+        expect(collection.ninja).to.equal('go');
 
-    it('should not write when the ENV is set to testing');
+        done();
+      });
 
-    it('should not write when writable is set to false');
+      square.build();
+    });
+
+    it('should transform ~ to the $HOME path in file names', function (done) {
+      var square = new Square();
+      square.paths.push(fixtures);
+
+      square.storage('eventemitter');
+      square.parse(fixtures + '/write/square.json');
+
+      square.on('write', function (collection) {
+        expect(square.package.configuration.dist.min).to.include('~');
+        expect(collection.file).to.not.include('~');
+
+        done();
+      });
+
+      square.build();
+    });
+
+    it('should prefix the file content with a license header', function (done) {
+      var square = new Square();
+      square.paths.push(fixtures);
+
+      square.storage('eventemitter');
+      square.parse(fixtures + '/write/square.json');
+
+      square.on('write', function (collection) {
+        expect(collection.content).to.include('DO WHAT THE FUCK YOU WANT TO');
+
+        done();
+      });
+
+      square.build();
+    });
+
+    it('should not write when writable is set to false', function (done) {
+      var square = new Square({ writable: false })
+        , failures = 0;
+
+      square.paths.push(fixtures);
+
+      square.storage('eventemitter');
+      square.parse(fixtures + '/write/square.json');
+
+      square.on('write', function write(collection) {
+        throw new Error('IM NOT WRITABLE');
+      });
+
+      square.on('error', function error() {
+        ++failures;
+      });
+
+      square.build(function building(err) {
+        expect(!!err).to.equal(true);
+        expect(failures).to.equal(1);
+
+        done();
+      });
+    });
 
     it('should merge the collection with tags and send to the callback');
 
@@ -959,7 +1026,6 @@ describe('[square] API', function () {
      *
      * @type {String}
      */
-
     var plain = 'hello world';
 
     /**
@@ -967,7 +1033,6 @@ describe('[square] API', function () {
      *
      * @type {String}
      */
-
     var multiline = ['hello', 'silly', 'world'].join('\n');
 
     it('should not place the comment if we dont have a comment style', function () {

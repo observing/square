@@ -15,5 +15,6 @@
  * @api public
  */
 module.exports = function write(square, collection, fn) {
-
+  square.emit('write', collection);
+  process.nextTick(fn);
 };
