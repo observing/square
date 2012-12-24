@@ -1,45 +1,66 @@
-"use strict";
+'use strict';
 
-var canihaz = require('canihaz')('square');
+/**!
+ * [square]
+ * @copyright (c) 2012 observe.it (observe.it) <opensource@observe.it>
+ * MIT Licensed
+ */
+var Plugin = require('../plugin');
 
 /**
  * Obfuscate JavaScript, there are firewalls that cannot handle ActiveX in the
  * script body and drop the file as a result of this. This tool fixes that
  * issue.
  *
- * @param {Object} options
- * @returns {Function} middleware
  * @api public
  */
+module.exports = Plugin.extend({
+    /**
+     * Name of the module.
+     *
+     * @type {String}
+     */
+    name: 'obfuscation'
 
-module.exports = function setup (options) {
-  /**
-   * The obfuscate all the things
-   *
-   * @param {Object} output
-   * @param {Function} next
-   * @api private
-   */
+    /**
+     * Small description about the module.
+     *
+     * @type {String}
+     */
+  , description: [
+        'Obfuscates code that contains Active-X statements as these are blocked'
+      , 'by agressive firewalls suck as Bluecoat.'
+    ].join(' ')
 
-  return function obfuscation (output, next) {
-    if (output.extension !== 'js') return process.nextTick(next);
+    /**
+     * For which distributions should this run.
+     *
+     * @type {Array}
+     */
+  , distributions: ['dev', 'min']
 
-    canihaz['active-x-obfuscator'](function canihazObfuscator (err, activex) {
-      if (err) return next(err);
+    /**
+     * Which file extension are accepted.
+     *
+     * @type {String}
+     */
+  , accepts: 'js'
 
-      try {
-        output.content = activex(output.content);
-        return next(null, output);
-      } catch (e) { return next(e, output); }
-    });
-  };
-};
+    /**
+     * Which modules need to be lazy loaded and installed in order to make this
+     * module work.
+     *
+     * @type {String}
+     */
+  , requires: 'active-x-obfuscator'
 
-/**
- * Small description of what this plugin does.
- *
- * @type {String}
- * @api private
- */
+    /**
+     * The module has been initialized.
+     */
+  , initialize: function initialize() {
+      var activex = this['active-x-obfuscator'];
 
-module.exports.description = 'Obfuscates code that contains Active-X statements so its not blocked by firewalls.';
+      try { this.emit('data', activex(this.content)); }
+      catch (e) { this.emit('error', e); }
+    }
+});

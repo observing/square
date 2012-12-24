@@ -23,18 +23,19 @@ var canihaz = require('canihaz')('square')
  *
  * @constructor
  * @param {Square} square
- * @param {Object} options
+ * @param {Object} collection
  * @api public
  */
-function Plugin(square, options) {
-  if (!(this instanceof Plugin)) return new Plugin(square, options);
+function Plugin(square, collection) {
+  if (!(this instanceof Plugin)) return new Plugin(square, collection);
+  if (!square) throw new Error('Missing square instance');
+  if (!collection) throw new Error('Missing collection');
 
-  this.square = square;           // reference to the current square instance
-  this.logger = square.logger;    // the logger
-  this.async = async;             // handle async operation
-  this._ = _;                     // utilities
+  this.square = square;           // Reference to the current square instance.
+  this.logger = square.logger;    // The logger.
+  this.async = async;             // Handle async operation.
+  this._ = _;                     // Utilities.
 
-  _.extend(this, options || {});
   this.configure();
 }
 
@@ -56,6 +57,14 @@ _.extend(Plugin.prototype, {
      * @api public
      */
   , description: 'Base template for every plugin'
+
+    /**
+     * What type of transformations does this plugin do?
+     *
+     * @type {String}
+     * @api public
+     */
+  , type: Plugin.modifier
 
     /**
      * Array of extensions that we accept. Leave empty to accept every
@@ -80,7 +89,7 @@ _.extend(Plugin.prototype, {
      * @type {Array}
      * @api public
      */
-  , lazy: []
+  , requires: []
 
     /**
      * Configure the plugin, prepare all the things.
@@ -91,6 +100,12 @@ _.extend(Plugin.prototype, {
       var pkg = this.square.package
         , configuration = pkg.configuration
         , self = this;
+
+      // Should we allow this plugin to run? It should accept the correct
+      // distribution and it should accept the given extension.
+      if (!this.distribution() || !this.accepted()) {
+        return this.emit('disregard');
+      }
 
       // Check if there are any configuration options in the package.
       if (pkg.plugins && this.name in pkg.plugins) {
@@ -103,20 +118,25 @@ _.extend(Plugin.prototype, {
         _.extend(this, this[this.name] || {});
       }
 
-      if (this.lazy && this.lazy.length) {
-        canihaz.all.apply(canihaz.all, this.lazy.concat(function canihaz(err) {
+      // Ensure that our requires is an array, before we continue
+      if (!Array.isArray(this.requires)) this.requires = [this.requires];
+
+      if (this.requires && this.requires.length) {
+        canihaz.all.apply(canihaz.all, this.requires.concat(function canihaz(err) {
           if (err) return self.emit('error', err);
 
           // Add all the libraries to the context, the `canihaz#all` returns an
           // error first, and then all libraries it installed or required in the
-          // order as given to it, which is in our case the `this.lazy` order.
+          // order as given to it, which is in our case the `this.requires` order.
           Array.prototype.slice.call(arguments, 1).forEach(function (lib, index) {
-            self[self.lazy[index]] = lib;
+            self[self.requires[index]] = lib;
           });
 
-          // We are now fully initialized
-          if (self.initialize) self.initialize();
+          // We are now fully initialized.
+          if (self.initialize) process.nextTick(self.initialize.bind(self));
         }));
+      } else {
+        process.nextTick(self.initialize.bind(self));
       }
     }
 
@@ -127,7 +147,10 @@ _.extend(Plugin.prototype, {
      * @api private
      */
   , distribution: function distribution() {
+      if (!Array.isArray(this.distributions)) return this.distributions === this.dist;
+      if (!this.distributions.length) return true;
 
+      return !!~this.distributions.indexOf(this.dist);
     }
 
     /**
@@ -137,12 +160,35 @@ _.extend(Plugin.prototype, {
      * @api private
      */
   , accepted: function accepted() {
+      if (!Array.isArray(this.accepts)) return this.accepts === this.extension;
+      if (!this.accepts.length) return true;
 
+      return !!~this.accepts.indexOf(this.extension);
     }
 });
 
 /**
- * Make the plugin extendable so every thing inherits from this `class`.
+ * Differentiate between the different types of plugins. The `update` plugin
+ * only needs to run once for the whole lifetime of the script. While the minify
+ * script should run against each file and a test plugin should only run after
+ * everything is compiled.
+ *
+ * To accommodate all these different states when the plugin should run we have
+ * to use plugin types.
+ *
+ * - Plugin.modifier: This modifies the content, and should run every single time.
+ * - Plugin.after: This plugin is ran after is compiled correctly.
+ * - Plugin.once: This plugin should only run once.
+ *
+ * @type {String} in plugin::{type} format
+ * @api public
+ */
+Plugin.modifier = 'plugin::modifier';
+Plugin.after    = 'plugin::after';
+Plugin.once     = 'plugin::once';
+
+/**
+ * Make the plugin extendible so every thing inherits from this `class`.
  *
  * @type {Function}
  * @api public
