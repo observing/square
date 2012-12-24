@@ -14,7 +14,8 @@ var EventEmitter = require('events').EventEmitter;
 /**
  * Third party modules.
  */
-var canihaz = require('canihaz')('square')
+var EventReactor = require('eventreactor')
+  , canihaz = require('canihaz')('square')
   , async = require('async')
   , _ = require('lodash');
 
@@ -63,7 +64,10 @@ function Plugin(square, collection) {
   this.configure();
 }
 
+// The plugin is based on a EventEmitter which we will spice up using our
+// EventReactor <3.
 Plugin.prototype.__proto__ = EventEmitter.prototype;
+Plugin.EventReactor = new EventReactor({}, Plugin.prototype);
 
 _.extend(Plugin.prototype, {
     /**
