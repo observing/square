@@ -29,7 +29,7 @@ module.exports = Plugin.extend({
      */
   , description: [
         'Obfuscates code that contains Active-X statements as these are blocked'
-      , 'by agressive firewalls suck as Bluecoat.'
+      , 'by agressive firewalls such as Bluecoat.'
     ].join(' ')
 
     /**
