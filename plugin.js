@@ -31,10 +31,34 @@ function Plugin(square, collection) {
   if (!square) throw new Error('Missing square instance');
   if (!collection) throw new Error('Missing collection');
 
+  var self = this;
+
   this.square = square;           // Reference to the current square instance.
-  this.logger = square.logger;    // The logger.
   this.async = async;             // Handle async operation.
   this._ = _;                     // Utilities.
+  this.logger = {};               // Our logging utility
+
+  // Provide a default namespace to the logging method, we are going to prefix
+  // it with the plugin's name which will help with the debug ability of this
+  // module.
+  Object.keys(square.logger.levels).forEach(function generate(level) {
+    self.logger[level] = square[level].bind(square, self.name);
+  });
+
+  // Merge the given collection with the plugin, but don't override the default
+  // values.
+  Object.keys(collection).forEach(function each(key) {
+    if (key in self) {
+      return self.logger.warning(
+          'The '
+        + self.name
+        + ' plugin uses a property that would be overriden by the collection.'
+      );
+    }
+
+    // Add the property
+    self[key] = collection[key];
+  });
 
   this.configure();
 }
