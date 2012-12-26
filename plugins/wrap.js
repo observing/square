@@ -1,178 +1,210 @@
-"use strict";
+'use strict';
 
-var canihaz = require('canihaz')('square')
-  , _ = require('lodash');
+/**!
+ * [square]
+ * @copyright (c) 2012 observe.it (observe.it) <opensource@observe.it>
+ * MIT Licensed
+ */
+var Plugin = require('../plugin');
 
 /**
  * Can wrap you compiled code and plurge the leaked globals.
  *
  * Options:
- *
  * - `timeout` time to wait for the script to be initialized, number in ms.
  * - `header` first section of the leak prevention, string.
  * - `body` content for the leak prevention function body, array.
  * - `footer` closing section of th leak prevention, string.
  * - `leaks` should we detect globals and patch it, boolean
- *
- * @param {Object} options
- * @returns {Function} middleware
- * @api public
  */
+module.exports = Plugin.extend({
+    /**
+     * Name of the module.
+     *
+     * @type {String}
+     */
+    name: 'wrap'
 
-module.exports = function setup (options) {
-  var settings = {
-      timeout: 1000
-    , header: '(function (expose) {'
-    , leaks: true
-    , body: [
-          'this.contentWindow = this.self = this.window = this;'
-        , 'var window = this'
-        ,   ', document = expose.document'
-        ,   ', self = this'
-        ,   ', top = this'
-        ,   ', location = expose.location'
-        // note we shouldn't close the var statement with a ; because this is
-        // done in the wrapping function
-      ]
-    , footer: '}).call({}, this);'
-  };
+    /**
+     * Small description about the module.
+     *
+     * @type {String}
+     */
+  , description: [
+        'Can wrap you compiled code and plurge the leaked globals.'
+    ].join(' ')
 
-  _.extend(settings, options || {});
+    /**
+     * For which distributions should this run.
+     *
+     * @type {Array}
+     */
+  , distributions: ['min', 'dev']
 
+    /**
+     * Depends on this module to be lazy loaded in advance.
+     *
+     * @type {String}
+     */
+  , requires: 'jsdom'
+
+    /**
+     * Which file extension are accepted.
+     *
+     * @type {String}
+     */
+  , accepts: 'js'
+
+    /**
+     * The time in miliseconds to wait before the script needs to be initialized.
+     *
+     * @type {Number}
+     */
+  , timeout: 1000
+
+    /**
+     * The header that is used to wrap the code.
+     *
+     * @type {String}
+     */
+  , header: '(function (expose) {'
+
+    /**
+     * Should we attempt to detect leaked globals and patch them.
+     *
+     * @type {Boolean}
+     */
+  , leaks: true
+
+    /**
+     * Small initial body that is used for leak protection.
+     *
+     * @type {Array}
+     */
+  , body: [
+        'this.contentWindow = this.self = this.window = this;'
+      , 'var window = this'
+      ,   ', document = expose.document'
+      ,   ', self = this'
+      ,   ', top = this'
+      ,   ', location = expose.location'
+
+      // Note we shouldn't close the var statement with a ; because this is
+      // done in the wrapping function.
+    ]
+
+    /**
+     * The footer that is used to end the wraping.
+     *
+     * @type {String}
+     */
+  , footer: '}).call({}, this);'
+
+    /**
+     * The module is initialized
+     */
+  , initialize: function initialize() {
+      var self = this;
+
+      if (!this.leaks) {
+        return this.emit('data', this.header + this.content + this.footer);
+      }
+
+      this.sandboxleak(this.content, this.timeout, function found(err, leaks) {
+        if (err) {
+          self.logger.error('Sandboxing produced an error, canceling operation', err);
+          self.logger.warning('The supplied code might leak globals');
+
+          return self.emit('data', self.content);
+        }
+
+        // No leaks where found, we are all good to go
+        if (!leaks) return self.emit(self.content);
+
+        self.logger.debug('Global leaks detected:', leaks, 'patching the hole');
+
+        var body = JSON.parse(JSON.stringify(self.body))
+          , content;
+
+        // Add more potential leaked variables
+        _.each(leaks, function (global) {
+          body.push(', ' + global + ' = this');
+        });
+
+        // Close it, as our body array didn't have a closing semicolon
+        body.push(';');
+
+        _.each(leaks, function leaking(global) {
+          body.push('this.' + global + ' = this;');
+        });
+
+        body.push(self.content);
+
+        // Silly variable upgrading
+        _.each(leaks, function leaking(global) {
+          body.push(global + ' = ' + global + ' || this.' + global + ';');
+        });
+
+        // compile the new content
+        content = self.header + body.join('\n') + self.footer;
+
+        // try if we fixed all leaks
+        exports.sandboxleak(content, self.timeout, function final(err, newleaks) {
+          if (err) {
+            self.logger.error('Failed to compile the sandboxed script', err);
+            self.logger.warn('The supplied code might leak globals');
+
+            return self.emit('data', self.content);
+          }
+
+          // Output some compile information
+          if (!newleaks.length) {
+            self.logger.info('Successfully patched all leaks');
+          } else if (newleaks.length < leaks.length) {
+            self.logger.info('Patched some leaks, but not all', newleaks);
+          } else {
+            self.logger.info('Patching the code did not help, it avoided the sandbox');
+          }
+
+          self.emit('data', content);
+        });
+      });
+    }
   /**
-   * The build middleware.
+   * Detect leaking code.
    *
-   * @param {Object} output
-   * @param {Function} next
+   * @param {String} content
+   * @param {Number} timeout
+   * @param {Function} fn
    * @api private
    */
+  , sandboxleak: function sandboxleak(content, timeout, fn) {
+      var html = '<html><body></body></html>'
+        , DOM = this.jsdom.jsdom;
 
-  return function leak (output, next) {
-    if (output.extension !== 'js') return process.nextTick(next);
+      var doc = DOM(html)
+        , sandbox = doc.createWindow()
+        , regular = Object.keys(sandbox);
 
-    // setup the configuration based on the plugin configuration
-    var configuration = _.extend(
-        settings
-      , this.package.configuration.plugins.wrap || {}
-    );
+      // release memory
+      sandbox.close();
 
-    // setup
-    var logger = this.logger
-      , timeout = configuration.timeout;
+      this.jsdom.env({
+          html: html
+        , src: [ content ]
+        , features: {
+            FetchExternalResources: false
+          }
+        , done: function done (err, window) {
+            var globals;
 
-    if (!configuration.leaks) {
-      output.content = configuration.header + output.content + configuration.footer;
-      return next(null, output);
+            if (window) {
+              globals = _.difference(Object.keys(window), regular);
+              window.close();
+            }
+
+            fn(err, globals);
+          }
+      });
     }
-
-    // search for leaks
-    exports.sandboxleak(output.content, timeout, function found (err, leaks) {
-      if (err) {
-        logger.error('Sandboxing produced an error, canceling operation', err);
-        logger.warning('The supplied code might leak globals');
-
-        return next(null, output);
-      }
-
-      if (!leaks) return next(null, output);
-
-      logger.debug('Global leaks detected:', leaks, 'patching the hole');
-
-      // copy
-      var body = JSON.parse(JSON.stringify(configuration.body))
-        , compiled;
-
-      // add more potential leaked variables
-      _.each(leaks, function (global) {
-        body.push(', ' + global + ' = this');
-      });
-
-      // close it
-      body.push(';');
-
-      _.each(leaks, function (global) {
-        body.push('this.' + global + ' = this;');
-      });
-
-      body.push(output.content);
-
-      // silly variable upgrading
-      _.each(leaks, function (global) {
-        body.push(global + ' = ' + global + ' || this.' + global + ';');
-      });
-
-      // compile the new content
-      compiled = configuration.header + body.join('\n') + configuration.footer;
-
-      // try if we fixed all leaks
-      exports.sandboxleak(compiled, timeout, function final (err, newleaks) {
-        if (err) {
-          logger.error('Failed to compile the sandboxed script', err);
-          logger.warn('The supplied code might leak globals');
-
-          return next(null, output);
-        }
-
-        // output some compile information
-        if (!newleaks.length) logger.info('Successfully patched all leaks');
-        else if (newleaks.length < leaks.length) logger.info('Patched some leaks, but not all', newleaks);
-        else logger.info('Patching the code did not help, it avoided the sandbox');
-
-        output.content = compiled;
-        next(null, output);
-      });
-    });
-  };
-};
-
-/**
- * Small description of what this plugin does.
- *
- * @type {String}
- * @api private
- */
-
-module.exports.description = 'Can wrap you compiled code and plurge the leaked globals';
-
-/**
- * Detect leaking code.
- *
- * @param {String} content
- * @param {Number} timeout
- * @param {Function} fn
- * @api private
- */
-
-exports.sandboxleak = function sandboxleak (content, timeout, fn) {
-  canihaz.jsdom(function canihazJSDOM (err, jsdom) {
-    if (err) return err;
-
-    var html = '<html><body></body></html>'
-      , DOM = jsdom.jsdom;
-
-    var doc = DOM(html)
-      , sandbox = doc.createWindow()
-      , regular = Object.keys(sandbox);
-
-    // release memory
-    sandbox.close();
-
-    jsdom.env({
-      html: html
-    , src: [ content ]
-    , features: {
-        FetchExternalResources: false
-      }
-    , done: function done (err, window) {
-        var globals;
-
-        if (window) {
-          globals = _.difference(Object.keys(window), regular);
-          window.close();
-        }
-
-        fn(err, globals);
-      }
-    });
-  });
-};
+});

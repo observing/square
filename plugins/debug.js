@@ -12,9 +12,9 @@ var Plugin = require('../plugin');
  * blocks are wrapped in double curly braces.
  *
  * Options:
- *  - `start` start debug tag
- *  - `end` end debug tag
- *  - `inline` inline statement removal
+ *  - `start` start debug tag, regexp.
+ *  - `end` end debug tag, regexp.
+ *  - `inline` inline statement removal, regexp.
  *
  * @api public
  */
