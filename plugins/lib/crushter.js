@@ -28,6 +28,7 @@ var canihaz = require('canihaz')('square')
  * Task:
  *
  * task.engines: Comma seperated list of compressors that need to be used
+ * task.extension: The file extension of content
  * task.content: The actual content that needs to be processed
  * task.gzip: Calculate the size of content after gzipping it
  * task.id: The id of this task (private)
@@ -259,7 +260,7 @@ exports.crushers = {
     /**
      * @see https://github.com/yui/yuglify
      */
-  , yuglyif: function yuglyif(type, collection, cb) {
+  , yuglify: function yuglify(type, collection, cb) {
       canihaz.yuglify(function fetch(err, yuglify) {
         if (err) return cb(err);
 
