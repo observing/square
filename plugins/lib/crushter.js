@@ -36,7 +36,9 @@ var canihaz = require('canihaz')('square')
  * @param {Object} task
  */
 if (!cluster.isMaster) process.on('message', function message(task) {
-  var engines = exports[task.extension];
+  var engines = exports[task.extension]
+    , started = Date.now()
+    , durations = {};
 
   async.reduce(
       task.engines.split(/\,\s+?/)
@@ -45,17 +47,23 @@ if (!cluster.isMaster) process.on('message', function message(task) {
         var backup = memo.content;
 
         // Compile the shizzle.
-        if (engine in engines) return engines[engine](memo, function crush(err, content) {
-          if (err) {
-            memo.content = backup;
-            return done(err, memo);
-          }
+        if (engine in engines) {
+          durations[engine] = Date.now();
 
-          // Update the content and process all the things again, and again and
-          // again.
-          memo.content = content;
-          done(err, memo);
-        });
+          return engines[engine](memo, function crush(err, content) {
+            durations[engine] = Date.now() - durations[engine];
+
+            if (err) {
+              memo.content = backup;
+              return done(err, memo);
+            }
+
+            // Update the content and process all the things again, and again and
+            // again.
+            memo.content = content;
+            done(err, memo);
+          });
+        }
 
         // The engine does not exist, send an error response
         process.nextTick(function () {
@@ -63,7 +71,13 @@ if (!cluster.isMaster) process.on('message', function message(task) {
         });
       }
     , function done(err, result) {
-        result = result || task;
+        result = result || task || {};
+
+        // Add some metrics about this task like:
+        // - The total time it took to process this task
+        // - The time each individual compiler took to compress the content
+        result.duration = Date.now() - started;
+        result.individual = durations;
 
         if (!result.gzip || err) return process.send(err, result);
 

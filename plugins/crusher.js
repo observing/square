@@ -40,6 +40,26 @@ module.exports = Plugin.extend({
   , accepts: ['js', 'css']
 
     /**
+     * Which engines should be used for crushing the content? It can be a comma
+     * separated list of engines. Each engine will process the result of the
+     * previous engine and potentially creating a higher saving at the cost of
+     * longer processing.
+     *
+     * @type {String}
+     */
+  , engines: ''
+
+    /**
+     * Should we analyse which crusher or combination of curshers yields the
+     * best results? If's often possible that engine x works great on code base
+     * y but doesn't work as good as expected on a different code base as each
+     * engine has it's own bag of tricks to optimize the content.
+     *
+     * @type {Boolean}
+     */
+  , analyse: false
+
+    /**
      * The module has been initialized.
      */
   , initialize: function initialize() {
@@ -47,7 +67,7 @@ module.exports = Plugin.extend({
 
       // No engine property is set, so set a decent default, but make it aware
       // of the extension.
-      if (!('engines' in this)) {
+      if (!this.engines) {
         if (this.extension === 'js') this.engines = 'closure';
         else if (this.extension === 'css') this.engines = 'yuglify';
         else return this.emit('error', new Error('No engine is set'));
@@ -56,6 +76,13 @@ module.exports = Plugin.extend({
       // The user has requested us to analyse the content and figure out the
       // best the compiler strategy
       if (this.analyse) return this.analyser(function analyser(err, results) {
+        if (err) return self.emit('error', err);
+
+        self.logger.info('The fastest engine');
+        self.logger.info('The smallest content');
+        self.logger.info('The best compressed');
+
+        self.emit('data');
       });
 
       cluster.send({
@@ -97,18 +124,36 @@ module.exports = Plugin.extend({
         , function ready(err, results) {
             if (err) return cb(err);
 
+            // Map the results in to useful things
             results = results.map(function map(res) {
               return {
                   minified: Buffer.byteLenght(res.content)
+                , duration: res.duration || Infinity
                 , engines: res.engines
                 , content: res.content
                 , gzip: +res.gzip || 0
               };
-            }).sort(function sort(a, b) {
-              return a.gzip - b.gzip;
             });
 
-            cb(undefined, results);
+            // Calculate some stats from the analytic procedure
+            // - The fastest crusher
+            // - The least file size
+            // - The best bandwidth saving (using gzip)
+            var stats = {};
+            stats.fastest = results.sort(function sort(a, b) {
+              return a.duration - b.duration;
+            })[0];
+
+            stats.filesize = results.sort(function sort(a, b) {
+              return a.minified - b.minified;
+            })[0];
+
+            stats.bandwidth = results.sort(function sort(a, b) {
+              return a.gzip - b.gzip;
+            })[0];
+
+            stats.results = results;
+            cb(undefined, stats);
           }
       );
     }
