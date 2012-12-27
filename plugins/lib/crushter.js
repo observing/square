@@ -9,7 +9,7 @@
 /**
  * Native modules.
  */
-var child = require('child_process')
+var spawn = require('child_process').spawn
   , cluster = require('cluster')
   , zlib = require('zlib')
   , path = require('path')
@@ -164,6 +164,75 @@ require('which')('java', function which(err, path) {
 });
 
 /**
+ * Configures a new child process spawn that is used to minify files. We use
+ * new child processes for this as these kind of operations are CPU heavy and
+ * would block the Node.js event loop resulting in slower conversion rates. This
+ * setup also allows us to parallel convert code.
+ *
+ * @param {Array} args required configuration flags
+ * @param {Object} config default configuration
+ * @param {String} content content
+ * @param {Function} fn callback
+ * @api public
+ */
+exports.jar = function jar(args, config, content, fn) {
+  var buffer = ''
+    , errors = ''
+    , compressor;
+
+  // Generate the --key value options, both the key and the value should added
+  // seperately to the `args` array or the child_process will chocke.
+  Object.keys(config).filter(function filter(option) {
+    return config[option];
+  }).forEach(function format(option) {
+    var bool = _.isBoolean(config[option]);
+
+    if (!bool || config[option]) {
+      args.push('--' + option);
+      if (!bool) args.push(config[option]);
+    }
+  });
+
+  // Spawn the shit and set the correct encoding.
+  compressor = spawn(exports.java, args);
+  compressor.stdout.setEncoding('utf8');
+  compressor.stderr.setEncoding('utf8');
+
+  /**
+   * Buffer up the results so we can concat them once the compression is
+   * finished.
+   *
+   * @param {Buffer} chunk
+   * @api private
+   */
+  compressor.stdout.on('data', function data(chunk) {
+    buffer += chunk;
+  });
+
+  compressor.stderr.on('data', function data(err) {
+    errors += err;
+  });
+
+  /**
+   * The compressor has finished can we now process the data and see if it was
+   * a success.
+   *
+   * @param {Number} code
+   * @api private
+   */
+  compressor.on('close', function close(code) {
+    if (errors.length) return fn(new Error(errors));
+    if (code !== 0) return fn(new Error('Process exited with code ' + code));
+    if (!buffer.length) return fn(new Error('No data returned ' + exports.java + args));
+
+    fn(undefined, buffer);
+  });
+
+  // Write out the content that needs to be minified
+  compressor.stdin.end(content);
+};
+
+/**
  * Maintain a list of our workers. They should be ordered on usage, so we can
  * implement a round robin system by poping and pushing workers after usage.
  *
@@ -182,6 +251,14 @@ exports.initialize = function initialize(workers) {
   var i = workers || os.cpus().length
     , fork;
 
+  /**
+   * Message handler for the workers.
+   *
+   * @param {Worker} worker
+   * @param {Error} err
+   * @param {Object} task the updated task
+   * @api private
+   */
   function message(worker, err, task) {
     var callback = worker.queue[task.id];
 
@@ -189,6 +266,7 @@ exports.initialize = function initialize(workers) {
     // badly, so just throw something and have the process.uncaughtException
     // handle it.
     if (!callback) {
+      if (err) console.error(err);
       console.error(task);
       throw new Error('Unable to process message from worker, can\'t locate the callback!');
     }
@@ -221,6 +299,9 @@ exports.initialize = function initialize(workers) {
  * - uglify2: An rewrite of uglify 1, a powerful compiler for JavaScript it's
  *   almost as good as the Google Closure Compiler and in some cases even
  *   better.
+ * - yui: The interface to the YUI compressor that was build upon Java. It
+ *   requires Java to be installed on the users system or it will savely exit
+ *   without compressing the content.
  * - yuglyif: An Yahoo fork of uglify it adds some addition features and fixes
  *   on top of the original uglify compiler.
  * - sqwish: A node.js based CSS compressor, it has the ability to combine
@@ -239,6 +320,22 @@ exports.crushers = {
      */
     uglify2: function uglify2(type, collection, cb) {
       if (type !== 'js') return cb(new Error('Type is not supported'));
+    }
+
+    /**
+     * @see https://github.com/yui/yuicompressor
+     */
+  , yui: function yui(type, collection, cb) {
+      if (!exports.java) return cb(undefined, collection.content);
+
+      // Don't set the 'charset': 'ascii' option for the YUI compressor, it will
+      // break utf-8 chars. Other compilers do require this flag, or they will
+      // transform escaped utf-8 chars to real utf-8 chars.
+      exports.jar(['-jar', path.join(__dirname, '../../vendor/yui.jar')], {
+          'type': type
+        , 'line-break': 256
+        , 'verbose': false
+      }, collection.content, cb);
     }
 
     /**
@@ -268,7 +365,16 @@ exports.crushers = {
         cb(undefined, body);
       });
 
-      // @TODO add the child process magic
+      // Java is supported on this system, use that instead as it will be
+      // cheaper and faster then calling the service.
+      exports.jar(['-jar', path.join(__dirname, '../../vendor/closure.jar')], {
+          'charset': 'ascii'
+        , 'compilation_level': 'SIMPLE_OPTIMIZATIONS'
+        , 'language_in': 'ECMASCRIPT5'
+        , 'warning_level': 'QUIET'
+        , 'jscomp_off': 'uselessCode'
+        , 'summary_detail_level': 0
+      }, collection.content, cb);
     }
 
     /**
@@ -291,6 +397,8 @@ exports.crushers = {
       canihaz['jsmin-sourcemap'](function fetch(err, jsmin) {
         if (err) return cb(err);
 
+        try { cb(undefined, jsmin(collection.content).code); }
+        catch (e) { return cb(e); }
       });
     }
 
@@ -358,10 +466,11 @@ exports.js = {
   , yuglyif: exports.crushers.yuglyif.bind(exports.crushers, 'js')
   , jsmin: exports.crushers.jsmin.bind(exports.crushers, 'js')
   , esmangle: exports.crushers.esmangle.bind(exports.crushers, 'js')
+  , yui: exports.crushers.yui.bind(exports.crushers, 'js')
 };
 
 /**
- * The compressors that are able to compile JavaScript.
+ * The compressors that are able to compile Cascading Style Sheets.
  *
  * @type {Object}
  * @api private
@@ -369,4 +478,5 @@ exports.js = {
 exports.css = {
     yuglyif: exports.crushers.yuglyif.bind(exports.crushers, 'css')
   , sqwish: exports.crushers.sqwish.bind(exports.crushers, 'css')
+  , yui: exports.crushers.yui.bind(exports.crushers, 'css')
 };
