@@ -323,6 +323,17 @@ exports.crushers = {
     }
 
     /**
+     * @see http://www.iteral.com/jscrush
+     */
+  , jscrush: function jscrush(type, collection, cb) {
+      if (type !== 'js') return cb(new Error('Type is not supported'));
+      var compiler = jscrush.crush || (jscrush.crush = require('./jscrush'));
+
+      try { cb(undefined, compiler(collection.content)); }
+      catch (e) { cb(e); }
+    }
+
+    /**
      * @see https://github.com/yui/yuicompressor
      */
   , yui: function yui(type, collection, cb) {
