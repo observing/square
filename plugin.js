@@ -44,7 +44,10 @@ function Plugin(square, collection) {
   // it with the plugin's name which will help with the debug ability of this
   // module.
   Object.keys(square.logger.levels).forEach(function generate(level) {
-    self.logger[level] = square[level].bind(square, self.name);
+    self.logger[level] = square.logger[level].bind(
+        square.logger
+      , '[plugin::'+ self.name +']'
+    );
   });
 
   // Merge the given collection with the plugin, but don't override the default
@@ -54,7 +57,7 @@ function Plugin(square, collection) {
       return self.logger.warning(
           'The '
         + self.name
-        + ' plugin uses a property that would be overriden by the collection.'
+        + ' plugin uses a property ('+ key +') that would be overriden by the collection.'
       );
     }
 
@@ -62,7 +65,7 @@ function Plugin(square, collection) {
     self[key] = collection[key];
   });
 
-  this.configure();
+  process.nextTick(this.configure.bind(this));
 }
 
 // The plugin is based on a EventEmitter which we will spice up using our
@@ -133,7 +136,11 @@ _.extend(Plugin.prototype, {
 
       // Should we allow this plugin to run? It should accept the correct
       // distribution and it should accept the given extension.
-      if (!this.distribution() || !this.accepted()) {
+      if (!this.distributable() || !this.accepted()) {
+        this.logger.debug(
+            'disregarding this plugin for extension: '+ this.extension
+          +', distribution: '+ this.distribution
+        );
         return this.emit('disregard');
       }
 
@@ -173,12 +180,12 @@ _.extend(Plugin.prototype, {
           });
 
           // We are now fully initialized.
-          if (self.initialize) process.nextTick(self.initialize.bind(self));
+          if (self.initialize) self.initialize();
         }));
       }
 
       // We are now fully initialized.
-      if (self.initialize) process.nextTick(self.initialize.bind(self));
+      if (self.initialize) self.initialize();
     }
 
     /**
@@ -217,9 +224,14 @@ _.extend(Plugin.prototype, {
      * @returns {Boolean}
      * @api private
      */
-  , distribution: function distribution() {
-      if (!Array.isArray(this.distributions)) return this.distributions === this.dist;
-      if (!this.distributions.length) return true;
+  , distributable: function distributable() {
+      if (!Array.isArray(this.distributions)) {
+        return this.distributions === this.distribution;
+      }
+
+      if (!this.distributions.length) {
+        return true;
+      }
 
       return !!~this.distributions.indexOf(this.dist);
     }
