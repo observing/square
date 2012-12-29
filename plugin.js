@@ -9,7 +9,8 @@
 /**
  * Native modules.
  */
-var EventEmitter = require('events').EventEmitter;
+var EventEmitter = require('events').EventEmitter
+  , path = require('path');
 
 /**
  * Third party modules.
@@ -127,7 +128,8 @@ _.extend(Plugin.prototype, {
   , configure: function configure() {
       var pkg = this.square.package
         , configuration = pkg.configuration
-        , self = this;
+        , self = this
+        , load = [];
 
       // Should we allow this plugin to run? It should accept the correct
       // distribution and it should accept the given extension.
@@ -149,6 +151,7 @@ _.extend(Plugin.prototype, {
       // Ensure that our requires is an array, before we continue
       if (!Array.isArray(this.requires)) this.requires = [this.requires];
 
+      // Check if we need to lazy load any dependencies
       if (this.requires && this.requires.length) {
         canihaz.all.apply(canihaz.all, this.requires.concat(function canihaz(err) {
           if (err) return self.emit('error', err);
@@ -166,6 +169,36 @@ _.extend(Plugin.prototype, {
       } else {
         process.nextTick(self.initialize.bind(self));
       }
+    }
+
+    /**
+     * A small wrapper around the `canihaz` module so we don't have to expose
+     * that interface to our users. It also checks all other available paths for
+     * the module if it cannot require it first.
+     *
+     * @param {String} name name of the module
+     * @param {Function} cb callback
+     * @api public
+     */
+  , require: function requireAllTheThings(name, cb) {
+      process.nextTick(function ticktock() {
+        try { return cb(undefined, require(name)); }
+        catch (e) { /* ignore the error, module does not exist */ }
+
+        // try to see if the module is in the paths array of square
+        var found = this.paths.some(function some(location) {
+          try {
+            cb(undefined, require(path.join(location + '/' + name )));
+            return true;
+          } catch (e) { return false; }
+        });
+
+        if (found) return;
+        if (name in canihaz) return canihaz[name](cb);
+
+        // This module does not exist, so return an error to the callback.
+        cb(new Error('This module is not defined in the dependencies'));
+      }.bind(this.square));
     }
 
     /**
