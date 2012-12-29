@@ -153,22 +153,32 @@ _.extend(Plugin.prototype, {
 
       // Check if we need to lazy load any dependencies
       if (this.requires && this.requires.length) {
-        canihaz.all.apply(canihaz.all, this.requires.concat(function canihaz(err) {
+        load = this.requires.map(function (file) {
+          if (typeof file !== 'object') return file;
+          if (!('extension' in file)) return file.name || file;
+          if (file.extension === self.extension) return file.name || file;
+
+          return undefined;
+        }).filter(Boolean); // Only get existing files
+
+        // Only fetch shizzle when we actually have shizzle to fetch here
+        if (load.length) return canihaz.all.apply(canihaz.all, load.concat(function canihaz(err) {
           if (err) return self.emit('error', err);
 
           // Add all the libraries to the context, the `canihaz#all` returns an
           // error first, and then all libraries it installed or required in the
           // order as given to it, which is in our case the `this.requires` order.
           Array.prototype.slice.call(arguments, 1).forEach(function (lib, index) {
-            self[self.requires[index]] = lib;
+            self[load[index]] = lib;
           });
 
           // We are now fully initialized.
           if (self.initialize) process.nextTick(self.initialize.bind(self));
         }));
-      } else {
-        process.nextTick(self.initialize.bind(self));
       }
+
+      // We are now fully initialized.
+      if (self.initialize) process.nextTick(self.initialize.bind(self));
     }
 
     /**
