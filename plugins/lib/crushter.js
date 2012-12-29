@@ -474,7 +474,7 @@ exports.crushers = {
 exports.js = {
     uglify2: exports.crushers.uglify2.bind(exports.crushers, 'js')
   , closure: exports.crushers.closure.bind(exports.crushers, 'js')
-  , yuglyif: exports.crushers.yuglyif.bind(exports.crushers, 'js')
+  , yuglify: exports.crushers.yuglify.bind(exports.crushers, 'js')
   , jsmin: exports.crushers.jsmin.bind(exports.crushers, 'js')
   , esmangle: exports.crushers.esmangle.bind(exports.crushers, 'js')
   , yui: exports.crushers.yui.bind(exports.crushers, 'js')
@@ -487,7 +487,7 @@ exports.js = {
  * @api private
  */
 exports.css = {
-    yuglyif: exports.crushers.yuglyif.bind(exports.crushers, 'css')
+    yuglify: exports.crushers.yuglify.bind(exports.crushers, 'css')
   , sqwish: exports.crushers.sqwish.bind(exports.crushers, 'css')
   , yui: exports.crushers.yui.bind(exports.crushers, 'css')
 };
