@@ -55,7 +55,7 @@ module.exports = Plugin.extend({
      * y but doesn't work as good as expected on a different code base as each
      * engine has it's own bag of tricks to optimize the content.
      *
-     * @type {Boolean}
+     * @type {Boolean|String}
      */
   , analyse: false
 
@@ -104,7 +104,9 @@ module.exports = Plugin.extend({
      * @api private
      */
   , analyser: function analyser(cb) {
-      var compilers = Object.keys(cluster[this.extension])
+      var compilers = typeof this.analyse === 'string'
+            ? Object.keys(cluster[this.extension])
+            : this.analyse.split(/\,\s+?/)
         , combinations = this.permutations(compilers)
         , self = this;
 
