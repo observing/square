@@ -20,7 +20,8 @@ var spawn = require('child_process').spawn
  */
 var canihaz = require('canihaz')('square')
   , request = require('request')
-  , async = require('async');
+  , async = require('async')
+  , _ = require('lodash');
 
 /**
  * A fork received a new task to process.
@@ -80,18 +81,18 @@ if (!cluster.isMaster) process.on('message', function message(task) {
         result.individual = durations;
 
         // Transform the Error to something that can be serialized
-        if (err) err = { message: err.message, stack: err.stack };
-        if (!result.gzip || err) return process.send(err, result);
+        if (err) result.err = { message: err.message, stack: err.stack };
+        if (!result.gzip || err) return process.send(result);
 
         // We want to calculate the size of the generated code once it has been
         // gzipped as that might be more important to users than the actual file
         // size after minification.
         result.gzip = 0;
         zlib.gzip(result.content, function gzip(err, buff) {
-          if (err) return process.send(err, result);
+          if (err) result.err = { message: err.message, stack: err.stack };
 
           result.gzip = buff.length;
-          process.send(err, result);
+          process.send(result);
         });
       }
   );
@@ -261,8 +262,15 @@ exports.initialize = function initialize(workers) {
    * @param {Object} task the updated task
    * @api private
    */
-  function message(worker, err, task) {
-    var callback = worker.queue[task.id];
+  function message(worker, task) {
+    var callback = worker.queue[task.id]
+      , err;
+
+    // Rebuild the Error object so we can pass it to our callbacks
+    if (task.err) {
+      err = new Error(task.err.message);
+      err.stack = task.err.stack;
+    }
 
     // Kill the whole fucking system, we are in a fucked up state and should die
     // badly, so just throw something and have the process.uncaughtException
@@ -278,8 +286,8 @@ exports.initialize = function initialize(workers) {
   }
 
   cluster.setupMaster({
-      silent: false
-    , exec: __filename
+      silent: false       // do we want to write stuff to the parent's stdout
+    , exec: __filename    // which script should we fork, only this file plx
   });
 
   while (i--) {
@@ -372,15 +380,22 @@ exports.crushers = {
             , js_code: collection.content               // the code that needs to be crushed
             , compilation_level: 'SIMPLE_OPTIMIZATIONS' // compression level
             , charset: 'ascii'                          // correct the charset
-            , language_in: 'ECMASCRIPT5'                // language
             , warning_level: 'QUIET'                    // stfu warnings
+            , output_info: 'compiled_code'              // only get compiled codes
           }
       }, function servicecall(err, req, body) {
         if (err) return cb(err);
 
-        // @TODO check the returned body and / or response code for possible
-        // service code failures
-        cb(undefined, body);
+        // Remove them pesky new lines, they could be returned from error
+        // respones
+        if (body) body = body.trim();
+
+        // Check for errors, this is a bit flakey as we only want ascii returned
+        // from the server.
+        if (body.slice(0, 5) === 'Error') return cb(new Error(body));
+
+        // All is okay
+        cb(err, body);
       });
 
       // Java is supported on this system, use that instead as it will be
