@@ -14,7 +14,7 @@ module.exports = Plugin.extend({
      *
      * @type {String}
      */
-    name: 'debug'
+    name: 'crusher'
 
     /**
      * Small description about the module.
