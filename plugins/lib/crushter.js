@@ -79,6 +79,8 @@ if (!cluster.isMaster) process.on('message', function message(task) {
         result.duration = Date.now() - started;
         result.individual = durations;
 
+        // Transform the Error to something that can be serialized
+        if (err) err = { message: err.message, stack: err.stack };
         if (!result.gzip || err) return process.send(err, result);
 
         // We want to calculate the size of the generated code once it has been
@@ -110,7 +112,7 @@ exports.send = function send(task, cb) {
 
   task.id = task.id || Date.now();  // use an id to tie a task to a callback
   worker.queue[task.id] = cb || function noop(){};
-  worker.send.apply(worker.send, arguments);
+  worker.send(task);
 
   // Add it back at the end of the array, so we implement a round robin load
   // balancing technique for our workers.
@@ -275,6 +277,11 @@ exports.initialize = function initialize(workers) {
     delete worker.queue[task.id];
   }
 
+  cluster.setupMaster({
+      silent: false
+    , exec: __filename
+  });
+
   while (i--) {
     // Configure the forked things
     fork = cluster.fork();
@@ -360,7 +367,7 @@ exports.crushers = {
       // for us.
       if (!exports.java) return request.post({
           url: 'https://closure-compiler.appspot.com/compile'
-        , body: {
+        , form: {
               output_format: 'text'                     // we only want the compiled shizzle
             , js_code: collection.content               // the code that needs to be crushed
             , compilation_level: 'SIMPLE_OPTIMIZATIONS' // compression level
