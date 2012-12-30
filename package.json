@@ -65,7 +65,14 @@
     "node-sass": "0.2.5",
     "socket.io": "0.9.13",
     "stylus": "0.31.0",
-    "uglify-js": "2.2.2"
+    "uglify-js": "2.2.2",
+    "uglify-js2": "2.1.11",
+    "jsmin-sourcemap": "0.12.2",
+    "esprima": "1.0.2",
+    "escodegen": "0.0.15",
+    "esmangle": "0.0.9",
+    "yuglify": "0.1.1",
+    "sqwish": "0.2.1"
   },
   "configuration": {
     "dist": {
