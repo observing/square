@@ -65,6 +65,14 @@ module.exports = Plugin.extend({
   , initialize: function initialize() {
       var self = this;
 
+      // Check if we need to register the cluster as longrunning handle with the
+      // square instance.
+      // @NOTE: we might need to add this callback to every square instance not
+      // just the one that started it..
+      if (!cluster.initialized) {
+        this.square.longrunning('cluster', cluster.kill);
+      }
+
       // No engine property is set, so set a decent default, but make it aware
       // of the extension.
       if (!this.engines) {
