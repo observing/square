@@ -133,12 +133,14 @@ exports.kill = function kill(workers) {
     // Remove the worker from the array, so it will not be used again in the
     // `exports#send` method
     var index = exports.workers.indexOf(worker);
-    if (~index) exports.workers.splice(index, 1);
+    if (~index) exports.workers.splice(index, 0);
 
     // @TODO Do we need to trigger any queued callbacks? If so with an error?
     worker.queue.length = 0;
     worker.destroy();
   });
+
+  exports.initialized = false;
 };
 
 /**
