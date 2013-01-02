@@ -86,9 +86,9 @@ module.exports = Plugin.extend({
       if (this.analyse) return this.analyser(function analyser(err, results) {
         if (err) return self.emit('error', err);
 
-        self.logger.info('The fastest engine:   %s', results.fastest.engines);
-        self.logger.info('The smallest content: %s', results.filesize.engines);
-        self.logger.info('The best compressed:  %s', results.bandwidth.engines);
+        self.logger.info('The fastest engine:     '+ results.fastest.engines);
+        self.logger.info('The smallest content:   '+ results.filesize.engines);
+        self.logger.info('The best compressed:    '+ results.bandwidth.engines);
 
         self.emit('data');
       });
