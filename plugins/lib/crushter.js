@@ -110,7 +110,7 @@ exports.id = 0; // Date.now() is not unique enough
 exports.send = function send(task, cb) {
   if (!exports.initialized) exports.initialize();
 
-  var worker = exports.workers.pop();
+  var worker = exports.workers.shift();
 
   task.id = task.id || ++exports.id;
   worker.queue[task.id] = cb || function noop(){};
