@@ -145,14 +145,18 @@ _.extend(Plugin.prototype, {
       }
 
       // Check if there are any configuration options in the package.
-      if (pkg.plugins && this.name in pkg.plugins) {
-        _.extend(this, pkg.plugins[this.name] || {});
+      if (_.isObject(pkg.plugins) && this.name in pkg.plugins) {
+        _.extend(this, pkg.plugins[this.name]);
+      }
+
+      if (_.isObject(configuration.plugins) && this.name in configuration.plugins) {
+        _.extend(this, configuration.plugins[this.name]);
       }
 
       // Check if the bundle it self also had specific configurations for this
       // plugin.
-      if (this.name in this) {
-        _.extend(this, this[this.name] || {});
+      if (this.name in this && _.isObject(this[this.name])) {
+        _.extend(this, this[this.name]);
       }
 
       // Ensure that our requires is an array, before we continue
