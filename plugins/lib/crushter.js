@@ -42,7 +42,7 @@ if (!cluster.isMaster) process.on('message', function message(task) {
     , durations = {};
 
   async.reduce(
-      task.engines.split(/\,\s+?/)
+      task.engines.split(/\s?\,\s?/).filter(Boolean)
     , task
     , function reduce(memo, engine, done) {
         var backup = memo.content;
@@ -67,7 +67,7 @@ if (!cluster.isMaster) process.on('message', function message(task) {
         }
 
         // The engine does not exist, send an error response
-        process.nextTick(function () {
+        process.nextTick(function nexTick() {
           done(new Error('The engine '+ engine +' does not exist'), memo);
         });
       }
@@ -106,12 +106,13 @@ if (!cluster.isMaster) process.on('message', function message(task) {
  * @param {Function} cb callback
  * @api public
  */
+exports.id = 0; // Date.now() is not unique enough
 exports.send = function send(task, cb) {
   if (!exports.initialized) exports.initialize();
 
   var worker = exports.workers.pop();
 
-  task.id = task.id || Date.now();  // use an id to tie a task to a callback
+  task.id = task.id || ++exports.id;
   worker.queue[task.id] = cb || function noop(){};
   worker.send(task);
 
@@ -136,7 +137,7 @@ exports.kill = function kill(workers) {
     if (~index) exports.workers.splice(index, 0);
 
     // @TODO Do we need to trigger any queued callbacks? If so with an error?
-    worker.queue.length = 0;
+    worker.queue = {};
     worker.destroy();
   });
 
@@ -160,13 +161,9 @@ exports.initialized = false;
  * @api private
  */
 exports.java = false;
-require('which')('java', function which(err, path) {
-  if (err) return; // java is not supported on this system
 
-  // we have found the path to the java executable, set it's path for the child
-  // process
-  exports.java = path;
-});
+try { exports.java = require('which').sync('java'); }
+catch (e) {}
 
 /**
  * Configures a new child process spawn that is used to minify files. We use
@@ -483,7 +480,7 @@ exports.crushers = {
       canihaz.sqwish(function fetch(err, sqwish) {
         if (err) return cb(err);
 
-        try { cb(undefined, sqwish(collection.content, true)); }
+        try { cb(undefined, sqwish.minify(collection.content, true)); }
         catch (fail) { cb(fail); }
       });
     }
