@@ -86,9 +86,9 @@ module.exports = Plugin.extend({
       if (this.analyse) return this.analyser(function analyser(err, results) {
         if (err) return self.emit('error', err);
 
-        self.logger.info('The fastest engine');
-        self.logger.info('The smallest content');
-        self.logger.info('The best compressed');
+        self.logger.info('The fastest engine:   %s', results.fastest.engines);
+        self.logger.info('The smallest content: %s', results.filesize.engines);
+        self.logger.info('The best compressed:  %s', results.bandwidth.engines);
 
         self.emit('data');
       });
@@ -113,15 +113,17 @@ module.exports = Plugin.extend({
      */
   , analyser: function analyser(cb) {
       var compilers = typeof this.analyse === 'string'
-            ? Object.keys(cluster[this.extension])
-            : this.analyse.split(/\,\s+?/)
+            ? this.analyse.split(/\s?\,\s?/).filter(Boolean)
+            : Object.keys(cluster[this.extension])
         , combinations = this.permutations(compilers)
         , self = this;
+
+      this.logger.debug('analysing '+ combinations.length+' different combinations');
 
       // @TODO the permutation only include every combination, but it doesn't
       // include the compilers as stand alone option or duo like closure + yui
       // these combinations should also be included.
-      this.async.forEach(
+      this.async.map(
           combinations
         , function forEach(list, callback) {
             cluster.send({
@@ -132,12 +134,13 @@ module.exports = Plugin.extend({
             }, callback);
           }
         , function ready(err, results) {
+            if (err) console.log(err.message, err.stack);
             if (err) return cb(err);
 
             // Map the results in to useful things
             results = results.map(function map(res) {
               return {
-                  minified: Buffer.byteLenght(res.content)
+                  minified: Buffer.byteLength(res.content)
                 , duration: res.duration || Infinity
                 , engines: res.engines
                 , content: res.content
