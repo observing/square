@@ -118,12 +118,17 @@ module.exports = Plugin.extend({
         , combinations = this.permutations(compilers)
         , self = this;
 
-      this.logger.debug('analysing '+ combinations.length+' different combinations');
+      this.logger.debug('analysing '+ combinations.length +' different combinations');
 
       // @TODO the permutation only include every combination, but it doesn't
       // include the compilers as stand alone option or duo like closure + yui
       // these combinations should also be included.
-      this.async.map(
+      //
+      // To ensure that the system stays responsive during large permutations we
+      // need to do this as a serial operation. Running more than 500 tasks
+      // concurrently will fuck up your system and that is not something we want
+      // to introduce.
+      this.async.mapSeries(
           combinations
         , function forEach(list, callback) {
             cluster.send({
@@ -131,7 +136,13 @@ module.exports = Plugin.extend({
               , engines: list.join(',')
               , content: self.content
               , gzip: true
-            }, callback);
+            }, function compiling(err, data) {
+              if (err) {
+                self.logger.debug('Failed to analyse '+ list, err);
+              }
+
+              callback(err, data);
+            });
           }
         , function ready(err, results) {
             if (err) console.log(err.message, err.stack);
