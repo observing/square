@@ -149,7 +149,11 @@ _.extend(Plugin.prototype, {
         _.extend(this, pkg.plugins[this.name]);
       }
 
-      if (_.isObject(configuration.plugins) && this.name in configuration.plugins) {
+      if (
+           configuration
+        && _.isObject(configuration.plugins)
+        && this.name in configuration.plugins
+      ) {
         _.extend(this, configuration.plugins[this.name]);
       }
 
@@ -251,6 +255,15 @@ _.extend(Plugin.prototype, {
       if (!this.accepts.length) return true;
 
       return !!~this.accepts.indexOf(this.extension);
+    }
+
+    /**
+     * Destroy any references.
+     *
+     * @api private
+     */
+  , destroy: function destroy() {
+      this.removeAllListeners();
     }
 });
 
