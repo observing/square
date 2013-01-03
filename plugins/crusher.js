@@ -8,6 +8,22 @@
 var Plugin = require('../plugin')
   , cluster = require('./lib/crushter');
 
+/**
+ * Crush and compile different files a.k.a minify all the things.
+ *
+ * Options:
+ * - engines: Which engines should we use to compile the content. This could
+ *   either be comma separated string that contains the different engines you
+ *   want to run it against. Or an Object which contains they different engines
+ *   for each file extension.
+ * - analyse: Analyse which crusher and / or combination provides the best
+ *   crushing for your code. Should be a string containing the engines you want
+ *   to test or a boolean for all engines.
+ * - metrics: Should we output some metrics.
+ *
+ * @constructor
+ * @api public
+ */
 module.exports = Plugin.extend({
     /**
      * Name of the module.
@@ -60,6 +76,13 @@ module.exports = Plugin.extend({
   , analyse: false
 
     /**
+     * Should we generate and output some metrics about the compilation?
+     *
+     * @type {Boolean}
+     */
+  , metrics: true
+
+    /**
      * The module has been initialized.
      */
   , initialize: function initialize() {
@@ -93,12 +116,31 @@ module.exports = Plugin.extend({
         self.emit('data');
       });
 
+      // Check if the engines key is an object or string, if it's an object it
+      // has specific engines for each extension.. atleast that is something
+      // that we are gonna assume here
+      if (typeof this.engines === 'object') {
+        if (Array.isArray(this.engines)) this.engines = this.engines.join(',');
+        else this.engines = this.engines[this.extension] || '';
+      }
+
       cluster.send({
           engines:    this.engines
         , extension:  this.extension
         , content:    this.content
+        , gzip:       this.metrics
       }, function compiling(err, compiled) {
         if (err) return self.emit('error', err);
+
+        if (self.metrics) {
+          var factor = Buffer.byteLength(compiled.content) / compiled.gzip;
+          self.logger.metric([
+              'compressed: '.white + Buffer.byteLength(compiled.content).bytes(1).green
+            , ' minified, '.white + compiled.gzip.bytes(1).green
+            , ' gzip. Which is a factor of '.white
+            , factor.toFixed(1).toString().green
+          ].join(''));
+        }
 
         self.emit('data', compiled.content);
       });
