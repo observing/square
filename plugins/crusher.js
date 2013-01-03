@@ -116,7 +116,10 @@ module.exports = Plugin.extend({
             ? this.analyse.split(/\s?\,\s?/).filter(Boolean)
             : Object.keys(cluster[this.extension])
         , combinations = this.permutations(compilers)
-        , self = this;
+        , results = []
+        , self = this
+        , error
+        , queue;
 
       this.logger.debug('analysing '+ combinations.length +' different combinations');
 
@@ -128,58 +131,57 @@ module.exports = Plugin.extend({
       // need to do this as a serial operation. Running more than 500 tasks
       // concurrently will fuck up your system and that is not something we want
       // to introduce.
-      this.async.mapSeries(
-          combinations
-        , function forEach(list, callback) {
-            cluster.send({
-                extension: self.extension
-              , engines: list.join(',')
-              , content: self.content
-              , gzip: true
-            }, function compiling(err, data) {
-              if (err) {
-                self.logger.debug('Failed to analyse '+ list, err);
-              }
+      queue = this.async.queue(function forEach(list, callback) {
+        cluster.send({
+            extension: self.extension
+          , engines: list.join(',')
+          , content: self.content
+          , gzip: true
+        }, function compiling(err, data) {
+          if (err)  self.logger.debug('Failed to analyse '+ list, err);
+          if (err && !error) error = err;
 
-              callback(err, data);
-            });
-          }
-        , function ready(err, results) {
-            if (err) console.log(err.message, err.stack);
-            if (err) return cb(err);
+          results.push(data);
+          callback();
+        });
+      }, 20);
 
-            // Map the results in to useful things
-            results = results.map(function map(res) {
-              return {
-                  minified: Buffer.byteLength(res.content)
-                , duration: res.duration || Infinity
-                , engines: res.engines
-                , content: res.content
-                , gzip: +res.gzip || 0
-              };
-            });
+      queue.push(combinations);
+      queue.drain = function ready() {
+        if (error) console.log(error.message, error.stack);
+        if (error) return cb(error);
 
-            // Calculate some stats from the analytic procedure
-            // - The fastest crusher
-            // - The least file size
-            // - The best bandwidth saving (using gzip)
-            var stats = {};
-            stats.fastest = results.sort(function sort(a, b) {
-              return a.duration - b.duration;
-            })[0];
+        // Map the results in to useful things
+        results = results.map(function map(res) {
+          return {
+              minified: Buffer.byteLength(res.content)
+            , duration: res.duration || Infinity
+            , engines: res.engines
+            , content: res.content
+            , gzip: +res.gzip || 0
+          };
+        });
 
-            stats.filesize = results.sort(function sort(a, b) {
-              return a.minified - b.minified;
-            })[0];
+        // Calculate some stats from the analytic procedure
+        // - The fastest crusher
+        // - The least file size
+        // - The best bandwidth saving (using gzip)
+        var stats = {};
+        stats.fastest = results.sort(function sort(a, b) {
+          return a.duration - b.duration;
+        })[0];
 
-            stats.bandwidth = results.sort(function sort(a, b) {
-              return a.gzip - b.gzip;
-            })[0];
+        stats.filesize = results.sort(function sort(a, b) {
+          return a.minified - b.minified;
+        })[0];
 
-            stats.results = results;
-            cb(undefined, stats);
-          }
-      );
+        stats.bandwidth = results.sort(function sort(a, b) {
+          return a.gzip - b.gzip;
+        })[0];
+
+        stats.results = results;
+        cb(undefined, stats);
+      };
     }
 
     /**
