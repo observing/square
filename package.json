@@ -32,7 +32,7 @@
   },
   "dependencies": {
     "async": "0.1.x",
-    "canihaz": "0.0.x",
+    "canihaz": "1.0.x",
     "colors": "0.6.x",
     "commander": "1.1.x",
     "devnull": "0.0.x",
