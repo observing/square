@@ -440,7 +440,7 @@ exports.crushers = {
   , esmangle: function esmangle(type, collection, cb) {
       if (type !== 'js') return cb(new Error('Type is not supported'));
 
-      canihaz.all('esprima', 'escodegen', 'esmangle', function all(err, esprima, escodegen, esmangle) {
+      canihaz('esprima', 'escodegen', 'esmangle', function all(err, esprima, escodegen, esmangle) {
         if (err) return cb(err);
 
         var tree;
