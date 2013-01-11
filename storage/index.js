@@ -11,6 +11,7 @@
 [
     'disk'    // store all compiled assets directly on the system disk
   , 'cloud'   // upload all compiled assets to a cloud provider
+  , 'debug'   // outputs all compiled assets to STDOUT for debugging purposes
 ].forEach(function expose(storage) {
   var cached;
 
