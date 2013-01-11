@@ -484,6 +484,20 @@ exports.crushers = {
         catch (fail) { cb(fail); }
       });
     }
+
+    /**
+     * @see https://github.com/css/csso
+     */
+  , csso: function csso(type, collection, cb) {
+      if (type !== 'css') return cb(new Error('Type is not supported'));
+
+      canihaz.csso(function fetch(err, csso) {
+        if (err) return cb(err);
+
+        try { cb(undefined, csso.justDoIt(collection.content, false, true)); }
+        catch (fail) { cb(fail); }
+      });
+    }
 };
 
 /**
@@ -510,5 +524,6 @@ exports.js = {
 exports.css = {
     yuglify: exports.crushers.yuglify.bind(exports.crushers, 'css')
   , sqwish: exports.crushers.sqwish.bind(exports.crushers, 'css')
+  , csso: exports.crushers.csso.bind(exports.crushers, 'css')
   , yui: exports.crushers.yui.bind(exports.crushers, 'css')
 };
