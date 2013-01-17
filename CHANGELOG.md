@@ -1,3 +1,9 @@
+## v0.0.11
+- [api] Introduced eval method for stylus
+- [minor] Version bumps
+- [fix] Correctly use ascii chars with YUI
+- [api] Introduced replace method
+
 ## v0.0.10
 - [Fix] Fixed compatiblity issue with the latest `fs.notify` module.
 
