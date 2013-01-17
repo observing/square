@@ -44,6 +44,9 @@ var styl = module.exports = function stylus(content, context, done) {
       // Process the options.
       if (configuration.compress) compiler.define('compress', true);
       if (configuration.datauri) compiler.define('url', stylus.url());
+      if (configuration.eval) compiler.define('eval', function evil(str) {
+        return new stylus.nodes.String(eval(str.val));
+      });
 
       // @TODO process the platform list by exposing them as modules.
       if (configuration.define) {
