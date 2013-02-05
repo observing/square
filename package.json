@@ -26,7 +26,7 @@
     }
   , "dependencies": {
       "async": "0.1.22"
-    , "canihaz": "0.0.x"
+    , "canihaz": "1.0.x"
     , "codesurgeon": "0.3.4"
     , "colors": "0.6.0-1"
     , "commander": "1.0.4"
