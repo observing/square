@@ -10,7 +10,8 @@
  * Native modules.
  */
 var EventEmitter = require('events').EventEmitter
-  , path = require('path');
+  , path = require('path')
+  , fs = require('fs');
 
 /**
  * Third party modules.
@@ -65,6 +66,8 @@ function Plugin(square, collection) {
     self[key] = collection[key];
   });
 
+  // Force an async nature of the plugin interface, this also allows us to
+  // attach or listen to methods after we have constructed the plugin.
   process.nextTick(this.configure.bind(this));
 }
 
@@ -146,21 +149,22 @@ _.extend(Plugin.prototype, {
 
       // Check if there are any configuration options in the package.
       if (_.isObject(pkg.plugins) && this.name in pkg.plugins) {
-        _.extend(this, pkg.plugins[this.name]);
+        this.merge(this, pkg.plugins[this.name]);
       }
 
+      // Merge in the plugin configuration.
       if (
            configuration
         && _.isObject(configuration.plugins)
         && this.name in configuration.plugins
       ) {
-        _.extend(this, configuration.plugins[this.name]);
+        this.merge(this, configuration.plugins[this.name]);
       }
 
       // Check if the bundle it self also had specific configurations for this
       // plugin.
       if (this.name in this && _.isObject(this[this.name])) {
-        _.extend(this, this[this.name]);
+        this.merge(this, this[this.name]);
       }
 
       // Ensure that our requires is an array, before we continue
@@ -258,12 +262,114 @@ _.extend(Plugin.prototype, {
     }
 
     /**
+     * Attempt to load local and project hint configurations. Where the
+     * project level configuration overrules the local <hint>rc configurations.
+     *
+     * @param {String} name The name of the parser who's config to load
+     * @api private
+     */
+  , locaterc: function locaterc(name) {
+      name = '.'+ name + 'rc';
+
+      this.each([
+          path.resolve(process.env.PWD, name)
+        , path.resolve(this.square.home, name)
+      ], function read(dir) {
+        if (fs.exists(dir)) {
+          this.merge(this, this.fromJSON(dir));
+          return false;
+        }
+      }, this);
+
+      return this;
+    }
+
+    /**
      * Destroy any references.
      *
      * @api private
      */
   , destroy: function destroy() {
-      this.removeAllListeners();
+      return this.removeAllListeners();
+    }
+
+    /**
+     * Merge in objects.
+     *
+     * @param {Object} target The object that receives the props
+     * @param {Object} additional Extra object that needs to be merged in the target
+     * @api public
+     */
+  , merge: function merge(target, additional) {
+      var result = target
+        , undefined;
+
+      if (Array.isArray(target)) {
+        this.forEach(additional, function arrayForEach(index) {
+          if (JSON.stringify(target).indexOf(JSON.stringify(additional[index])) === -1) {
+            result.push(additional[index]);
+          }
+        });
+      } else if ('object' === typeof target) {
+        this.forEach(additional, function objectForEach(key, value) {
+          if (target[key] === undefined) {
+            result[key] = value;
+          } else {
+            result[key] = merge(target[key], additional[key]);
+          }
+        });
+      } else {
+        result = additional;
+      }
+
+      return result;
+    }
+
+    /**
+     * Iterate over a collection. When you return false, it will stop the iteration.
+     *
+     * @param {Mixed} collection Either an Array or Object.
+     * @param {Function} iterator Function to be called for each item
+     * @api public
+     */
+  , forEach: function forEach(collection, iterator, context) {
+      if (arguments.length === 1) {
+        iterator = collection;
+        collection = this;
+      }
+
+      var isArray = Array.isArray(collection || this)
+        , length = collection.length
+        , i = 0
+        , value;
+
+      if (context) {
+        if (isArray) {
+          for (; i < length; i++) {
+            value = iterator.apply(collection[ i ], context);
+            if (value === false) break;
+          }
+        } else {
+          for (i in collection) {
+            value = iterator.apply(collection[ i ], context);
+            if (value === false) break;
+          }
+        }
+      } else {
+        if (isArray) {
+          for (; i < length; i++) {
+            value = iterator.call(collection[i], i, collection[i]);
+            if (value === false) break;
+          }
+        } else {
+          for (i in collection) {
+            value = iterator.call(collection[i], i, collection[i]);
+            if (value === false) break;
+          }
+        }
+      }
+
+      return this;
     }
 });
 
