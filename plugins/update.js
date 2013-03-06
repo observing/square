@@ -232,6 +232,7 @@ exports.selector = function fetch (uri, options, fn) {
     return fn(null, exports.version(content, options));
   }
 
+  // @TODO use cheerio instead of JSDOM
   canihaz.jsdom(function (err, jsdom) {
     if (err) return fn(err);
 

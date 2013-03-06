@@ -46,7 +46,7 @@ module.exports = Plugin.extend({
      *
      * @type {String}
      */
-  , requires: 'jsdom'
+  , requires: 'lexical-scope'
 
     /**
      * Which file extension are accepted.
@@ -170,41 +170,22 @@ module.exports = Plugin.extend({
         });
       });
     }
-  /**
-   * Detect leaking code.
-   *
-   * @param {String} content
-   * @param {Number} timeout
-   * @param {Function} fn
-   * @api private
-   */
+
+    /**
+     * Detect leaking code.
+     *
+     * @param {String} content
+     * @param {Number} timeout
+     * @param {Function} fn
+     * @api private
+     */
   , sandboxleak: function sandboxleak(content, timeout, fn) {
-      var html = '<html><body></body></html>'
-        , DOM = this.jsdom.jsdom;
+      var scope;
 
-      var doc = DOM(html)
-        , sandbox = doc.createWindow()
-        , regular = Object.keys(sandbox);
+      try { scope = this['lexical-scope'](content); }
+      catch (e) { return fn(e); }
 
-      // release memory
-      sandbox.close();
-
-      this.jsdom.env({
-          html: html
-        , src: [ content ]
-        , features: {
-            FetchExternalResources: false
-          }
-        , done: function done (err, window) {
-            var globals;
-
-            if (window) {
-              globals = _.difference(Object.keys(window), regular);
-              window.close();
-            }
-
-            fn(err, globals);
-          }
-      });
+      if (!scope || !('globals' in scope)) return fn();
+      fn(null, scope.globals.exported);
     }
 });
