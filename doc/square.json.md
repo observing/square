@@ -164,7 +164,7 @@ The extensions that you put in the watch field do not need to be prefixed with a
 ```
 
 _**(note)** This field only works if you are using the
-[--watch](observing/square/blob/master/doc/flags/watch.md) command line flag._
+[--watch](/observing/square/blob/master/doc/flags/watch.md) command line flag._
 
 ### The plugins field
 
