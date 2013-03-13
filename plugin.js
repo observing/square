@@ -268,7 +268,7 @@ _.extend(Plugin.prototype, {
      * @param {String} name The name of the parser who's config to load
      * @api private
      */
-  , locaterc: function locaterc(name) {
+  , readrc: function readrc(name) {
       name = '.'+ name + 'rc';
 
       this.each([
