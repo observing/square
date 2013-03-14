@@ -972,7 +972,7 @@ describe('[square] API', function () {
       square.parse(fixtures + '/write/square.json');
 
       square.on('write', function (collection) {
-        expect(square.package.configuration.dist.min).to.include('~');
+        expect(square.package.configuration.dist.dev).to.include('~');
         expect(collection.file).to.not.include('~');
 
         done();
