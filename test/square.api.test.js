@@ -146,8 +146,17 @@ describe('[square] API', function () {
     it('should find duplicate plugins', function () {
       var square = new Square();
 
-      square.middleware.push(noop);
+      square.middleware.push({ interface: noop });
       expect(square.has(noop)).to.equal(true);
+    });
+
+    it('should not mark it as duplicate when it has a different config', function () {
+      var square = new Square();
+
+      square.middleware.push({ interface: noop, configuration: { foo: 'bar' } });
+
+      expect(square.has(noop, { foo: 'bar' })).to.equal(true);
+      expect(square.has(noop, { foo: 'baz' })).to.equal(false);
     });
 
     it('shouldnt find non-existing plugins', function () {
@@ -273,8 +282,8 @@ describe('[square] API', function () {
       var two = require(fixtures + '/plugin.fixture');
       two.prototype['unique-id'] = '13';
 
-      square.middleware.push(one);
-      square.middleware.push(two);
+      square.middleware.push({ interface: one, configuration: {} });
+      square.middleware.push({ interface: two, configuration: {} });
 
       square.on('plugin.fixture:id', function (id) {
         ids.push(id);
@@ -297,12 +306,25 @@ describe('[square] API', function () {
       var square = new Square({ 'disable log transport': true });
       square.paths.push(fixtures);
 
+      //
+      // HACK FOR DOMAINS SUPPORT INSIDE OF MOCHA.
+      // Remove all the listeners, after creating a backup. And restore the
+      // Node.js domains handler.
+      //
+      var uncaught = process.listeners('uncaughtException');
+      process.removeAllListeners('uncaughtException');
+      process.on('uncaughtException', uncaught.shift());
+
       // configure our plugin to throw errors
       square.plugin('plugin.fixture', { 'throw': true });
       square.forEach(
           'modifier'
         , { content: '', extension: 'js' }
         , function (err, collection) {
+            uncaught.forEach(function (listener) {
+              process.on('uncaughtException', listener);
+            });
+
             expect(err).to.be.an.instanceof(Error);
             expect(err.message).to.equal('throwing an error');
             expect(collection).to.be.a('object');

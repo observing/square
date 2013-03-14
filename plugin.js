@@ -39,7 +39,8 @@ function Plugin(square, collection) {
   this.square = square;           // Reference to the current square instance.
   this.async = async;             // Handle async operation.
   this._ = _;                     // Utilities.
-  this.logger = {};               // Our logging utility
+  this.logger = {};               // Our logging utility.
+  this.collection = collection;   // Reference to the original collection.
 
   // Provide a default namespace to the logging method, we are going to prefix
   // it with the plugin's name which will help with the debug ability of this
@@ -54,15 +55,6 @@ function Plugin(square, collection) {
   // Merge the given collection with the plugin, but don't override the default
   // values.
   Object.keys(collection).forEach(function each(key) {
-    if (key in self) {
-      return self.logger.warning(
-          'The '
-        + self.name
-        + ' plugin uses a property ('+ key +') that would be overriden by the collection.'
-      );
-    }
-
-    // Add the property
     self[key] = collection[key];
   });
 
