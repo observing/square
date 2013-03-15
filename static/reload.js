@@ -3,10 +3,16 @@
  *
  * @see https://github.com/observing/square
  */
-
 (function loader() {
   "use strict";
 
+  /**
+   * Strict type checking.
+   *
+   * @param {Mixed} obj
+   * @param {String} type
+   * @api private
+   */
   function is(obj, type) {
     return Object.prototype.toString.call(obj).toLowerCase() === '[object '+ type +']';
   }
@@ -19,16 +25,15 @@
    * @returns String
    * @api public
    */
-
   loader.bust = function buster(url) {
-    var now = + new Date()
+    var now = +new Date()
       , prefix = '__square__'
       , token = prefix + now + '=' + now;
 
-    // remove the old token from the url if it exists
+    // Remove the old token from the url if it exists.
     url = url.replace(/[&|?]__square__\d+=\d+/g, '');
 
-    // add it to the url
+    // Add it to the url.
     return ~url.indexOf('&')
       ? url + '&' + token
       : url + '?' + token;
@@ -43,12 +48,11 @@
    * @param Number i optional start index
    * @api public
    */
-
   loader.indexOf = function indexOf(arr, o, i) {
     var j = arr.length;
     i = i < 0 ? i + j < 0 ? 0 : i + j : i || 0;
 
-    // iterate all the things
+    // Iterate all the things
     for (; i < j && arr[i] !== o; i++) {}
 
     return j <= i
@@ -57,19 +61,20 @@
   };
 
   /**
-   * Generate a array of allowed images for hot reloading.
+   * Generate a array of allowed images for hot reloading. It tries to load
+   * these from the browser by scanning for the supported mime types. The mime
+   * types should have include the `image` in order to be used.
    *
    * @type Array
    * @api private
    */
-
   loader.extension = (function images() {
     var defaults = ['gif', 'jpg', 'jpeg', 'png', 'webp']
       , navigator = window.navigator;
 
     if (!('mimeTypes' in navigator)) return defaults;
 
-    // generate a list of accepted extensions based on the mimeTypes that are
+    // Generate a list of accepted extensions based on the mimeTypes that are
     // stored in the browser.
     var mimeTypes = Array.prototype.slice.call(navigator.mimeTypes, 0)
       , i = mimeTypes.length;
@@ -79,7 +84,7 @@
         , extensions
         , j;
 
-      // we only want image types
+      // We only want image types.
       if (type.type && type.type.indexOf('image/') === -1 || !type.suffixes) {
         continue;
       }
@@ -87,8 +92,8 @@
       extensions = type.suffixes.split(',');
       j = extensions.length;
 
-      // add the extensions to the defaults array if they don't exit there
-      // already
+      // Add the extensions to the defaults array if they don't exit there
+      // already.
       while (j--) {
         if (loader.indexOf(defaults, extensions[j]) === -1) {
           defaults.push(extensions[j]);
@@ -105,27 +110,37 @@
    * @param String type extension
    * @api public
    */
-
   loader.reload = function reload(type) {
     switch (type) {
+      // Reload JavaScript files, as we don't support hot code reloading yet, we
+      // are going to do a full browser refresh. Hot code reloading could done
+      // using the Google Chrome Debugger API
       case 'js':
-        // make sure we reload the page with a `true` to load it again from the
+        // Make sure we reload the page with a `true` to load it again from the
         // server.
         window.location.reload(true);
         break;
 
+      // Reload the stylesheets, they only require cache busting parameters in
+      // order to work correctly.
       case 'css':
         loader.reload.styles();
         break;
 
-      // because there are so many different image formats we use the images
-      // reloader as default.
+      // Because there are so many different image formats we use the images
+      // reloader as default. We don't know if it's a background image or an
+      // image that is in the page.
       default:
         loader.reload.images();
     }
   };
 
-  loader.reload.styles = function styles() {};
+  /**
+   * Reload stylesheets.
+   */
+  loader.reload.styles = function styles() {
+
+  };
 
   /**
    * A image related change occured so we need to refresh every image on the
@@ -133,7 +148,6 @@
    *
    * @api public
    */
-
   loader.reload.images = function images() {
     var set = document.images
       , i = set.length
@@ -169,7 +183,6 @@
    * @param Array props
    * @api private
    */
-
   loader.reload.cssImage = function cssImage(element, props) {
 
   };
@@ -181,7 +194,6 @@
    * @returns Array
    * @api public
    */
-
   loader.prefixed = function prefix(rule) {
     var style = ' -webkit- -moz- -o- -ms- '.split(' ')
       , prefixes = 'Webkit Moz O ms'
@@ -216,6 +228,7 @@
   // bailout if we can't find the server
   if (!base) throw new Error('Can\'t find the [square] reload service');
 
+ // @TODO replace this with engine.io?
  var socket = window.io.connect(base, {
      'resource': 'live'
  });
@@ -226,10 +239,11 @@
   * @param Array files
   * @api private
   */
-
  socket.on('refresh', function changes(files) {
    // @TODO smarter reloading, so we only reload the files that are updated
    // @TODO filter out files that are not on the page
    window.location.reload(true);
  });
+
+ // [square] @import "./sizzle.js"
 }());

@@ -6,5 +6,4 @@
  * @copyright (c) 2012 observe.it (observe.it) <opensource@observe.it>
  * MIT Licensed
  */
-
 require('../lib/square').cli(process.argv);
