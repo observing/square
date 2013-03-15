@@ -103,7 +103,7 @@ program.on('--help', function help() {
     , '    square --bundle '.cyan
     , './'.white
     , ' --plugins '.cyan
-    , 'debug,crush'.white
+    , 'debug,minify'.white
   ].join(''));
 
   console.log('');
@@ -112,7 +112,7 @@ program.on('--help', function help() {
     , '    square --bundle '.cyan
     , './other/directory'.white
     , ' --plugins '.cyan
-    , 'crush'.white
+    , 'minify'.white
     , ' --extension '.cyan
     , 'css'.white
   ].join(''));

@@ -40,6 +40,6 @@ the IP of your machine that runs the square command.
 
 ```bash
 square --bundle dir --watch
-square --bundle dir --plugin crush --watch
+square --bundle dir --plugin minify --watch
 square --bundle dir --watch 8080
 ```

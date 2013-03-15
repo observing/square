@@ -6,7 +6,7 @@
  * MIT Licensed
  */
 var Plugin = require('../plugin')
-  , cluster = require('./lib/crushter');
+  , cluster = require('./lib/crusher');
 
 /**
  * Crush and compile different files a.k.a minify all the things.
@@ -17,8 +17,8 @@ var Plugin = require('../plugin')
  *   want to run it against. Or an Object which contains they different engines
  *   for each file extension.
  * - analyse: Analyse which crusher and / or combination provides the best
- *   crushing for your code. Should be a string containing the engines you want
- *   to test or a boolean for all engines.
+ *   minification for your code. Should be a string containing the engines
+ *   you want to test or a boolean for all engines.
  * - metrics: Should we output some metrics.
  *
  * @constructor
@@ -30,7 +30,7 @@ module.exports = Plugin.extend({
      *
      * @type {String}
      */
-    name: 'crusher'
+    name: 'minify'
 
     /**
      * Small description about the module.
@@ -56,7 +56,7 @@ module.exports = Plugin.extend({
   , accepts: ['js', 'css']
 
     /**
-     * Which engines should be used for crushing the content? It can be a comma
+     * Which engines should be used for minifying the content? It can be a comma
      * separated list of engines. Each engine will process the result of the
      * previous engine and potentially creating a higher saving at the cost of
      * longer processing.
@@ -106,15 +106,17 @@ module.exports = Plugin.extend({
 
       // The user has requested us to analyse the content and figure out the
       // best the compiler strategy
-      if (this.analyse) return this.analyser(function analyser(err, results) {
-        if (err) return self.emit('error', err);
+      if (this.analyse) {
+        return this.analyser(function analyser(err, results) {
+          if (err) return self.emit('error', err);
 
-        self.logger.info('The fastest engine:     '+ results.fastest.engines);
-        self.logger.info('The smallest content:   '+ results.filesize.engines);
-        self.logger.info('The best compressed:    '+ results.bandwidth.engines);
+          self.logger.info('The fastest engine:     '+ results.fastest.engines);
+          self.logger.info('The smallest content:   '+ results.filesize.engines);
+          self.logger.info('The best compressed:    '+ results.bandwidth.engines);
 
-        self.emit('data');
-      });
+          self.emit('data');
+        });
+      }
 
       // Check if the engines key is an object or string, if it's an object it
       // has specific engines for each extension.. atleast that is something
