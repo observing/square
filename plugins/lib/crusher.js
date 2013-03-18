@@ -372,30 +372,32 @@ exports.crushers = {
       // Check if java is supported on this system, if not we have to use the
       // external closure compiler service to handle all the compilation tasks
       // for us.
-      if (!exports.java) return request.post({
-          url: 'https://closure-compiler.appspot.com/compile'
-        , form: {
-              output_format: 'text'                     // we only want the compiled shizzle
-            , js_code: collection.content               // the code that needs to be crushed
-            , compilation_level: 'SIMPLE_OPTIMIZATIONS' // compression level
-            , charset: 'ascii'                          // correct the charset
-            , warning_level: 'QUIET'                    // stfu warnings
-            , output_info: 'compiled_code'              // only get compiled codes
-          }
-      }, function servicecall(err, req, body) {
-        if (err) return cb(err);
+      if (!exports.java) {
+        return request.post({
+            url: 'https://closure-compiler.appspot.com/compile'
+          , form: {
+                output_format: 'text'                     // we only want the compiled shizzle
+              , js_code: collection.content               // the code that needs to be crushed
+              , compilation_level: 'SIMPLE_OPTIMIZATIONS' // compression level
+              , charset: 'ascii'                          // correct the charset
+              , warning_level: 'QUIET'                    // stfu warnings
+              , output_info: 'compiled_code'              // only get compiled codes
+            }
+        }, function servicecall(err, req, body) {
+          if (err) return cb(err);
 
-        // Remove them pesky new lines, they could be returned from error
-        // respones
-        if (body) body = body.trim();
+          // Remove them pesky new lines, they could be returned from error
+          // respones
+          if (body) body = body.trim();
 
-        // Check for errors, this is a bit flakey as we only want ascii returned
-        // from the server.
-        if (body.slice(0, 5) === 'Error') return cb(new Error(body));
+          // Check for errors, this is a bit flakey as we only want ascii returned
+          // from the server.
+          if (body.slice(0, 5) === 'Error') return cb(new Error(body));
 
-        // All is okay
-        cb(err, body);
-      });
+          // All is okay
+          cb(err, body);
+        });
+      }
 
       // Java is supported on this system, use that instead as it will be
       // cheaper and faster then calling the service.
