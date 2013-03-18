@@ -610,13 +610,6 @@ describe('[square] API', function () {
         expect(match).to.contain('json');
       });
     });
-
-    it('should tag {tags} using eson', function () {
-      var square = new Square();
-
-      expect(square.read(fixtures + '/read/tags.json')).to.equal(true);
-      expect(square.package.type).to.equal('min');
-    });
   });
 
   describe('#fromJSON', function () {
@@ -672,6 +665,8 @@ describe('[square] API', function () {
       };
 
       expect(errors).to.throw(Error);
+      expect(errors).to.throw(/SyntaxError/);
+      expect(errors).to.throw(/Failed to parse JSON/);
     });
   });
 
