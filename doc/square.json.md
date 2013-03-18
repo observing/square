@@ -178,14 +178,14 @@ value would be an Object with options that you want to configure.
 To see find out which options each plugin supports, you would have to checkout
 the [relevant documentation for each plugin](/observing/square/tree/master/doc/plugins).
 
-#### Example configuration for the crush plugin
+#### Example configuration for the minify plugin
 
 ```js
 {
   "configuration": {
     "plugins": {
-        "crush": {
-            "level": 5 // use crush level 5, yui + closure + uglify
+        "minify": {
+            "level": 5 // use minify level 5, yui + closure + uglify
         }
     }
   }
@@ -335,7 +335,7 @@ values of it.
         // object directly maps to the name of the plugin, and value is the config
         // object that will be used to extend the default config
       , "plugins": {
-            "crush": { .. options .. }
+            "minify": { .. options .. }
         }
 
         // [optional] jshint configuration, or it will try to use your .jshintrc

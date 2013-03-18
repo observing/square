@@ -1,4 +1,4 @@
-/*global expect, Square, execSync */
+/*global expect, Square, execSync, beforeEach, afterEach */
 describe('[square] API', function () {
   'use strict';
 
@@ -610,21 +610,17 @@ describe('[square] API', function () {
         expect(match).to.contain('json');
       });
     });
-
-    it('should tag {tags} using eson', function () {
-      var square = new Square();
-
-      expect(square.read(fixtures + '/read/tags.json')).to.equal(true);
-      expect(square.package.type).to.equal('min');
-    });
   });
 
   describe('#fromJSON', function () {
-    var dir = require('path').join(fixtures, '/fromJSON');
+    var dir = require('path').join(fixtures, '/fromJSON')
+      , square;
+
+    beforeEach(function () {
+      square = new Square();
+    });
 
     it('should validate the location', function () {
-      var square = new Square();
-
       // non existing
       expect(square.fromJSON(dir + '/nonexisting.json')).to.be.a('object');
       expect(square.fromJSON(dir + '/nonexisting.json')).to.deep.equal({});
@@ -635,37 +631,42 @@ describe('[square] API', function () {
     });
 
     it('should remove // comments from the JSON', function () {
-      var square = new Square();
-
       expect(square.fromJSON(dir + '/singlecomment.json')).to.be.a('object');
       expect(square.fromJSON(dir + '/singlecomment.json')).to.have.property('foo', 'bar');
     });
 
-    it('should remove /**/ comments from the JSON', function () {
-      var square = new Square();
+    it('should retain URLs in the JSON', function () {
+      var url = square.fromJSON(dir + '/latest.json');
 
+      expect(url).to.be.a('object');
+      expect(url).to.have.property('latest', 'http://keep.me.intact/');
+      expect(JSON.stringify(url)).to.be.equal('{\"latest\":\"http://keep.me.intact/\"}');
+    });
+
+    it('should remove /**/ comments from the JSON', function () {
       expect(square.fromJSON(dir + '/multicomment.json')).to.be.a('object');
       expect(square.fromJSON(dir + '/multicomment.json')).to.have.property('foo', 'bar');
     });
 
     it('should remove both comments from the JSON', function () {
-      var square = new Square();
-
       expect(square.fromJSON(dir + '/combinedcomment.json')).to.be.a('object');
       expect(square.fromJSON(dir + '/combinedcomment.json')).to.have.property('foo', 'bar');
     });
 
     it('should not give a fuck about the extension', function () {
-      var square = new Square();
-
       expect(square.fromJSON(dir + '/noextension')).to.be.a('object');
       expect(square.fromJSON(dir + '/noextension')).to.have.property('foo', 'bar');
     });
 
-    it('should return an Error when it fails to parse', function () {
-      var square = new Square();
+    it('should throw an Error when it fails to parse', function () {
+      var errors = function () {
+        var square = new Square();
+        square.fromJSON(dir + '/broken.json');
+      };
 
-      expect(square.fromJSON(dir + '/broken.json')).to.be.an.instanceof(Error);
+      expect(errors).to.throw(Error);
+      expect(errors).to.throw(/SyntaxError/);
+      expect(errors).to.throw(/Failed to parse JSON/);
     });
   });
 

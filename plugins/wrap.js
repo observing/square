@@ -30,9 +30,7 @@ module.exports = Plugin.extend({
      *
      * @type {String}
      */
-  , description: [
-        'Can wrap you compiled code and plurge the leaked globals.'
-    ].join(' ')
+  , description: 'Can wrap you compiled code and plurge the leaked globals.'
 
     /**
      * For which distributions should this run.

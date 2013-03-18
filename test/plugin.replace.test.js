@@ -1,5 +1,5 @@
 /*global expect, Square, execSync */
-describe('[square][plugin] Crush', function () {
+describe('[square][plugin] Replace', function () {
   'use strict';
 
   /**
@@ -19,12 +19,8 @@ describe('[square][plugin] Crush', function () {
   function noop() { console.log(/* dummy function*/); }
 
   it('should have a .description');
-  it('should not transform escaped unicode to unicode chars');
-  it('should not mess up unicode chars');
-  it('should result in a smaller file');
-  it('should remove comments');
-  it('should process the content multiple times');
-  it('should detect JAVA and enable compilers based on that');
-  it('should minify CSS and JavaScript');
-  it('should detect the best compression algorithm');
+  it('should use RegExp when provided');
+  it('should replace globally');
+  it('should log warning if provided replacement is not a valid RegExp');
+  it('should be configurable for both development and production');
 });

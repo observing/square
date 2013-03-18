@@ -24,7 +24,7 @@ test:
 	NODE_ENV=testing $(MAKE) test-suite
 
 client:
-	@square --bundle ./package.json --plugin update,crush --filename package
+	@square --bundle ./package.json --plugin update,minify --filename package
 
 update:
 	@git submodule update --init --recursive
