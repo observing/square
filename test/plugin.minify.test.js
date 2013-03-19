@@ -1,4 +1,4 @@
-/*global expect, Square, execSync */
+/*global expect, Square, execSync, sinon */
 describe('[square][plugin] Minify', function () {
   'use strict';
 
@@ -27,4 +27,33 @@ describe('[square][plugin] Minify', function () {
   it('should detect JAVA and enable compilers based on that');
   it('should minify CSS and JavaScript');
   it('should detect the best compression algorithm');
+  it('should provide metrics by default');
+  it('should not provide metrics if minify.metrics is false');
+  it('should send data to cluster and wait for nextTick to send response', function (done) {
+    this.timeout(5000);
+
+    var square = new Square({ 'disable log transport': true })
+      , Minify = require('../plugins/minify')
+      , test = require(fixtures + '/plugins/minify')
+      , minify = new Minify(square, test)
+      , data = sinon.spy(minify, 'emit')
+      , proc = sinon.spy(process, 'nextTick')
+      , cluster = sinon.stub(Minify.cluster, 'send').yields(null, { content: 'var test = "test"'});
+
+    minify.on('data', function (collection) {
+      expect(cluster).to.be.calledOnce;
+      expect(proc).to.be.calledOnce;
+      expect(cluster).to.be.calledBefore(data);
+      expect(proc).to.be.calledBefore(data);
+      expect(data).to.be.calledWith('data', 'var test = "test"');
+      expect(cluster.getCall(0).args.length).to.be.equal(2);
+
+      cluster.restore();
+      proc.restore();
+      data.restore();
+      done();
+    });
+
+    minify.initialize();
+  });
 });

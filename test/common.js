@@ -6,6 +6,10 @@
 
 // set up chai, our assertation library
 global.chai = require('chai');
+global.sinon = require('sinon');
+global.sinonChai = require('sinon-chai');
+
+global.chai.use(global.sinonChai);
 global.chai.Assertion.includeStack = true;
 global.expect = global.chai.expect;
 

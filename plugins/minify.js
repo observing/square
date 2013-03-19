@@ -144,7 +144,11 @@ module.exports = Plugin.extend({
           ].join(''));
         }
 
-        self.emit('data', compiled.content);
+        // Square performance is so good that sometimes this event is emitted
+        // before any listener is ready to receive data, wait for next loop!
+        process.nextTick(function () {
+          self.emit('data', compiled.content);
+        });
       });
     }
 
@@ -263,3 +267,7 @@ module.exports = Plugin.extend({
       return iterator(collection);
     }
 });
+
+if (process.env.NODE_ENV === 'testing') {
+  module.exports.cluster = cluster;
+}

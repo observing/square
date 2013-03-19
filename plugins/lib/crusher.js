@@ -316,7 +316,7 @@ exports.initialize = function initialize(workers) {
  * - yui: The interface to the YUI compressor that was build upon Java. It
  *   requires Java to be installed on the users system or it will savely exit
  *   without compressing the content.
- * - yuglyif: An Yahoo fork of uglify it adds some addition features and fixes
+ * - yuglify: An Yahoo fork of uglify it adds some addition features and fixes
  *   on top of the original uglify compiler.
  * - sqwish: A node.js based CSS compressor, it has the ability to combine
  *   duplicate CSS selectors as well as all the regular compilations.
