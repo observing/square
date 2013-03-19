@@ -48,7 +48,6 @@ describe('[square][plugin] Minify', function () {
       expect(proc).to.be.calledBefore(data);
       expect(proc.getCall(0).args.length).to.be.equal(1);
       expect(data).to.be.calledWithExactly('data', 'var test = "test"');
-      console.log(data.getCall(0).args);
       expect(data.getCall(2).args.length).to.be.equal(2);
 
       cluster.restore();
