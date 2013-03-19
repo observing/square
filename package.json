@@ -48,8 +48,10 @@
     "request": "2.12.x"
   },
   "devDependencies": {
-    "chai": "1.4.x",
-    "mocha": "1.7.x"
+    "chai": "1.5.x",
+    "mocha": "1.8.x",
+    "sinon": "1.6.x",
+    "sinon-chai": "2.3.x"
   },
   "canihaz": {
     "active-x-obfuscator": "0.0.1",

@@ -1054,6 +1054,24 @@ describe('[square] API', function () {
     });
   });
 
+  describe('#files', function () {
+    it('should create a list of files to watch', function (done) {
+      var square = new Square()
+        , watched = path.resolve(fixtures, 'coffeescript.coffee');
+
+      square.parse(fixtures + '/write/square.json');
+      square.files(function (error, results) {
+        expect(results.length).to.be.equal(1);
+        expect(results[0]).to.be.equal(watched);
+        done();
+      });
+    });
+
+    it('should include imported files in dependencies');
+    it('use async#map to aquire the list');
+    it('should return flattened list with only uniques');
+  });
+
   describe('#commentWrap', function () {
     /**
      * Simple string single line comment string.
