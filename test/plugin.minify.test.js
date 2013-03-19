@@ -33,8 +33,8 @@ describe('[square][plugin] Minify', function () {
     this.timeout(5000);
 
     var square = new Square({ 'disable log transport': true })
-      , Minify = require('../plugins/minify')
       , test = require(fixtures + '/plugins/minify')
+      , Minify = require('../plugins/minify')
       , minify = new Minify(square, test)
       , data = sinon.spy(minify, 'emit')
       , proc = sinon.spy(process, 'nextTick')
@@ -43,10 +43,13 @@ describe('[square][plugin] Minify', function () {
     minify.on('data', function (collection) {
       expect(cluster).to.be.calledOnce;
       expect(proc).to.be.calledOnce;
+      expect(data).to.be.calledThrice;
       expect(cluster).to.be.calledBefore(data);
       expect(proc).to.be.calledBefore(data);
-      expect(data).to.be.calledWith('data', 'var test = "test"');
-      expect(cluster.getCall(0).args.length).to.be.equal(2);
+      expect(proc.getCall(0).args.length).to.be.equal(1);
+      expect(data).to.be.calledWithExactly('data', 'var test = "test"');
+      console.log(data.getCall(0).args);
+      expect(data.getCall(2).args.length).to.be.equal(2);
 
       cluster.restore();
       proc.restore();
