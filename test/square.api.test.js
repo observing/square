@@ -1058,6 +1058,7 @@ describe('[square] API', function () {
     it('should create a list of files to watch', function (done) {
       var square = new Square()
         , watched = path.resolve(fixtures, 'coffeescript.coffee');
+
       square.parse(fixtures + '/write/square.json');
       square.files(function (error, results) {
         expect(results.length).to.be.equal(1);
