@@ -38,7 +38,7 @@ describe('[square][plugin] Minify', function () {
       , minify = new Minify(square, test)
       , data = sinon.spy(minify, 'emit')
       , proc = sinon.spy(process, 'nextTick')
-      , cluster = sinon.stub(Minify.cluster, 'send').yields(null, { content: 'var test = "test"'});
+      , cluster = sinon.stub(Minify.cluster, 'send').yields(null, test);
 
     minify.on('data', function (collection) {
       expect(cluster).to.be.calledOnce;
@@ -47,7 +47,7 @@ describe('[square][plugin] Minify', function () {
       expect(cluster).to.be.calledBefore(data);
       expect(proc).to.be.calledBefore(data);
       expect(proc.getCall(0).args.length).to.be.equal(1);
-      expect(data).to.be.calledWithExactly('data', 'var test = "test"');
+      expect(data).to.be.calledWithExactly('data', test.content);
       expect(data.getCall(2).args.length).to.be.equal(2);
 
       cluster.restore();
