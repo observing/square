@@ -1,0 +1,8 @@
+{
+  "content": "var test = '{replace-me}'",
+  "metrics": false,
+  "distribution": "min",
+  "engines": {
+    "engine": "closure"
+  }
+}

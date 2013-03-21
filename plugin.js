@@ -237,7 +237,7 @@ _.extend(Plugin.prototype, {
         return true;
       }
 
-      return !!~this.distributions.indexOf(this.dist);
+      return !!~this.distributions.indexOf(this.distribution);
     }
 
     /**

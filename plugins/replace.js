@@ -46,9 +46,38 @@ module.exports = Plugin.extend({
   , accepts: ['js', 'css']
 
     /**
-     * The module is initialized
+     * The module is initialized and checks if we need to replace anything.
      */
   , initialize: function initialize() {
-      var self = this;
+      var self = this
+        , replacements = this.square.package.configuration.replacements
+        , code = this.content
+        , literals;
+
+      // If we got nothing to replace, just return.
+      if (!replacements) return this.emit('data', code);
+      literals = replacements[this.distribution];
+
+      // Loop each key replacement combination, wrap in brackets.
+      // DO ASYNC LOOP
+      Object.keys(literals).forEach(function loopReplacements (original) {
+        var regex = typeof literals[original] === 'object';
+
+        // Check for requirements.
+        if (regex && (!literals[original].regex || !literals[original].value)) {
+          this.emit('error', new Error(
+            'Provide a proper regex and value if your using replace with ' +
+            'regular expressions. Value for key `' + original + '` is not replaced.'
+          ));
+        }
+
+        // Regular expression is required to do global replace.
+        code = code.replace(
+            new RegExp(regex ? literals[original].regex : original, 'g')
+          , regex ? literals[original].value : literals[original]
+        );
+      });
+
+      this.emit('data', code);
     }
 });
