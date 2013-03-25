@@ -48,7 +48,7 @@ function Plugin(square, collection) {
   Object.keys(square.logger.levels).forEach(function generate(level) {
     self.logger[level] = square.logger[level].bind(
         square.logger
-      , '[plugin::'+ self.name +']'
+      , '[plugin::'+ self.id +']'
     );
   });
 
@@ -68,14 +68,14 @@ function Plugin(square, collection) {
 Plugin.prototype.__proto__ = EventEmitter.prototype;
 Plugin.EventReactor = new EventReactor({}, Plugin.prototype);
 
-_.extend(Plugin.prototype, {
+_.extend(Plugin, {
     /**
      * The name of the plugin.
      *
      * @type {String}
      * @api public
      */
-    name: 'plugin'
+    id: 'plugin'
 
     /**
      * A small description of the plugin
@@ -117,20 +117,22 @@ _.extend(Plugin.prototype, {
      * @api public
      */
   , requires: []
+});
 
+_.extend(Plugin.prototype, {
     /**
      * Configure the plugin, prepare all the things.
      *
      * @api private
      */
-  , configure: function configure() {
+    configure: function configure() {
       var pkg = this.square.package
         , configuration = pkg.configuration
         , self = this
         , load = [];
 
-      // Should we allow this plugin to run? It should accept the correct
-      // distribution and it should accept the given extension.
+      // Check for the distribution and if it should accept the given extension,
+      // extend self with the context of the plugin.
       if (!this.distributable() || !this.accepted()) {
         this.logger.debug(
             'disregarding this plugin for extension: '+ this.extension
@@ -140,23 +142,23 @@ _.extend(Plugin.prototype, {
       }
 
       // Check if there are any configuration options in the package.
-      if (_.isObject(pkg.plugins) && this.name in pkg.plugins) {
-        this.merge(this, pkg.plugins[this.name]);
+      if (_.isObject(pkg.plugins) && this.id in pkg.plugins) {
+        this.merge(this, pkg.plugins[this.id]);
       }
 
       // Merge in the plugin configuration.
       if (
            configuration
         && _.isObject(configuration.plugins)
-        && this.name in configuration.plugins
+        && this.id in configuration.plugins
       ) {
-        this.merge(this, configuration.plugins[this.name]);
+        this.merge(this, configuration.plugins[this.id]);
       }
 
       // Check if the bundle it self also had specific configurations for this
       // plugin.
-      if (this.name in this && _.isObject(this[this.name])) {
-        this.merge(this, this[this.name]);
+      if (this.id in this && _.isObject(this[this.id])) {
+        this.merge(this, this[this.id]);
       }
 
       // Ensure that our requires is an array, before we continue

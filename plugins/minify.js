@@ -30,7 +30,7 @@ module.exports = Plugin.extend({
      *
      * @type {String}
      */
-    name: 'minify'
+    id: 'minify'
 
     /**
      * Small description about the module.

@@ -19,7 +19,7 @@ module.exports = Plugin.extend({
      *
      * @type {String}
      */
-    name: 'replace'
+    id: 'replace'
 
     /**
      * Small description about the module.
