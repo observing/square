@@ -1,3 +1,5 @@
+## This is the development branch of Square, if you are looking for the current version that is released in npm, please switch branches to `master`
+
 ```
 o-o  o-o o  o o-o o-o o-o       | Square is a modulair build system for building
  \  |  | |  | |-| |   |-        | front-end code.
