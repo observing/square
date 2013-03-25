@@ -7,6 +7,7 @@
       "engine": "closure"
     }
   },
+  "multiple": "var test = '{{replace-me}}', also = '{{change}}', final = '{{last}}'",
   "error": {
     "replace": {
       "replace-me": "I will replaced all the times!"
@@ -16,6 +17,15 @@
     "replace": {
       "dev": {
         "replace-me": "I will replace only in development results!"
+      }
+    }
+  },
+  "min": {
+    "replace": {
+      "min": {
+        "replace-me": "I will replace only in minified results!",
+        "change": "I will also change!",
+        "last": "I'm last"
       }
     }
   },

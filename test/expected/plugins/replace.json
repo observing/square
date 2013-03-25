@@ -1,5 +1,6 @@
 {
   "full": "var test = 'I will replace only in minified results!'",
+  "multiple": "var test = 'I will replace only in minified results!', also = 'I will also change!', final = 'I'm last'",
   "regexp": "var test = 'I was found by a RegExp'",
   "double": "var test = 'I will replace only in minified results!'\nvar test = 'I will replace only in minified results!'",
   "regexfail": "Error: Invalid regular expression: SyntaxError: Invalid regular expression: /{{(fail to close the parentheses}}/: Unterminated group",

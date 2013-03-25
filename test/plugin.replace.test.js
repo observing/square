@@ -117,6 +117,21 @@ describe('[square][plugin] Replace', function () {
     replace.initialize();
   });
 
+  it('should replace every match asynchronously and return correct results', function (done) {
+    square.config.plugins = test.min;
+    test.globals.content = test.multiple;
+    replace = new Replace(square, test.globals);
+
+    replace.once('data', function (data) {
+      expect(data).to.be.a('string');
+      expect(data).to.equal(results.multiple);
+      done();
+    });
+
+    replace.initialize();
+  });
+
+
   it('should log error if provided replacement is not a valid RegExp', function (done) {
     square.config.plugins = test.regexfail;
     replace = new Replace(square, test.globals);
