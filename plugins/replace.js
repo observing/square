@@ -5,7 +5,8 @@
  * @copyright (c) 2012 observe.it (observe.it) <opensource@observe.it>
  * MIT Licensed
  */
-var Plugin = require('../plugin');
+var Plugin = require('../plugin')
+  , async = require('async');
 
 /**
  * Replace content enclosed in braces, e.g. {key}. Each provided key will be
@@ -50,34 +51,66 @@ module.exports = Plugin.extend({
      */
   , initialize: function initialize() {
       var self = this
-        , replacements = this.square.package.configuration.replacements
+        , replacements = this.square.config.plugins.replace
         , code = this.content
-        , literals;
+        , literals
+        , replacer;
 
       // If we got nothing to replace, just return.
-      if (!replacements) return this.emit('data', code);
-      literals = replacements[this.distribution];
+      if (!replacements || !replacements[this.distribution]) {
+        return this.emit('data', code);
+      }
 
       // Loop each key replacement combination, wrap in brackets.
-      // DO ASYNC LOOP
-      Object.keys(literals).forEach(function loopReplacements (original) {
+      literals = replacements[this.distribution];
+      async.forEach(Object.keys(literals), function loopReplacements (original, done) {
         var regex = typeof literals[original] === 'object';
 
         // Check for requirements.
         if (regex && (!literals[original].regex || !literals[original].value)) {
-          this.emit('error', new Error(
+          return done(
             'Provide a proper regex and value if your using replace with ' +
             'regular expressions. Value for key `' + original + '` is not replaced.'
-          ));
+          );
+        }
+
+        // Use key or the Regular Expression and remove added slashes.
+        replacer = self.wrap(
+          regex ? literals[original].regex.replace(/^\/|\/$/g, '') : original
+        );
+
+        // Check if the Regular Expression is any good.
+        if (regex) {
+          try {
+            new RegExp(replacer);
+          } catch (e) {
+            return done('Invalid regular expression: '+ e);
+          }
         }
 
         // Regular expression is required to do global replace.
         code = code.replace(
-            new RegExp(regex ? literals[original].regex : original, 'g')
+            new RegExp(replacer, 'g')
           , regex ? literals[original].value : literals[original]
         );
-      });
 
-      this.emit('data', code);
+        // Results are ready to be returned.
+        done(null);
+      }, function done(err) {
+        if (err) self.emit('error', new Error(err));
+
+        self.emit('data', code);
+      });
+    }
+
+    /**
+     * Wrap the search literal in double braces.
+     *
+     * @param {String} literal to be wrapped
+     * @return {String} wrapped literal
+     * @api private
+     */
+  , wrap: function wrap(literal) {
+      return '{{' + literal + '}}';
     }
 });
