@@ -24,7 +24,7 @@ module.exports = Plugin.extend({
      *
      * @type {String}
      */
-    name: 'debug'
+    id: 'debug'
 
     /**
      * Small description about the module.

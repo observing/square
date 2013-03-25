@@ -1,0 +1,7 @@
+{
+  "full": "var test = 'I will replace only in minified results!'",
+  "regexp": "var test = 'I was found by a RegExp'",
+  "double": "var test = 'I will replace only in minified results!'\nvar test = 'I will replace only in minified results!'",
+  "regexfail": "Error: Invalid regular expression: SyntaxError: Invalid regular expression: /{{(fail to close the parentheses}}/: Unterminated group",
+  "missing": "Error: Provide a proper regex and value if your using replace with regular expressions. Value for key `replace-me` is not replaced."
+}

@@ -1,7 +1,7 @@
 (function(){
   console.log('trololol');
 })();
-/*! [square] directive: ./concat.2.js */
+/* [square] directive: path/concat.2.js */
 (function(){
   console.log('trololol pewpew');
 })()
