@@ -13,7 +13,7 @@ module.exports = Plugin.extend({
      *
      * @type {String}
      */
-    name: 'lint'
+    id: 'lint'
 
     /**
      * Small description about the module.

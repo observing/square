@@ -1,4 +1,4 @@
-/*global expect, Square, execSync, sinon */
+/*global expect, Square, execSync, sinon, beforeEach */
 describe('[square][plugin] Minify', function () {
   'use strict';
 
@@ -9,7 +9,10 @@ describe('[square][plugin] Minify', function () {
    */
   var path = require('path')
     , fixtures = path.join(process.env.PWD, 'test/fixtures')
-    , expected = path.join(process.env.PWD, 'test/expected');
+    , expected = path.join(process.env.PWD, 'test/expected')
+    , test = require(fixtures + '/plugins/minify')
+    , Minify = require('../plugins/minify')
+    , square, minify;
 
   /**
    * Simple dummy function that is used for testing.
@@ -18,10 +21,23 @@ describe('[square][plugin] Minify', function () {
    */
   function noop() { console.log(/* dummy function*/); }
 
-  it('should have a .description');
+  beforeEach(function () {
+    square = new Square({ 'disable log transport': true });
+    minify = new Minify(square, test);
+  });
+
+  it('should have a .id', function () {
+    expect(Minify.prototype).to.have.property('id', 'minify');
+  });
+
+  it('should have a .description', function () {
+    expect(Minify.prototype).to.have.property('description', 'Minifies all the things');
+  });
+
   it('should not transform escaped unicode to unicode chars');
   it('should not mess up unicode chars');
   it('should result in a smaller file');
+  it('should maintain license header after minify');
   it('should remove comments');
   it('should process the content multiple times');
   it('should detect JAVA and enable compilers based on that');
@@ -32,11 +48,7 @@ describe('[square][plugin] Minify', function () {
   it('should send data to cluster and wait for nextTick to send response', function (done) {
     this.timeout(5000);
 
-    var square = new Square({ 'disable log transport': true })
-      , test = require(fixtures + '/plugins/minify')
-      , Minify = require('../plugins/minify')
-      , minify = new Minify(square, test)
-      , data = sinon.spy(minify, 'emit')
+    var  data = sinon.spy(minify, 'emit')
       , proc = sinon.spy(process, 'nextTick')
       , cluster = sinon.stub(Minify.cluster, 'send').yields(null, test);
 

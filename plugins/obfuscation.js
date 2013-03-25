@@ -20,7 +20,7 @@ module.exports = Plugin.extend({
      *
      * @type {String}
      */
-    name: 'obfuscation'
+    id: 'obfuscation'
 
     /**
      * Small description about the module.

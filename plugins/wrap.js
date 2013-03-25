@@ -23,7 +23,7 @@ module.exports = Plugin.extend({
      *
      * @type {String}
      */
-    name: 'wrap'
+    id: 'wrap'
 
     /**
      * Small description about the module.

@@ -334,7 +334,7 @@ describe('[square] API', function () {
       );
     });
 
-    it('should handle plugins that doesnst return content', function (done) {
+    it('should handle plugins that doesnt return content', function (done) {
       var square = new Square({ 'disable log transport': true });
       square.paths.push(fixtures);
 
@@ -509,6 +509,12 @@ describe('[square] API', function () {
     it('should return true when it parses correctly');
 
     it('should return false when it fails to parse');
+
+    it('should handle configured replacements for both types of distributions');
+
+    it('should parse distributions');
+
+    it('should parse platforms');
   });
 
   describe('#reduced', function () {
@@ -772,7 +778,8 @@ describe('[square] API', function () {
 
   describe('#directive', function () {
     var fs = require('fs')
-      , multi = /\/\*![\s\S]*?\*\//g;
+      , multi = /\/\*![\s\S]*?\*\//g
+      , dir = fixtures + '/directive';
 
     it('should ignore regular comments', function () {
       var square = new Square()
@@ -798,7 +805,7 @@ describe('[square] API', function () {
 
       expectation = expectation.replace(multi, '');
       content = square.directive(content, 'js', path.dirname(location)).replace(multi, '');
-      expect(content).to.equal(expectation);
+      expect(content).to.equal(expectation.replace(/path/, dir));
     });
 
     it('should work with import, require, include', function () {
@@ -809,7 +816,7 @@ describe('[square] API', function () {
 
         expectation = expectation.replace(multi, '');
         content = square.directive(content, 'js', path.dirname(location)).replace(multi, '');
-        expect(content).to.equal(expectation);
+        expect(content).to.equal(expectation.replace(/path/g, dir));
     });
 
     it('should process the files recusively', function () {
@@ -820,7 +827,7 @@ describe('[square] API', function () {
 
         expectation = expectation.replace(multi, '');
         content = square.directive(content, 'js', path.dirname(location)).replace(multi, '');
-        expect(content).to.equal(expectation);
+        expect(content).to.equal(expectation.replace(/path/g, dir));
     });
 
     it('should giving meaning full errors for recursion', function (done) {
@@ -844,7 +851,7 @@ describe('[square] API', function () {
 
         expectation = expectation.replace(multi, '');
         content = square.directive(content, 'js', path.dirname(location)).replace(multi, '');
-        expect(content).to.equal(expectation);
+        expect(content).to.equal(expectation.replace(/path/g, dir));
     });
 
     it('should only prepend the semicolon for JavaScript files');
@@ -1173,7 +1180,7 @@ describe('[square] API', function () {
       expect(result).to.contain('Permission is hereby granted, free of charge');
     });
 
-    it('shouldnt prrefix if theres no license', function () {
+    it('shouldnt prefix if theres no license', function () {
       var square = new Square()
         , result;
 
@@ -1187,7 +1194,7 @@ describe('[square] API', function () {
       expect(result).to.equal('pew pew');
     });
 
-    it('should correclty comment the license header', function () {
+    it('should correctly comment the license header', function () {
       var square = new Square()
         , result
         , chunks;
@@ -1204,6 +1211,7 @@ describe('[square] API', function () {
       chunks.pop(); // remove the content
       chunks.shift(); // remove the first empty line
 
+      expect(chunks[0]).to.include('/*!');
       chunks.forEach(function forEach(line) {
         expect(line.slice(0, 5)).to.include('*');
       });
