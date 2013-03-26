@@ -492,6 +492,12 @@ describe('[square] API', function () {
   });
 
   describe('#parse', function () {
+    var square;
+
+    beforeEach(function () {
+      square = new Square();
+    })
+
     it('should parse .json strings');
 
     it('should parse .js strings');
@@ -514,7 +520,21 @@ describe('[square] API', function () {
 
     it('should parse distributions');
 
-    it('should parse platforms');
+    it('should parse distribute (minified only) from configuration', function () {
+      square.parse(fixtures + '/read/adeptable.json');
+      expect(square.package.configuration.distribute).to.be.an('array');
+      expect(square.package.configuration.distribute).to.include('min');
+      expect(square.package.configuration.distribute).to.not.include('dev');
+
+      square.parse(fixtures + '/read/configuration.json');
+      expect(square.package.configuration.distribute).to.include('min', 'dev');
+    });
+
+    it('should parse platforms', function () {
+      square.parse(fixtures + '/read/adeptable.json');
+      expect(square.package.configuration.platform).to.be.an('array');
+      expect(square.package.configuration.platform).to.be.include('android');
+    });
   });
 
   describe('#reduced', function () {

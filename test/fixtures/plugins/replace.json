@@ -7,53 +7,77 @@
       "engine": "closure"
     }
   },
+  "multiple": "var test = '{{replace-me}}', also = '{{change}}', final = '{{last}}'",
   "error": {
-    "replace": {
-      "replace-me": "I will replaced all the times!"
+    "plugins": {
+      "replace": {
+        "replace-me": "I will replaced all the times!"
+      }
     }
   },
   "partial": {
-    "replace": {
-      "dev": {
-        "replace-me": "I will replace only in development results!"
+    "plugins": {
+      "replace": {
+        "dev": {
+          "replace-me": "I will replace only in development results!"
+        }
+      }
+    }
+  },
+  "min": {
+    "plugins": {
+      "replace": {
+        "min": {
+          "replace-me": "I will replace only in minified results!",
+          "change": "I will also change!",
+          "last": "I'm last"
+        }
       }
     }
   },
   "full": {
-    "replace": {
-      "dev": {
-        "replace-me": "I will replace only in development results!"
-      },
-      "min": {
-        "replace-me": "I will replace only in minified results!"
+    "plugins": {
+      "replace": {
+        "dev": {
+          "replace-me": "I will replace only in development results!"
+        },
+        "min": {
+          "replace-me": "I will replace only in minified results!"
+        }
       }
     }
   },
   "regex": {
-    "replace": {
-      "min": {
-        "replace-me": {
-          "regex": "/replace-me/",
-          "value": "I was found by a RegExp"
+    "plugins": {
+      "replace": {
+        "min": {
+          "replace-me": {
+            "regex": "/replace-me/",
+            "value": "I was found by a RegExp"
+          }
         }
       }
     }
   },
   "regexfail": {
-    "replace": {
-      "min": {
-        "replace-me": {
-          "regex": "(fail to close the parentheses",
-          "value": "I was found by a RegExp"
+    "plugins": {
+      "replace": {
+        "min": {
+          "replace-me": {
+            "regex": "(fail to close the parentheses",
+            "value": "I was found by a RegExp"
+          }
         }
       }
     }
   },
   "missing": {
-    "replace": {
-      "min": {
-        "replace-me": {
-          "regex": "lacking replace value"
+    "plugins": {
+      "replace": {
+        "min": {
+          "replace-me": {
+            "regex": "lacking replace value"
+          }
         }
       }
     }

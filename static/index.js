@@ -42,6 +42,32 @@ module.exports = {
   , plugins: {}
 
     /**
+     * Determine which distribution should be made, if the user omits this key
+     * from the configuration, both dev and min distributions will be run by
+     * default.
+     *
+     * @type {Array}
+     */
+
+  , distribute: ['dev', 'min']
+
+    /**
+     * Default storage engine.
+     *
+     * @type {Array}
+     */
+
+  , storage: ['disk']
+
+    /**
+     * Default platform to build the files for.
+     *
+     * @type {Array}
+     */
+
+  , platform: ['web']
+
+    /**
      * List of platforms that can be used to target specifically in stylus..
      *
      * @type {Array}
