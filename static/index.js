@@ -56,7 +56,7 @@ module.exports = {
      * @type {Array}
      */
 
-  , platforms: ['android', 'iphone', 'ipad', 'web']
+  , platform: ['android', 'iphone', 'ipad', 'web']
 
     /**
      * Code quality is always important, so we have list of the jshint and the
