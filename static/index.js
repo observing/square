@@ -42,6 +42,15 @@ module.exports = {
   , plugins: {}
 
     /**
+     * Determine which distribution should be made, if the user omits this key
+     * from the configuration, both dev and min distributions will be run by
+     * default.
+     *
+     * @type {Array}
+     */
+  , distribute: [ 'dev', 'min' ]
+
+    /**
      * List of platforms that can be used to target specifically in stylus..
      *
      * @type {Array}

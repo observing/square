@@ -39,6 +39,7 @@ describe('[square][plugin] Replace', function () {
   });
 
   it('should return early if there is nothing to replace at all', function (done) {
+    square.package.configuration = { plugins: {} };
     replace = new Replace(square, test.globals);
 
     replace.once('data', function (data) {
@@ -51,7 +52,7 @@ describe('[square][plugin] Replace', function () {
   });
 
   it('should return early on misconfiguration', function (done) {
-    square.config.plugins = test.error;
+    square.package.configuration = test.error;
     replace = new Replace(square, test.globals);
 
     replace.once('data', function (data) {
@@ -64,7 +65,7 @@ describe('[square][plugin] Replace', function () {
   });
 
   it('should not replace content if distribution is not part of replace', function (done) {
-    square.config.plugins = test.partial; // Only has dev replacement
+    square.package.configuration = test.partial; // Only has dev replacement
     replace = new Replace(square, test.globals); // Only has min distribution
 
     replace.once('data', function (data) {
@@ -77,7 +78,7 @@ describe('[square][plugin] Replace', function () {
   });
 
   it('should replace content for distribution', function (done) {
-    square.config.plugins = test.full; // Has min replacement
+    square.package.configuration = test.full; // Has min replacement
     replace = new Replace(square, test.globals); // Only has min distribution
 
     replace.once('data', function (data) {
@@ -91,7 +92,7 @@ describe('[square][plugin] Replace', function () {
 
 
   it('should use RegExp when provided', function (done) {
-    square.config.plugins = test.regex; // Has min replacement by RegExp
+    square.package.configuration = test.regex; // Has min replacement by RegExp
     replace = new Replace(square, test.globals); // Only has min distribution
 
     replace.once('data', function (data) {
@@ -104,7 +105,7 @@ describe('[square][plugin] Replace', function () {
   });
 
   it('should replace globally', function (done) {
-    square.config.plugins = test.full;
+    square.package.configuration = test.full;
     test.globals.content += '\n' + test.globals.content;
     replace = new Replace(square, test.globals);
 
@@ -118,7 +119,7 @@ describe('[square][plugin] Replace', function () {
   });
 
   it('should replace every match asynchronously and return correct results', function (done) {
-    square.config.plugins = test.min;
+    square.package.configuration = test.min;
     test.globals.content = test.multiple;
     replace = new Replace(square, test.globals);
 
@@ -133,7 +134,7 @@ describe('[square][plugin] Replace', function () {
 
 
   it('should log error if provided replacement is not a valid RegExp', function (done) {
-    square.config.plugins = test.regexfail;
+    square.package.configuration = test.regexfail;
     replace = new Replace(square, test.globals);
 
     replace.once('error', function (error) {
@@ -146,7 +147,7 @@ describe('[square][plugin] Replace', function () {
   });
 
   it('should log error if there is no replacement value', function (done) {
-    square.config.plugins = test.missing;
+    square.package.configuration = test.missing;
     replace = new Replace(square, test.globals);
 
     replace.once('error', function (error) {
