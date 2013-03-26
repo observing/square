@@ -51,7 +51,7 @@ module.exports = Plugin.extend({
      */
   , initialize: function initialize() {
       var self = this
-        , replacements = this.square.config.plugins.replace
+        , replacements = this.square.package.configuration.plugins.replace
         , code = this.content
         , literals
         , replacer;

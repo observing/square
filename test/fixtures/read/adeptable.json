@@ -1,0 +1,8 @@
+{
+  "configuration": {
+    "dist": "../public/{ext}/jitsu.{type}.{ext}",
+    "distribute": [ "min" ],
+    "platform": [ "android" ]
+  },
+  "bundle": { }
+}
