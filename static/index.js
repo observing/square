@@ -48,7 +48,24 @@ module.exports = {
      *
      * @type {Array}
      */
-  , distribute: [ 'dev', 'min' ]
+
+  , distribute: ['dev', 'min']
+
+    /**
+     * Default storage engine.
+     *
+     * @type {Array}
+     */
+
+  , storage: ['disk']
+
+    /**
+     * Default platform to build the files for.
+     *
+     * @type {Array}
+     */
+
+  , platform: ['web']
 
     /**
      * List of platforms that can be used to target specifically in stylus..
@@ -56,7 +73,7 @@ module.exports = {
      * @type {Array}
      */
 
-  , platform: ['android', 'iphone', 'ipad', 'web']
+  , platforms: ['android', 'iphone', 'ipad', 'web']
 
     /**
      * Code quality is always important, so we have list of the jshint and the
