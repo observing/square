@@ -58,6 +58,7 @@
     "codesurgeon": "0.3.x",
     "coffee-script": "1.6.x",
     "csslint": "0.9.x",
+    "findit": "0.1.x",
     "fs.notify": "0.0.x",
     "github": "0.1.x",
     "jade": "0.28.x",
