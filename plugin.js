@@ -175,7 +175,7 @@ _.extend(Plugin.prototype, {
         }).filter(Boolean); // Only get existing files
 
         // Only fetch shizzle when we actually have shizzle to fetch here
-        if (load.length) return canihaz.all.apply(canihaz.all, load.concat(function canihaz(err) {
+        if (load.length) return canihaz.apply(canihaz, load.concat(function canihaz(err) {
           if (err) return self.emit('error', err);
 
           // Add all the libraries to the context, the `canihaz#all` returns an
