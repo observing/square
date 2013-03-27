@@ -1,2 +1,2 @@
-/* [square] directive: path/imported.js */
+/* [square] Directive: path/imported.js */
 var foo = "bar";

@@ -1,6 +1,6 @@
-/* [square] directive: path/imported.1.js */
+/* [square] Directive: path/imported.1.js */
 var foo = "bar";
-/* [square] directive: path/imported.2.js */
+/* [square] Directive: path/imported.2.js */
 var foo = "bar";
-/* [square] directive: path/imported.3.js */
+/* [square] Directive: path/imported.3.js */
 var foo = "bar";

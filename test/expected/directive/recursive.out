@@ -1,6 +1,6 @@
 var foo = "bar";
-/* [square] directive: path/recursive.2.js */
+/* [square] Directive: path/recursive.2.js */
 var second = "recursive";
 
-/* [square] directive: path/recursive.3.js */
+/* [square] Directive: path/recursive.3.js */
 var foo = "bar";

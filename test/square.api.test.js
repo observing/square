@@ -405,7 +405,7 @@ describe('[square] API', function () {
         , { index: 0, count: 1, platform: 'web' }
         , function (err, content) {
             expect(content).to.be.a('string');
-            expect(content).to.contain('[square] bundle:');
+            expect(content).to.contain('[square] Bundle:');
             expect(content).to.contain(bundle.meta.location);
 
             done(err);
@@ -427,8 +427,8 @@ describe('[square] API', function () {
         , { index: 0, count: 1, platform: 'web' }
         , function (err, content) {
             expect(content).to.be.a('string');
-            expect(content).to.contain('[square] bundle:');
-            expect(content).to.contain('[square] dependency:');
+            expect(content).to.contain('[square] Bundle:');
+            expect(content).to.contain('[square] Dependency:');
 
             bundle.dependencies.forEach(function (location) {
               expect(content).to.contain(location);
@@ -453,8 +453,8 @@ describe('[square] API', function () {
         , { index: 0, count: 1, platform: 'web' }
         , function (err, content) {
             expect(content).to.be.a('string');
-            expect(content).to.contain('[square] bundle:');
-            expect(content).to.contain('[square] directive:');
+            expect(content).to.contain('[square] Bundle:');
+            expect(content).to.contain('[square] Directive:');
 
             done(err);
           }

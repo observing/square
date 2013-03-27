@@ -2,7 +2,7 @@
   console.log('trololol');
 })()
 ;
-/*! [square] directive: ./concat.2.js */
+/*! [square] Directive: ./concat.2.js */
 (function(){
   console.log('trololol pewpew');
 })()
