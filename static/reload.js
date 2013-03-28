@@ -107,10 +107,12 @@
   /**
    * Reload the data without refreshing the page if we can.
    *
-   * @param String type extension
+   * @param {Object} files changed files
+   * @param {String} type extension
    * @api public
    */
-  loader.reload = function reload(type) {
+  loader.reload = function reload(files, type) {
+    // @TODO smarter reloading, so we only reload the files that are updated
     switch (type) {
       // Reload JavaScript files, as we don't support hot code reloading yet, we
       // are going to do a full browser refresh. Hot code reloading could done
@@ -124,8 +126,16 @@
       // Reload the stylesheets, they only require cache busting parameters in
       // order to work correctly.
       case 'css':
-        loader.reload.styles();
+        loader.reload.styles(files);
         break;
+
+      case 'js,css':
+      case 'css,js':
+        // Make sure we reload the page with a `true` to load it again from the
+        // server.
+        window.location.reload(true);
+        break;
+
 
       // Because there are so many different image formats we use the images
       // reloader as default. We don't know if it's a background image or an
@@ -138,8 +148,20 @@
   /**
    * Reload stylesheets.
    */
-  loader.reload.styles = function styles() {
+  loader.reload.styles = function styles(files) {
+    var links = document.getElementsByTagName('link')
+      , qs = '?reload=' + new Date().getTime()
+      , i = links.length
+      , link;
 
+    while (i--) {
+      link = links[i];
+      for (var file in files) {
+        if (link.rel === 'stylesheet' && ~link.href.indexOf(file)) {
+          link.href = link.href.replace(/\?.*|$/, qs);
+        }
+      }
+    }
   };
 
   /**
@@ -165,15 +187,11 @@
       , selector;
 
     for (selector in locations) {
+      // @TODO sizzle really needed for this?
       sizzle('[style*="'+ selector +'"]').forEach(function () {
         loader.reload.cssImage(this, locations[selector]);
       });
     }
-  };
-
-  loader.reload.imageStyles = {
-      background: ['backgroundImage']
-    , border: loader.prefixed('borderImage')
   };
 
   /**
@@ -200,6 +218,11 @@
       , css = prefixes.split(' ')
       , dom = prefixes.toLowerCase().split(' ');
 
+  };
+
+  loader.reload.imageStyles = {
+      background: ['backgroundImage']
+    , border: loader.prefixed('borderImage')
   };
 
   // Now for the big tricky part, we are going to load in all the dependencies
@@ -239,10 +262,8 @@
   * @param Array files
   * @api private
   */
- socket.on('refresh', function changes(files) {
-   // @TODO smarter reloading, so we only reload the files that are updated
-   // @TODO filter out files that are not on the page
-   window.location.reload(true);
+ socket.on('refresh', function changes(files, extensions) {
+   loader.reload(files, extensions.join(','));
  });
 
  // [square] @import "./sizzle.js"
