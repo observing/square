@@ -80,11 +80,14 @@ var jade = module.exports = function jade(content, context, done) {
  * also parse the import statements recursively
  *
  * @param {String} location location of the file that needs to be parsed
+ * @param {Array} paths collection to append to
+ * @param {Array} current reference to currently found files
  * @returns {Array} absolute paths
  * @api public
  */
-jade.imports = function imports(location, paths) {
+jade.imports = function imports(location, paths, current) {
   paths = paths || [];
+  current = current || [];
   if (!fs.existsSync(location)) return paths;
 
   // Get the file, unparsed so we can minimize the overhead of parsing it
@@ -98,13 +101,16 @@ jade.imports = function imports(location, paths) {
     if (!path.extname(path.basename(match))) match += ext;
     match = path.join(directory, match);
 
-    if (!~paths.indexOf(match)) paths.push(match);
+    if (!~paths.indexOf(match)) {
+      paths.push(match);
+      current.push(match);
+    }
   });
 
   // Iterate over all the paths to see if required files also contains files
   // that we need to watch.
-  paths.forEach(function recursive(location) {
-    paths = jade.imports(location, paths);
+  current.forEach(function recursive(location) {
+    paths = jade.imports(location, paths, []);
   });
 
   return paths;
