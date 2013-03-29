@@ -150,7 +150,6 @@
    */
   loader.reload.styles = function styles(files) {
     var links = document.getElementsByTagName('link')
-      , qs = '?reload=' + new Date().getTime()
       , i = links.length
       , link;
 
@@ -158,7 +157,7 @@
       link = links[i];
       for (var file in files) {
         if (link.rel === 'stylesheet' && ~link.href.indexOf(file)) {
-          link.href = link.href.replace(/\?.*|$/, qs);
+          link.href = loader.bust(link.href);
         }
       }
     }
@@ -187,7 +186,6 @@
       , selector;
 
     for (selector in locations) {
-      // @TODO sizzle really needed for this?
       sizzle('[style*="'+ selector +'"]').forEach(function () {
         loader.reload.cssImage(this, locations[selector]);
       });
