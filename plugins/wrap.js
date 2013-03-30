@@ -125,21 +125,21 @@ module.exports = Plugin.extend({
           , content;
 
         // Add more potential leaked variables
-        _.each(leaks, function (global) {
+        self._.each(leaks, function (global) {
           body.push(', ' + global + ' = this');
         });
 
         // Close it, as our body array didn't have a closing semicolon
         body.push(';');
 
-        _.each(leaks, function leaking(global) {
+        self._.each(leaks, function leaking(global) {
           body.push('this.' + global + ' = this;');
         });
 
         body.push(self.content);
 
         // Silly variable upgrading
-        _.each(leaks, function leaking(global) {
+        self._.each(leaks, function leaking(global) {
           body.push(global + ' = ' + global + ' || this.' + global + ';');
         });
 
@@ -147,7 +147,7 @@ module.exports = Plugin.extend({
         content = self.header + body.join('\n') + self.footer;
 
         // try if we fixed all leaks
-        exports.sandboxleak(content, self.timeout, function final(err, newleaks) {
+        self.sandboxleak(content, self.timeout, function final(err, newleaks) {
           if (err) {
             self.logger.error('Failed to compile the sandboxed script', err);
             self.logger.warn('The supplied code might leak globals');
