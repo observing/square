@@ -23,6 +23,9 @@ test-suite:
 test:
 	NODE_ENV=testing $(MAKE) test-suite
 
+test-watch:
+	NODE_ENV=testing ./node_modules/.bin/mocha $(ALL_TESTS) --watch
+
 client:
 	@square --bundle ./package.json --plugin update,minify --filename package
 
@@ -36,4 +39,4 @@ install:
 todo:
 	grep "@TODO" -R ./
 
-.PHONY: test
+.PHONY: test test-watch

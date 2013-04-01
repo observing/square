@@ -9,7 +9,9 @@ describe('[square] watch API', function () {
    */
   var path = require('path')
     , fixtures = path.join(process.env.PWD, 'test/fixtures')
-    , expected = path.join(process.env.PWD, 'test/expected');
+    , expected = path.join(process.env.PWD, 'test/expected')
+    , Watch = require('../lib/watch.js')
+    , Square= require('../lib/square.js');
 
   /**
    * Async helpers.
@@ -23,8 +25,30 @@ describe('[square] watch API', function () {
    */
   function noop() { console.log(/* dummy function*/); }
 
-  it('exposes constructor');
-  it('Watcher has watch, refresher and live methods');
+  it('exposes constructor', function () {
+    expect(Watch).to.be.a('function');
+  });
+
+  it('Watcher has watch, refresher, defer and live methods, encapsulates square', function (done) {
+    var square = new Square({ 'disable log transport': true });
+    square.parse(fixtures +'/read/adeptable.json');
+
+    var watcher = new Watch(square, 8888);
+    square.on('idle', function () {
+      expect(watcher).to.be.a('object');
+      expect(watcher).to.have.property('watch');
+      expect(watcher).to.have.property('refresher');
+      expect(watcher).to.have.property('live');
+      expect(watcher).to.have.property('defer');
+      expect(watcher).to.have.property('square');
+      expect(watcher.watch).to.be.a('function');
+      expect(watcher.refresher).to.be.a('function');
+      expect(watcher.live).to.be.a('function');
+      expect(watcher.defer).to.be.a('function');
+      expect(watcher.square).to.be.a('object');
+      done();
+    });
+  });
 
   describe('@construction', function () {
     it('attach Square instance as property');
