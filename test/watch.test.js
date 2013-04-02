@@ -41,12 +41,14 @@ describe('[square] watch API', function () {
     expect(watcher).to.have.property('live');
     expect(watcher).to.have.property('defer');
     expect(watcher).to.have.property('init');
+    expect(watcher).to.have.property('socket');
     expect(watcher).to.have.property('silent');
     expect(watcher.watch).to.be.a('function');
     expect(watcher.refresher).to.be.a('function');
     expect(watcher.live).to.be.a('function');
     expect(watcher.defer).to.be.a('function');
     expect(watcher.init).to.be.a('function');
+    expect(watcher.socket).to.be.a('object');
     expect(watcher.silent).to.be.a('boolean');
   });
 
@@ -79,12 +81,55 @@ describe('[square] watch API', function () {
       expect(parallel).to.be.calledOnce;
       parallel.restore();
     });
+
+    it('logging to console can be switched on/off', function () {
+      var quiet = new Watch(square, 8888, true)
+        , loud = new Watch(square, 8888);
+
+      expect(quiet.silent).to.be.true;
+      expect(loud.silent).to.be.false;
+    });
   });
 
   describe('#watch', function () {
-    it('calls square#files to get a list of files from the bundle');
+    var Notify, findit, square, watcher;
+
+    beforeEach(function (done) {
+      square = new Square({ 'disable log transport': true });
+      square.parse(fixtures +'/read/adeptable.json');
+      watcher = new Watch(square, 8888, true);
+
+      async.parallel([canihaz['fs.notify'], canihaz.findit], function () {
+        Notify = arguments[1][0];
+        findit = arguments[1][1];
+        done();
+      });
+    });
+
+    it('calls square#files to get a list of files from the bundle', function () {
+      var files = sinon.spy(square, 'files');
+      watcher.watch(Notify, findit);
+      expect(files).to.be.calledOnce;
+      files.restore();
+    });
+
     it('constructs fs.notify and supply a list of files');
-    it('will emit idle to start the spinner');
+
+    it('will emit idle to start the spinner', function (done) {
+      var defer = sinon.spy(watcher, 'defer');
+
+      square.once('idle', function () {
+        // Only check for calls after the next loop.
+        process.nextTick(function () {
+          expect(defer).to.be.calledOnce;
+          done();
+        });
+      });
+
+      watcher.watch(Notify, findit);
+      defer.restore();
+    });
+
     it('will register event listeners on the notifier');
     it('will remove `node_modules` from the list of files');
     it('will remove `.`directories from the list of files');
@@ -94,10 +139,60 @@ describe('[square] watch API', function () {
   });
 
   describe('#refresher', function () {
-    it('will log an error if watching fails');
-    it('will emit processing to stop the spinner');
-    it('will log an empty line and notice of changed files');
-    it('calls square#refresh to reinitialize a build');
+    var square, watcher;
+
+    beforeEach(function () {
+      square = new Square({ 'disable log transport': true });
+      square.parse(fixtures +'/read/adeptable.json');
+
+      watcher = new Watch(square, 8888, true);
+    });
+
+    it('will log an error if watching fails', function () {
+      var log = sinon.spy(square.logger, 'error')
+        , err = new Error('My fault');
+
+      watcher.refresher(err, []);
+      expect(log).to.be.calledOnce;
+      expect(log).to.be.calledWith('Watcher error %s, canceling watch operations on %s', err.message, []);
+
+      log.restore();
+    });
+
+    it('will emit processing to stop the spinner', function () {
+      var process = sinon.spy(square, 'emit');
+      watcher.refresher(undefined, ['files']);
+
+      expect(process).to.be.called;
+      expect(process).to.be.calledWith('processing');
+
+      process.restore();
+    });
+
+    it('will notify changed files if not silenced', function () {
+      var log = sinon.spy(square.logger, 'notice')
+        , files = ['files.js', 'moar.js'];
+
+      watcher = new Watch(square, 8888);
+      watcher.refresher(undefined, files);
+
+      expect(log).to.be.calledOnce;
+      expect(log).to.be.calledWith('changes detected, refreshing %s', files.join(', '));
+
+      log.restore();
+    });
+
+    it('calls square#refresh to reinitialize a build', function () {
+      var refresh = sinon.spy(square, 'refresh')
+        , files = ['files.js', 'moar.js'];
+
+      watcher.refresher(undefined, files);
+
+      expect(refresh).to.be.calledOnce;
+      expect(refresh).to.be.calledWith(files);
+
+      refresh.restore();
+    });
   });
 
   describe('#live', function () {
