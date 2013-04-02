@@ -1,4 +1,4 @@
-/*global expect, Square, execSync, beforeEach, afterEach */
+/*global expect, Square, execSync, sinon, beforeEach, afterEach */
 describe('[square] watch API', function () {
   'use strict';
 
@@ -11,7 +11,8 @@ describe('[square] watch API', function () {
     , fixtures = path.join(process.env.PWD, 'test/fixtures')
     , expected = path.join(process.env.PWD, 'test/expected')
     , Watch = require('../lib/watch.js')
-    , Square= require('../lib/square.js');
+    , Square= require('../lib/square.js')
+    , canihaz = require('canihaz')('square');
 
   /**
    * Async helpers.
@@ -33,28 +34,57 @@ describe('[square] watch API', function () {
     var square = new Square({ 'disable log transport': true });
     square.parse(fixtures +'/read/adeptable.json');
 
-    var watcher = new Watch(square, 8888);
+    var watcher = new Watch(square, 8888, true);
     square.on('idle', function () {
       expect(watcher).to.be.a('object');
       expect(watcher).to.have.property('watch');
       expect(watcher).to.have.property('refresher');
       expect(watcher).to.have.property('live');
       expect(watcher).to.have.property('defer');
-      expect(watcher).to.have.property('square');
+      expect(watcher).to.have.property('init');
+      expect(watcher).to.have.property('silent');
       expect(watcher.watch).to.be.a('function');
       expect(watcher.refresher).to.be.a('function');
       expect(watcher.live).to.be.a('function');
       expect(watcher.defer).to.be.a('function');
-      expect(watcher.square).to.be.a('object');
+      expect(watcher.init).to.be.a('function');
+      expect(watcher.silent).to.be.a('boolean');
       done();
     });
   });
 
   describe('@construction', function () {
-    it('attach Square instance as property');
-    it('register event listener to trigger on build');
-    it('asynchronously loads required modules for watch');
-    it('initializes #watch');
+    var square, watcher;
+
+    beforeEach(function () {
+      square = new Square({ 'disable log transport': true });
+      square.parse(fixtures +'/read/adeptable.json');
+    });
+
+    it('attach Square instance as property', function (done) {
+      watcher = new Watch(square, 8888, true);
+      square.on('idle', function () {
+        expect(watcher).to.have.property('square');
+        expect(watcher.square).to.be.a('object');
+        expect(watcher.square).to.be.instanceof(Square);
+        done();
+      });
+    });
+
+    it('register event listener to trigger on build', function () {
+      var build = sinon.spy(square, 'on');
+      watcher = new Watch(square, 8888, true);
+      expect(build).to.be.calledOnce;
+      expect(build).to.be.calledWith('build');
+      build.restore();
+    });
+
+    it('asynchronously loads required modules for watch', function () {
+      var parallel = sinon.spy(async, 'parallel');
+      watcher = new Watch(square, 8888, true);
+      expect(parallel).to.be.calledOnce;
+      parallel.restore();
+    });
   });
 
   describe('#watch', function () {
