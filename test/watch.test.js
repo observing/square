@@ -34,7 +34,6 @@ describe('[square] watch API', function () {
     var square = new Square({ 'disable log transport': true });
     square.parse(fixtures +'/read/adeptable.json');
 
-    var watcher = new Watch(square, 8888, true);
     square.on('idle', function () {
       expect(watcher).to.be.a('object');
       expect(watcher).to.have.property('watch');
@@ -51,6 +50,8 @@ describe('[square] watch API', function () {
       expect(watcher.silent).to.be.a('boolean');
       done();
     });
+
+    var watcher = new Watch(square, 8888, true);
   });
 
   describe('@construction', function () {
@@ -62,13 +63,14 @@ describe('[square] watch API', function () {
     });
 
     it('attach Square instance as property', function (done) {
-      watcher = new Watch(square, 8888, true);
       square.on('idle', function () {
         expect(watcher).to.have.property('square');
         expect(watcher.square).to.be.a('object');
         expect(watcher.square).to.be.instanceof(Square);
         done();
       });
+
+      watcher = new Watch(square, 8888, true);
     });
 
     it('register event listener to trigger on build', function () {
