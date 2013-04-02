@@ -99,11 +99,15 @@ describe('[square] watch API', function () {
       square.parse(fixtures +'/read/adeptable.json');
       watcher = new Watch(square, 8888, true);
 
-      async.parallel([canihaz['fs.notify'], canihaz.findit], function () {
-        Notify = arguments[1][0];
-        findit = arguments[1][1];
-        done();
-      });
+      canihaz(
+          { name: 'fs.notify', version: '*' }
+        , { name: 'findit', version: '*' }
+        , function lazyloading() {
+          Notify = arguments[1];
+          findit = arguments[2];
+          done();
+          }
+      );
     });
 
     it('calls square#files to get a list of files from the bundle', function () {
