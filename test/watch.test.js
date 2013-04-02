@@ -30,28 +30,24 @@ describe('[square] watch API', function () {
     expect(Watch).to.be.a('function');
   });
 
-  it('Watcher has watch, refresher, defer and live methods, encapsulates square', function (done) {
+  it('Watcher has watch, refresher, defer and live methods, encapsulates square', function () {
     var square = new Square({ 'disable log transport': true });
     square.parse(fixtures +'/read/adeptable.json');
 
-    square.on('idle', function () {
-      expect(watcher).to.be.a('object');
-      expect(watcher).to.have.property('watch');
-      expect(watcher).to.have.property('refresher');
-      expect(watcher).to.have.property('live');
-      expect(watcher).to.have.property('defer');
-      expect(watcher).to.have.property('init');
-      expect(watcher).to.have.property('silent');
-      expect(watcher.watch).to.be.a('function');
-      expect(watcher.refresher).to.be.a('function');
-      expect(watcher.live).to.be.a('function');
-      expect(watcher.defer).to.be.a('function');
-      expect(watcher.init).to.be.a('function');
-      expect(watcher.silent).to.be.a('boolean');
-      done();
-    });
-
     var watcher = new Watch(square, 8888, true);
+    expect(watcher).to.be.a('object');
+    expect(watcher).to.have.property('watch');
+    expect(watcher).to.have.property('refresher');
+    expect(watcher).to.have.property('live');
+    expect(watcher).to.have.property('defer');
+    expect(watcher).to.have.property('init');
+    expect(watcher).to.have.property('silent');
+    expect(watcher.watch).to.be.a('function');
+    expect(watcher.refresher).to.be.a('function');
+    expect(watcher.live).to.be.a('function');
+    expect(watcher.defer).to.be.a('function');
+    expect(watcher.init).to.be.a('function');
+    expect(watcher.silent).to.be.a('boolean');
   });
 
   describe('@construction', function () {
@@ -62,15 +58,11 @@ describe('[square] watch API', function () {
       square.parse(fixtures +'/read/adeptable.json');
     });
 
-    it('attach Square instance as property', function (done) {
-      square.on('idle', function () {
-        expect(watcher).to.have.property('square');
-        expect(watcher.square).to.be.a('object');
-        expect(watcher.square).to.be.instanceof(Square);
-        done();
-      });
-
+    it('attach Square instance as property', function () {
       watcher = new Watch(square, 8888, true);
+      expect(watcher).to.have.property('square');
+      expect(watcher.square).to.be.a('object');
+      expect(watcher.square).to.be.instanceof(Square);
     });
 
     it('register event listener to trigger on build', function () {
