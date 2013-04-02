@@ -8,8 +8,11 @@ describe('[square] watch API', function () {
    * @type {String}
    */
   var path = require('path')
+    , fs = require('fs')
     , fixtures = path.join(process.env.PWD, 'test/fixtures')
     , expected = path.join(process.env.PWD, 'test/expected')
+    , EventEmitter = process.EventEmitter
+    , network = require('os')
     , Watch = require('../lib/watch.js')
     , Square= require('../lib/square.js')
     , canihaz = require('canihaz')();
@@ -96,6 +99,7 @@ describe('[square] watch API', function () {
 
     beforeEach(function (done) {
       this.timeout(10000);
+
       square = new Square({ 'disable log transport': true });
       square.parse(fixtures +'/read/adeptable.json');
       watcher = new Watch(square, 8888, true);
@@ -201,15 +205,61 @@ describe('[square] watch API', function () {
   });
 
   describe('#live', function () {
-    it('gets the static content of reload.js', function () {
+    var square, watcher;
 
+    beforeEach(function () {
+      square = new Square({ 'disable log transport': true });
+      square.parse(fixtures +'/read/adeptable.json');
+
+      watcher = new Watch(square, 8888, true);
     });
 
-    it('lazy loads socket.IO through canihaz');
-    it('will try to find the local IP of the network to connect to');
-    it('log additional information on how to use browser reloading');
-    it('exposes the eventemitter as promise');
+    it('gets the static content of reload.js', function () {
+      var args = path.join(__dirname, '..', 'static', 'reload.js')
+        , file = sinon.spy(fs, 'readFileSync');
+
+      watcher.live(8888);
+
+      expect(file).to.be.calledOnce;
+      expect(file).to.be.calledWith(args);
+
+      file.restore();
+    });
+
+    it('will try to find the local IP of the network to connect to', function () {
+      var interf = sinon.spy(network, 'networkInterfaces');
+
+      watcher.live(8888);
+
+      expect(interf).to.be.calledOnce;
+      interf.restore();
+    });
+
+    it('logs information on how to use browser reloading if not silenced', function () {
+      var log = sinon.spy(square.logger, 'info')
+        , normal = sinon.spy(console, 'log');
+
+      watcher = new Watch(square, 8888);
+
+      expect(log).to.be.calledThrice;
+      expect(log).to.be.calledWith('Live reload is initializing, make sure you have the following script');
+      expect(log).to.be.calledWith('included in your webpage to receive the live reloads:');
+      expect(log).to.be.calledWith('paste it right above your closing </body> tag.');
+
+      expect(normal).to.be.called;
+      expect(normal).to.be.calledWith('  !function(l,i,v,e){');
+      expect(normal).to.be.calledWith('    e=l.createElement(i);v=l.getElementsByTagName(i)[0];e.async=true;');
+      expect(normal).to.be.calledWith('    v.parentNode.insertBefore(e,v);');
+      expect(normal).to.be.calledWith('  }(document,"script");');
+
+      log.restore();
+      normal.restore();
+    });
+
+    it('exposes the eventemitter as promise', function () {
+      var promise = watcher.live(8888);
+      expect(promise).to.be.an('object');
+      expect(promise).to.be.instanceof(EventEmitter);
+    });
   });
 });
-
-
