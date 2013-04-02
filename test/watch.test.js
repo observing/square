@@ -95,6 +95,7 @@ describe('[square] watch API', function () {
     var Notify, findit, square, watcher;
 
     beforeEach(function (done) {
+      this.timeout(10000);
       square = new Square({ 'disable log transport': true });
       square.parse(fixtures +'/read/adeptable.json');
       watcher = new Watch(square, 8888, true);
@@ -200,7 +201,10 @@ describe('[square] watch API', function () {
   });
 
   describe('#live', function () {
-    it('gets the static content of reload.js');
+    it('gets the static content of reload.js', function () {
+
+    });
+
     it('lazy loads socket.IO through canihaz');
     it('will try to find the local IP of the network to connect to');
     it('log additional information on how to use browser reloading');
