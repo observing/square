@@ -12,7 +12,7 @@ describe('[square] watch API', function () {
     , expected = path.join(process.env.PWD, 'test/expected')
     , Watch = require('../lib/watch.js')
     , Square= require('../lib/square.js')
-    , canihaz = require('canihaz')('square');
+    , canihaz = require('canihaz')();
 
   /**
    * Async helpers.
