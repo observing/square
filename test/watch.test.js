@@ -220,7 +220,7 @@ describe('[square] watch API', function () {
 
       watcher.live(8888);
 
-      expect(file).to.be.calledOnce;
+      expect(file).to.be.called;
       expect(file).to.be.calledWith(args);
 
       file.restore();
