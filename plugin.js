@@ -91,7 +91,7 @@ _.extend(Plugin, {
      * @type {String}
      * @api public
      */
-  , type: Plugin.modifier
+  , type: 'plugin::modifier'
 
     /**
      * Array of extensions that we accept. Leave empty to accept every

@@ -85,21 +85,6 @@ module.exports = Plugin.extend({
      * @type {String}
      */
   , description: 'Update third-party modules by checking the provided version number'
-
-    /**
-     * For which distributions should this run.
-     *
-     * @type {String}
-     */
-  , distributions: ['min', 'dev']
-
-    /**
-     * Which file extension are accepted.
-     *
-     * @type {Array}
-     */
-  , accepts: ['js', 'css']
-
     /**
      * Strict versioning Regular Expression.
      *
@@ -210,7 +195,8 @@ module.exports = Plugin.extend({
             });
           }
 
-          self.emit('data');
+          // Just pretend we are acting on data to continue processing.
+          self.emit('data', '');
       });
     }
 
