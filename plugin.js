@@ -128,12 +128,13 @@ _.extend(Plugin.prototype, {
     configure: function configure() {
       var pkg = this.square.package
         , configuration = pkg.configuration
+        , type = this.type
         , self = this
         , load = [];
 
       // Check for the distribution and if it should accept the given extension,
       // extend self with the context of the plugin.
-      if (!this.distributable() || !this.accepted()) {
+      if (!~type.indexOf('once') && (!this.distributable() || !this.accepted())) {
         this.logger.debug(
             'disregarding this plugin for extension: '+ this.extension
           +', distribution: '+ this.distribution
