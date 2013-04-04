@@ -107,6 +107,13 @@ module.exports = Plugin.extend({
   , lines: 10
 
     /**
+     * Required depedencies for all methods to function properly
+     *
+     * @type {Array}
+     */
+  , require: ['cheerio', 'github']
+
+    /**
      * The module has been initialized.
      */
   , initialize: function initialize() {
@@ -243,14 +250,16 @@ module.exports = Plugin.extend({
      * @api private
      */
   , selector: function selector(uri, fn) {
-      var parts = uri.split('#')
+      var self = this
+        , parts = uri.split('#')
         , url = parts.shift()
         , css = parts.join('#'); // restore '##id' selectors
 
-      canihaz.cheerio(function (err, cheerio) {
+      this.readrc('cheerio');
+      request.get(uri, function (err, resp, data) {
         if (err) return fn(err);
 
-        console.log(cheerio.load(uri)(css).text());
+        console.log(self.cheerio.load()(css).text());
         // call fn
       });
     }
@@ -304,19 +313,16 @@ module.exports = Plugin.extend({
       branch = chunks[3].substr(1); // remove the first /
       file = chunks[4];
 
-      canihaz.github(function lazyload (err, Github) {
+      this.readrc('github');
+      var api = new this.github({ version: "3.0.0" })
+        , request = { user: user, repo: repo, path: file, sha: branch };
+
+      api.repos.getCommits(request, function getcommit (err, list) {
         if (err) return fn(err);
+        if (!list.length) return fn(new Error('No commits in this repo: ' + uri));
 
-        var api = new Github({ version: "3.0.0" })
-          , request = { user: user, repo: repo, path: file, sha: branch };
-
-        api.repos.getCommits(request, function getcommit (err, list) {
-          if (err) return fn(err);
-          if (!list.length) return fn(new Error('No commits in this repo: ' + uri));
-
-          var commit = list.shift();
-          fn(null, commit.sha);
-        });
+        var commit = list.shift();
+        fn(null, commit.sha);
       });
     }
 
