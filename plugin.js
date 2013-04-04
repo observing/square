@@ -128,7 +128,7 @@ _.extend(Plugin.prototype, {
     configure: function configure() {
       var pkg = this.square.package
         , configuration = pkg.configuration
-        , type = this.type
+        , type = this.type || Plugin.modifier
         , self = this
         , load = [];
 

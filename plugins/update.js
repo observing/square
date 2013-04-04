@@ -111,7 +111,7 @@ module.exports = Plugin.extend({
      *
      * @type {Array}
      */
-  , require: ['cheerio', 'github']
+  , requires: ['cheerio', 'github']
 
     /**
      * The module has been initialized.
@@ -133,10 +133,10 @@ module.exports = Plugin.extend({
 
         // Find the correct update handler.
         if (~bundle.latest.indexOf('#')) provider = self.selector;
-        if (githubRE.test(bundle.latest)) provider = self.github;
+        if (githubRE.test(bundle.latest)) provider = self.repo;
         if (!provider) provider = self.req;
 
-        provider(bundle.latest, function test (err, version, content) {
+        provider.call(self, bundle.latest, function test (err, version, content) {
           if (err) return cb(err);
           if (!version) return cb(new Error('unable to find and parse the version for ' + key));
           if (version === bundle.version) return cb();
@@ -189,7 +189,7 @@ module.exports = Plugin.extend({
 
           // find the correct location where we can download the actual source
           // code for this bundle
-          var data = bundle.download || provider === self.github
+          var data = bundle.download || provider === self.repo
             ? self.raw(bundle.latest)
             : bundle.latest;
 
@@ -255,7 +255,6 @@ module.exports = Plugin.extend({
         , url = parts.shift()
         , css = parts.join('#'); // restore '##id' selectors
 
-      this.readrc('cheerio');
       request.get(uri, function (err, resp, data) {
         if (err) return fn(err);
 
@@ -304,18 +303,17 @@ module.exports = Plugin.extend({
      * @param {Function} fn
      * @api private
      */
-  , github: function github(uri, fn) {
-      var user, repo, branch, file
+  , repo: function repo(uri, fn) {
+      var user, repository, branch, file
         , chunks = githubRE.exec(uri);
 
       user = chunks[1];
-      repo = chunks[2];
+      repository = chunks[2];
       branch = chunks[3].substr(1); // remove the first /
       file = chunks[4];
 
-      this.readrc('github');
       var api = new this.github({ version: "3.0.0" })
-        , request = { user: user, repo: repo, path: file, sha: branch };
+        , request = { user: user, repo: repository, path: file, sha: branch };
 
       api.repos.getCommits(request, function getcommit (err, list) {
         if (err) return fn(err);
