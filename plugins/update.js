@@ -170,18 +170,20 @@ module.exports = Plugin.extend({
             self.square.package.source = source;
 
             try {
-              fs.writeFileSync(self.square.package.location, source);
-              fs.writeFileSync(bundle.meta.location, content);
+              async.parallel([
+                  async.apply(fs.writeFile, self.square.package.location, source)
+                , async.apply(fs.writeFile, bundle.meta.location, content)
+              ], function (err, results) {
+                self.square.logger.notice(
+                    'sucessfully updated %s from version %s to %s'
+                  , key
+                  , current.grey
+                  , version.green
+                );
+
+                cb(err);
+              });
             } catch (e) { err = e; }
-
-            self.square.logger.notice(
-                'sucessfully updated %s from version %s to %s'
-              , key
-              , current.grey
-              , version.green
-            );
-
-            cb(err);
           }
 
           if (content) return done(undefined, content);
@@ -202,7 +204,7 @@ module.exports = Plugin.extend({
           }
 
           // Just pretend we are acting on data to continue processing.
-          self.emit('data', '');
+          process.nextTick(self.emit.bind(self, 'data', ''));
       });
     }
 
