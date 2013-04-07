@@ -290,7 +290,7 @@ describe('[square] API', function () {
       });
 
       square.forEach(
-          'modifier'
+          square.middleware
         , { content: '', extension: 'js' }
         , function (err, collection) {
             expect(collection.content).to.equal('');
@@ -318,7 +318,7 @@ describe('[square] API', function () {
       // configure our plugin to throw errors
       square.plugin('plugin.fixture', { 'throw': true });
       square.forEach(
-          'modifier'
+          square.middleware
         , { content: '', extension: 'js' }
         , function (err, collection) {
             uncaught.forEach(function (listener) {
@@ -341,7 +341,7 @@ describe('[square] API', function () {
       // configure our plugin to throw errors
       square.plugin('plugin.fixture', { 'no-content': true });
       square.forEach(
-          'modifier'
+         square.middleware
         , { content: 'oi', extension: 'js' }
         , function (err, collection) {
             expect(collection.content).to.equal('oi');
@@ -359,7 +359,7 @@ describe('[square] API', function () {
       // configure our plugin to throw errors
       square.plugin('plugin.fixture', { 'error-argument': true });
       square.forEach(
-          'modifier'
+          square.middleware
         , { content: '', extension: 'js' }
         , function (err, collection) {
             expect(err).to.be.an.instanceof(Error);
@@ -378,7 +378,7 @@ describe('[square] API', function () {
       // configure our plugin to throw errors
       square.plugin('plugin.fixture', { 'change-content': true });
       square.forEach(
-          'modifier'
+          square.middleware
         , { content: '', extension: 'js' }
         , function (err, collection) {
             expect(collection.content).to.equal('changed the content');

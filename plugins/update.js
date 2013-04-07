@@ -109,9 +109,9 @@ module.exports = Plugin.extend({
     /**
      * Required depedencies for all methods to function properly
      *
-     * @type {Array}
+     * @type {String}
      */
-  , requires: ['cheerio', 'github']
+  , requires: 'github'
 
     /**
      * The module has been initialized.
@@ -132,7 +132,6 @@ module.exports = Plugin.extend({
         if (!bundle.latest) return cb();
 
         // Find the correct update handler.
-        if (~bundle.latest.indexOf('#')) provider = self.selector;
         if (githubRE.test(bundle.latest)) provider = self.repo;
         if (!provider) provider = self.req;
 
@@ -243,27 +242,6 @@ module.exports = Plugin.extend({
     }
 
     /**
-     * Find the version number on a page based on a CSS3 selector
-     *
-     * @param {Object} uri
-     * @param {Function} fn
-     * @api private
-     */
-  , selector: function selector(uri, fn) {
-      var self = this
-        , parts = uri.split('#')
-        , url = parts.shift()
-        , css = parts.join('#'); // restore '##id' selectors
-
-      request.get(uri, function (err, resp, data) {
-        if (err) return fn(err);
-
-        console.log(self.cheerio.load()(css).text());
-        // call fn
-      });
-    }
-
-    /**
      * See if the string matches a version number.
      *
      * @param {String} content
@@ -331,10 +309,9 @@ module.exports = Plugin.extend({
      * @param {Function} fn
      * @api private
      */
-
   , req: function req(uri, fn) {
       var lines = this.lines
-        , version = this.version;
+        , version = this.version.bind(this);
 
       this.download(uri, function downloading(err, content) {
         if (err) return fn(err);
@@ -343,7 +320,6 @@ module.exports = Plugin.extend({
         lines = content.split(/(\r\n)|\r|\n/).splice(0, lines);
         lines.some(function someline (line) {
           version = version(line);
-
           return !!version;
         });
 
