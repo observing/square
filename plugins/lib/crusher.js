@@ -431,8 +431,14 @@ exports.crushers = {
       canihaz['jsmin-sourcemap'](function fetch(err, jsmin) {
         if (err) return cb(err);
 
-        try { cb(undefined, jsmin(collection.content).code); }
-        catch (e) { return cb(e); }
+        // @TODO replace src and dest with actual meaningful file names.
+        try {
+          cb(undefined, jsmin({
+              code: collection.content
+            , src: 'temp.js'
+            , dest: 'temp.js'
+          }).code);
+        } catch (e) { return cb(e); }
       });
     }
 
@@ -509,8 +515,8 @@ exports.crushers = {
  * @api private
  */
 exports.js = {
-    uglify2: exports.crushers.uglify2.bind(exports.crushers, 'js')
-  , closure: exports.crushers.closure.bind(exports.crushers, 'js')
+  //  uglify2: exports.crushers.uglify2.bind(exports.crushers, 'js')
+    closure: exports.crushers.closure.bind(exports.crushers, 'js')
   , yuglify: exports.crushers.yuglify.bind(exports.crushers, 'js')
   , jsmin: exports.crushers.jsmin.bind(exports.crushers, 'js')
   , esmangle: exports.crushers.esmangle.bind(exports.crushers, 'js')
@@ -525,7 +531,7 @@ exports.js = {
  */
 exports.css = {
     yuglify: exports.crushers.yuglify.bind(exports.crushers, 'css')
-  , sqwish: exports.crushers.sqwish.bind(exports.crushers, 'css')
+  //, sqwish: exports.crushers.sqwish.bind(exports.crushers, 'css')
   , csso: exports.crushers.csso.bind(exports.crushers, 'css')
   , yui: exports.crushers.yui.bind(exports.crushers, 'css')
 };

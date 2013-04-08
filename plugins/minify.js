@@ -76,6 +76,14 @@ module.exports = Plugin.extend({
   , analyse: false
 
     /**
+     * Full will do a permutation of all engines of analyse, otherwise only
+     * unique unordered combinations are run.
+     *
+     * @type {Boolean}
+     */
+  , full: false
+
+    /**
      * Should we generate and output some metrics about the compilation?
      *
      * @type {Boolean}
@@ -110,11 +118,9 @@ module.exports = Plugin.extend({
         return this.analyser(function analyser(err, results) {
           if (err) return self.emit('error', err);
 
-          self.logger.info('The fastest engine:     '+ results.fastest.engines);
-          self.logger.info('The smallest content:   '+ results.filesize.engines);
-          self.logger.info('The best compressed:    '+ results.bandwidth.engines);
-
-          self.emit('data');
+          self.logger.info('The fastest ' + self.extension + ' engine:     '+ results.fastest.engines);
+          self.logger.info('The smallest ' + self.extension + ' content:   '+ results.filesize.engines);
+          self.logger.info('The best compressed ' + self.extension + ':    '+ results.bandwidth.engines);
         });
       }
 
@@ -163,18 +169,20 @@ module.exports = Plugin.extend({
       var compilers = typeof this.analyse === 'string'
             ? this.analyse.split(/\s?\,\s?/).filter(Boolean)
             : Object.keys(cluster[this.extension])
-        , combinations = this.permutations(compilers)
+        , combinations = this.permutations(compilers, this.full)
         , results = []
         , self = this
         , error
         , queue;
 
-      this.logger.debug('analysing '+ combinations.length +' different combinations');
+      this.logger.notice(
+          'analysing '+ combinations.length +' combinations of ' + this.extension
+        + ' engines, this takes minutes, grab a coffee!'
+      );
+      this.logger.notice(
+        'Add a list of comma seperated engines to the configuration to reduce the number'
+      );
 
-      // @TODO the permutation only include every combination, but it doesn't
-      // include the compilers as stand alone option or duo like closure + yui
-      // these combinations should also be included.
-      //
       // To ensure that the system stays responsive during large permutations we
       // need to do this as a serial operation. Running more than 500 tasks
       // concurrently will fuck up your system and that is not something we want
@@ -237,25 +245,27 @@ module.exports = Plugin.extend({
      * combination possible.
      *
      * @param {Array} collection
+     * @param {Boolean} order do full stack or
      */
-  , permutations: function permutation(collection) {
+  , permutations: function permutation(collection, order) {
       var permutations = []
+        , combinations = []
         , seen = [];
 
       /**
-       * Iterator for the permutations
+       * Full iterator for the permutations
        *
        * @param {Array} source
        * @returns {Array} permutations
        * @api private
        */
-      function iterator(source) {
-        for (var i = 0, l = source.length, item; i < l; i++) {
+      function full(source) {
+        for (var i = 0, item; i < source.length; i++) {
           item = source.splice(i, 1)[0];
           seen.push(item);
 
           if (source.length === 0) permutations.push(seen.slice());
-          iterator(source);
+          full(source);
 
           source.splice(i, 0, item);
           seen.pop();
@@ -264,7 +274,25 @@ module.exports = Plugin.extend({
         return permutations;
       }
 
-      return iterator(collection);
+      /**
+       * Fast iterator for the combinations
+       *
+       * @param {Array} source
+       * @returns {Array} combinations
+       * @api private
+       */
+      function fast(source) {
+        var i = source.length;
+
+        while (i--) {
+          combinations.push(source.slice(0, i + 1));
+          if (i === 1) fast(source.slice(i));
+        }
+
+        return combinations;
+      }
+
+      return !order ? fast(collection) : fast(collection).concat(full(collection));
     }
 });
 
