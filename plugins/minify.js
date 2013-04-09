@@ -6,6 +6,7 @@
  * MIT Licensed
  */
 var Plugin = require('../plugin')
+  , async = require('async')
   , cluster = require('./lib/crusher');
 
 /**
@@ -94,7 +95,8 @@ module.exports = Plugin.extend({
      * The module has been initialized.
      */
   , initialize: function initialize() {
-      var self = this;
+      var self = this
+        , tasks = {};
 
       // Check if we need to register the cluster as longrunning handle with the
       // square instance.
@@ -112,18 +114,6 @@ module.exports = Plugin.extend({
         else return this.emit('error', new Error('No engine is set'));
       }
 
-      // The user has requested us to analyse the content and figure out the
-      // best the compiler strategy
-      if (this.analyse) {
-        return this.analyser(function analyser(err, results) {
-          if (err) return self.emit('error', err);
-
-          self.logger.info('The fastest ' + self.extension + ' engine:     '+ results.fastest.engines);
-          self.logger.info('The smallest ' + self.extension + ' content:   '+ results.filesize.engines);
-          self.logger.info('The best compressed ' + self.extension + ':    '+ results.bandwidth.engines);
-        });
-      }
-
       // Check if the engines key is an object or string, if it's an object it
       // has specific engines for each extension.. atleast that is something
       // that we are gonna assume here
@@ -132,19 +122,32 @@ module.exports = Plugin.extend({
         else this.engines = this.engines[this.extension] || '';
       }
 
-      cluster.send({
+      // The user has requested us to analyse the content and figure out the
+      // best the compiler strategy
+      if (this.analyse) tasks.analyser = async.apply(this.analyser.bind(this));
+      tasks.runner = async.apply(cluster.send, {
           engines:    this.engines
         , extension:  this.extension
         , content:    this.content
         , gzip:       this.metrics
-      }, function compiling(err, compiled) {
-        if (err) return self.emit('error', err);
+      });
+
+      async.parallel(tasks, function (err, results) {
+        var result, factor;
+
+        if (results.analyser) {
+          result = results.analyser;
+          self.logger.info('The fastest ' + self.extension + ' engine:     '+ result.fastest.engines);
+          self.logger.info('The smallest ' + self.extension + ' content:   '+ result.filesize.engines);
+          self.logger.info('The best compressed ' + self.extension + ':    '+ result.bandwidth.engines);
+        }
 
         if (self.metrics) {
-          var factor = Buffer.byteLength(compiled.content) / compiled.gzip;
+          result = results.runner;
+          factor = Buffer.byteLength(result.content) / result.gzip;
           self.logger.metric([
-              'compressed: '.white + Buffer.byteLength(compiled.content).bytes(1).green
-            , ' minified, '.white + compiled.gzip.bytes(1).green
+              'compressed: '.white + Buffer.byteLength(result.content).bytes(1).green
+            , ' minified, '.white + result.gzip.bytes(1).green
             , ' gzip. Which is a factor of '.white
             , factor.toFixed(1).toString().green
           ].join(''));
@@ -153,7 +156,7 @@ module.exports = Plugin.extend({
         // Square performance is so good that sometimes this event is emitted
         // before any listener is ready to receive data, wait for next loop!
         process.nextTick(function () {
-          self.emit('data', compiled.content);
+          self.emit('data', results.runner.content);
         });
       });
     }
@@ -177,10 +180,10 @@ module.exports = Plugin.extend({
 
       this.logger.notice(
           'analysing '+ combinations.length +' combinations of ' + this.extension
-        + ' engines, this takes minutes, grab a coffee!'
+        + ' engines, grab a coffee!'
       );
       this.logger.notice(
-        'Add a list of comma seperated engines to the configuration to reduce the number'
+        'Add comma seperated engines to the configuration to reduce runtime'
       );
 
       // To ensure that the system stays responsive during large permutations we

@@ -531,7 +531,7 @@ exports.js = {
  */
 exports.css = {
     yuglify: exports.crushers.yuglify.bind(exports.crushers, 'css')
-  //, sqwish: exports.crushers.sqwish.bind(exports.crushers, 'css')
   , csso: exports.crushers.csso.bind(exports.crushers, 'css')
+  , sqwish: exports.crushers.sqwish.bind(exports.crushers, 'css')
   , yui: exports.crushers.yui.bind(exports.crushers, 'css')
 };
