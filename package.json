@@ -71,7 +71,6 @@
     "socket.io": "0.9.x",
     "stylus": "0.32.x",
     "uglify-js": "2.2.x",
-    "uglify-js2": "2.1.x",
     "jsmin-sourcemap": "0.14.x",
     "esprima": "1.0.2",
     "escodegen": "0.0.x",

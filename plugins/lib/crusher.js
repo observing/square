@@ -334,6 +334,13 @@ exports.crushers = {
      */
     uglify2: function uglify2(type, collection, cb) {
       if (type !== 'js') return cb(new Error('Type is not supported'));
+
+      canihaz['uglify-js'](function fetch(err, uglify) {
+        if (err) return cb(err);
+
+        try { cb(undefined, uglify.minify(collection.content, { fromString: true }).code); }
+        catch (fail) { cb(fail); }
+      });
     }
 
     /**
@@ -515,8 +522,8 @@ exports.crushers = {
  * @api private
  */
 exports.js = {
-  //  uglify2: exports.crushers.uglify2.bind(exports.crushers, 'js')
-    closure: exports.crushers.closure.bind(exports.crushers, 'js')
+    uglify2: exports.crushers.uglify2.bind(exports.crushers, 'js')
+  , closure: exports.crushers.closure.bind(exports.crushers, 'js')
   , yuglify: exports.crushers.yuglify.bind(exports.crushers, 'js')
   , jsmin: exports.crushers.jsmin.bind(exports.crushers, 'js')
   , esmangle: exports.crushers.esmangle.bind(exports.crushers, 'js')
