@@ -98,7 +98,7 @@ describe('[square] watch API', function () {
     var Notify, findit, square, watcher;
 
     beforeEach(function (done) {
-      this.timeout(30000);
+      this.timeout(60000);
 
       canihaz(
           { name: 'fs.notify', version: '*' }
