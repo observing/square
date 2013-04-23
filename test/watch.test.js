@@ -98,19 +98,20 @@ describe('[square] watch API', function () {
     var Notify, findit, square, watcher;
 
     beforeEach(function (done) {
-      this.timeout(60000);
-
-      square = new Square({ 'disable log transport': true });
-      square.parse(fixtures +'/read/adeptable.json');
-      watcher = new Watch(square, 8888, true);
+      this.timeout(30000);
 
       canihaz(
           { name: 'fs.notify', version: '*' }
         , { name: 'findit', version: '*' }
         , function lazyloading() {
-          Notify = arguments[1];
-          findit = arguments[2];
-          done();
+            Notify = arguments[1];
+            findit = arguments[2];
+
+            square = new Square({ 'disable log transport': true });
+            square.parse(fixtures +'/write/square.json');
+            watcher = new Watch(square, 8888, true);
+
+            done();
           }
       );
     });
