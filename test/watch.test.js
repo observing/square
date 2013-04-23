@@ -98,7 +98,7 @@ describe('[square] watch API', function () {
     var Notify, findit, square, watcher;
 
     beforeEach(function (done) {
-      this.timeout(20000);
+      this.timeout(60000);
 
       square = new Square({ 'disable log transport': true });
       square.parse(fixtures +'/read/adeptable.json');
