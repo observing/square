@@ -980,7 +980,7 @@ describe('[square] API', function () {
       square.storage('eventemitter');
       square.parse(fixtures + '/write/square.json');
 
-      square.on('write', function (collection) {
+      square.once('write', function (collection) {
         expect(collection).to.have.property('foo');
         expect(collection.foo).to.equal('bar');
         expect(collection).to.have.property('ninja');
@@ -999,7 +999,7 @@ describe('[square] API', function () {
       square.storage('eventemitter');
       square.parse(fixtures + '/write/square.json');
 
-      square.on('write', function (collection) {
+      square.once('write', function (collection) {
         expect(square.package.configuration.dist.dev).to.include('~');
         expect(collection.file).to.not.include('~');
 
@@ -1016,7 +1016,7 @@ describe('[square] API', function () {
       square.storage('eventemitter');
       square.parse(fixtures + '/write/square.json');
 
-      square.on('write', function (collection) {
+      square.once('write', function (collection) {
         expect(collection.content).to.include('DO WHAT THE FUCK YOU WANT TO');
 
         done();
@@ -1034,7 +1034,7 @@ describe('[square] API', function () {
       square.storage('eventemitter');
       square.parse(fixtures + '/write/square.json');
 
-      square.on('write', function write(collection) {
+      square.once('write', function write(collection) {
         throw new Error('IM NOT WRITABLE');
       });
 
@@ -1051,7 +1051,7 @@ describe('[square] API', function () {
       });
     });
 
-    it('should iterate over the storage engines', function (done) {
+    it('should iterate over unique storage engines', function (done) {
       var square = new Square()
         , engines = 0;
 
@@ -1059,13 +1059,7 @@ describe('[square] API', function () {
 
       square.storage('eventemitter');
       square.storage('eventemitter');
-      square.storage('eventemitter');
-      square.storage('eventemitter');
-      square.storage('eventemitter');
-      square.storage('eventemitter');
-      square.storage('eventemitter');
-      square.storage('eventemitter');
-      square.storage('eventemitter');
+      square.storage('disk');
 
       square.parse(fixtures + '/write/square.json');
 
@@ -1074,7 +1068,7 @@ describe('[square] API', function () {
       });
 
       square.build(function building(err) {
-        expect(engines).to.equal(9);
+        expect(engines).to.equal(2);
 
         done();
       });

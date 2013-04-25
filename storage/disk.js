@@ -19,4 +19,6 @@ var fs = require('fs');
 module.exports = function write(square, collection, fn) {
   square.logger.debug('Attempting to write %s to disk', collection.file.yellow);
   fs.writeFile(collection.file, collection.content, fn);
+
+  square.emit('write', collection);
 };
