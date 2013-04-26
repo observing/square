@@ -187,7 +187,7 @@ describe('[square] watch API', function () {
       watcher.refresher(undefined, files);
 
       expect(log).to.be.calledOnce;
-      expect(log).to.be.calledWith('changes detected, refreshing %s', files.join(', '));
+      expect(log).to.be.calledWith('changes detected in %s, refreshing...', files.join(', '));
 
       log.restore();
     });
