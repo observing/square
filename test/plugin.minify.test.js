@@ -55,12 +55,12 @@ describe('[square][plugin] Minify', function () {
     minify.on('data', function (collection) {
       expect(cluster).to.be.calledOnce;
       expect(proc).to.be.called;
-      expect(data).to.be.calledThrice;
+      expect(data).to.be.calledTwice;
       expect(cluster).to.be.calledBefore(data);
       expect(proc).to.be.calledBefore(data);
       expect(proc.getCall(0).args.length).to.be.equal(1);
       expect(data).to.be.calledWithExactly('data', test.content);
-      expect(data.getCall(2).args.length).to.be.equal(2);
+      expect(data.getCall(1).args.length).to.be.equal(2);
 
       cluster.restore();
       proc.restore();
