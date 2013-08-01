@@ -386,7 +386,7 @@ exports.crushers = {
         // proper 200 response, 500 repsonses are common. Limit the amount of tries.
         return async.until(
             function checkStatusCode() {
-              return status === 200 || retries++ === 4;
+              return status === 200 || ++retries === 5;
             }
           , function requestClosure(callback) {
               request.post({
