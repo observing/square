@@ -380,13 +380,13 @@ exports.crushers = {
       // external closure compiler service to handle all the compilation tasks
       // for us.
       if (!exports.java) {
-        var status, content;
+        var status, content, retries = 0;
 
         // Keep request the Google Closure compiler until it returns an actual
-        // proper 200 response, 500 repsonses are common.
+        // proper 200 response, 500 repsonses are common. Limit the amount of tries.
         return async.until(
             function checkStatusCode() {
-              return status === 200;
+              return status === 200 || retries++ === 4;
             }
           , function requestClosure(callback) {
               request.post({
