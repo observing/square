@@ -380,30 +380,44 @@ exports.crushers = {
       // external closure compiler service to handle all the compilation tasks
       // for us.
       if (!exports.java) {
-        return request.post({
-            url: 'https://closure-compiler.appspot.com/compile'
-          , form: {
-                output_format: 'text'                     // we only want the compiled shizzle
-              , js_code: collection.content               // the code that needs to be crushed
-              , compilation_level: 'SIMPLE_OPTIMIZATIONS' // compression level
-              , charset: 'ascii'                          // correct the charset
-              , warning_level: 'QUIET'                    // stfu warnings
-              , output_info: 'compiled_code'              // only get compiled codes
+        var status, content;
+
+        // Keep request the Google Closure compiler until it returns an actual
+        // proper 200 response, 500 repsonses are common.
+        return async.until(
+            function checkStatusCode() {
+              return status === 200;
             }
-        }, function servicecall(err, req, body) {
-          if (err) return cb(err);
+          , function requestClosure(callback) {
+              request.post({
+                  url: 'https://closure-compiler.appspot.com/compile'
+                , form: {
+                      output_format: 'text'                     // we only want the compiled shizzle
+                    , js_code: collection.content               // the code that needs to be crushed
+                    , compilation_level: 'SIMPLE_OPTIMIZATIONS' // compression level
+                    , charset: 'ascii'                          // correct the charset
+                    , warning_level: 'QUIET'                    // stfu warnings
+                    , output_info: 'compiled_code'              // only get compiled codes
+                  }
+              }, function response(err, resp, body) {
+                if (err) return cb(err);
 
-          // Remove them pesky new lines, they could be returned from error
-          // respones
-          if (body) body = body.trim();
+                // Remove pesky new lines, they could be returned in error respones
+                if (body) content = body.trim();
+                status = resp.statusCode;
 
-          // Check for errors, this is a bit flakey as we only want ascii returned
-          // from the server.
-          if (body.slice(0, 5) === 'Error') return cb(new Error(body));
+                callback();
+              });
+            }
+          , function servicecall() {
+              // Check for errors, this is a bit flakey as we only want ascii returned
+              // from the server.
+              if (content.slice(0, 5) === 'Error') return cb(new Error(content));
 
-          // All is okay
-          cb(err, body);
-        });
+              // All is okay
+              cb(null, content);
+            }
+        );
       }
 
       // Java is supported on this system, use that instead as it will be
