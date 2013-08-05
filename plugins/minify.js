@@ -110,7 +110,7 @@ module.exports = Plugin.extend({
       // of the extension.
       if (!this.engines) {
         if (this.extension === 'js') this.engines = 'closure';
-        else if (this.extension === 'css') this.engines = 'yuglify';
+        else if (this.extension === 'css') this.engines = 'csso';
         else return this.emit('error', new Error('No engine is set'));
       }
 
@@ -133,8 +133,10 @@ module.exports = Plugin.extend({
       });
 
       async.parallel(tasks, function (err, results) {
-        var result, factor;
+        // Notify the processer of any crushers errors that occured.
+        if(err) return self.emit('error', err);
 
+        var result, factor;
         if (results.analyser) {
           result = results.analyser;
           self.logger.info('The fastest ' + self.extension + ' engine:     '+ result.fastest.engines);
