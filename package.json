@@ -57,6 +57,7 @@
   },
   "canihaz": {
     "active-x-obfuscator": "0.0.x",
+    "clean-css": "1.0.12",
     "codesurgeon": "0.3.x",
     "coffee-script": "1.6.x",
     "csslint": "0.9.x",

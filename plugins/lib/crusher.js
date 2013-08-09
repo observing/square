@@ -28,7 +28,7 @@ var canihaz = require('canihaz')('square')
  *
  * Task:
  *
- * task.engines: Comma seperated list of compressors that need to be used
+ * task.engines: Comma separated list of compressors that need to be used
  * task.extension: The file extension of content
  * task.content: The actual content that needs to be processed
  * task.gzip: Calculate the size of content after gzipping it
@@ -153,7 +153,7 @@ exports.kill = function kill(workers) {
 exports.initialized = false;
 
 /**
- * Detect if the `java` binary is installed on this system. Supporing java
+ * Detect if the `java` binary is installed on this system. Supporting java
  * allows us to spawn a new childprocess for the closure compiler instead of
  * having to do HTTP requests to the closure api service.
  *
@@ -183,7 +183,7 @@ exports.jar = function jar(args, config, content, fn) {
     , compressor;
 
   // Generate the --key value options, both the key and the value should added
-  // seperately to the `args` array or the child_process will chocke.
+  // separately to the `args` array or the child_process will choke.
   Object.keys(config).filter(function filter(option) {
     return config[option];
   }).forEach(function format(option) {
@@ -320,6 +320,8 @@ exports.initialize = function initialize(workers) {
  *   on top of the original uglify compiler.
  * - sqwish: A node.js based CSS compressor, it has the ability to combine
  *   duplicate CSS selectors as well as all the regular compilations.
+ * - csso: Another really agressive CSS compiler written on node.
+ * - clean-css: Works the same as the YUI compiler but much faster.
  *
  * The API for each crusher is the same:
  *
@@ -526,7 +528,21 @@ exports.crushers = {
         try { cb(undefined, csso.justDoIt(collection.content, false, true)); }
         catch (fail) { cb(fail); }
       });
-    }
+    },
+
+  /**
+   * @see https://github.com/GoalSmashers/clean-css
+   */
+  cleancss: function cleancss(type, collection, cb) {
+    if (type !== 'css') return cb(new Error('Type is not supported'));
+
+    canihaz['clean-css'](function fetch(err, clean) {
+      if (err) return cb(err);
+
+      try { cb(undefined, clean(collection.content, { processImport: false })); }
+      catch (fail) { cb(fail); }
+    });
+  }
 };
 
 /**
@@ -551,7 +567,7 @@ exports.js = {
  * @api private
  */
 exports.css = {
-    yuglify: exports.crushers.yuglify.bind(exports.crushers, 'css')
+    cleancss: exports.crushers.cssclean.bind(exports.crushers, 'css')
   , csso: exports.crushers.csso.bind(exports.crushers, 'css')
   , sqwish: exports.crushers.sqwish.bind(exports.crushers, 'css')
   , yui: exports.crushers.yui.bind(exports.crushers, 'css')
