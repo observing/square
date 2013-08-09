@@ -567,7 +567,7 @@ exports.js = {
  * @api private
  */
 exports.css = {
-    cleancss: exports.crushers.cssclean.bind(exports.crushers, 'css')
+    cleancss: exports.crushers.cleancss.bind(exports.crushers, 'css')
   , csso: exports.crushers.csso.bind(exports.crushers, 'css')
   , sqwish: exports.crushers.sqwish.bind(exports.crushers, 'css')
   , yui: exports.crushers.yui.bind(exports.crushers, 'css')
