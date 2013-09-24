@@ -760,28 +760,6 @@ describe('[square] API', function () {
       expect(meta.key).to.equal('../base.styl');
       expect(meta.filename).to.equal('base.styl');
     });
-
-    it('should set the override the output extension using the `as` field', function () {
-      var square = new Square()
-        , meta;
-
-      meta = square.createMeta.call(struct, {
-          as: 'html'
-      }, 'base.jade');
-
-      expect(meta.content).to.equal('');
-      expect(meta.extension).to.equal('jade');
-      expect(meta.compiler).to.be.a('function');
-      expect(meta.output).to.equal('html');
-      expect(meta.key).to.equal('base.jade');
-      expect(meta.filename).to.equal('base.jade');
-
-      // make sure that it normally exports as something else
-      meta = square.createMeta.call(struct, {
-      }, 'base.jade');
-
-      expect(meta.output).to.equal('js');
-    });
   });
 
   describe('createBundle', function () {
