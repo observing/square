@@ -608,24 +608,24 @@ describe('[square] API', function () {
       expect(square.package.source).to.equal(source);
     });
 
-    it('should parse boolean values using eson', function () {
+    it('should parse boolean values using exon', function () {
       var square = new Square();
 
-      expect(square.read(fixtures + '/read/eson-boolean.json')).to.equal(true);
+      expect(square.read(fixtures + '/read/exon-boolean.json')).to.equal(true);
       expect(square.package.configuration).to.be.a('object');
       expect(square.package.configuration.foo).to.equal(true);
       expect(square.package.configuration.bar).to.equal(false);
     });
 
-    it('should parse include statements using eson', function () {
+    it('should parse include statements using exon', function () {
       var square = new Square();
 
-      expect(square.read(fixtures + '/read/eson-include.json')).to.equal(true);
+      expect(square.read(fixtures + '/read/exon-include.json')).to.equal(true);
       expect(square.package.configuration).to.be.a('object');
       expect(square.package.configuration.foo).to.equal('bar');
     });
 
-    it('should glob directories using eson', function () {
+    it('should glob directories using exon', function () {
       var square = new Square();
 
       expect(square.read(fixtures + '/read/glob.json')).to.equal(true);

@@ -36,7 +36,7 @@
     "colors": "0.6.x",
     "commander": "1.1.x",
     "devnull": "0.0.x",
-    "eson": "0.4.x",
+    "exon": "0.0.x",
     "eventreactor": "1.0.0",
     "expirable": "0.0.x",
     "extendable": "0.0.x",
