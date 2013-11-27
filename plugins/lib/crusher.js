@@ -392,7 +392,7 @@ exports.crushers = {
                 console.error([
                   '5 consequtive calls to the closure compiler failed,',
                   'as a result javascript content is not be minified.',
-                  'install Java locally or check back later!'
+                  'Install Java locally or check back later!'
                 ].join(' '));
               }
 
