@@ -388,7 +388,15 @@ exports.crushers = {
         // proper 200 response, 500 repsonses are common. Limit the amount of tries.
         return async.until(
             function checkStatusCode() {
-              return status === 200 || ++retries === 5;
+              if (++retries === 5) {
+                console.error([
+                  '5 consequtive calls to the closure compiler failed,',
+                  'as a result javascript content is not be minified.',
+                  'install Java locally or check back later!'
+                ].join(' '));
+              }
+
+              return status === 200 || retries === 5;
             }
           , function requestClosure(callback) {
               request.post({
