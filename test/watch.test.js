@@ -70,14 +70,6 @@ describe('[square] watch API', function () {
       expect(watcher.square).to.be.instanceof(Square);
     });
 
-    it('register event listener to trigger on build', function () {
-      var build = sinon.spy(square, 'on');
-      watcher = new Watch(square, 8888, true);
-      expect(build).to.be.calledOnce;
-      expect(build).to.be.calledWith('build');
-      build.restore();
-    });
-
     it('asynchronously loads required modules for watch', function () {
       var parallel = sinon.spy(async, 'parallel');
       watcher = new Watch(square, 8888, true);

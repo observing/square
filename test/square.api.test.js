@@ -967,7 +967,7 @@ describe('[square] API', function () {
         done();
       });
 
-      square.build();
+      square.build(null, null, noop);
     });
 
     it('should transform ~ to the $HOME path in file names', function (done) {
@@ -984,7 +984,7 @@ describe('[square] API', function () {
         done();
       });
 
-      square.build();
+      square.build(null, null, noop);
     });
 
     it('should prefix the file content with a license header', function (done) {
@@ -1000,7 +1000,7 @@ describe('[square] API', function () {
         done();
       });
 
-      square.build();
+      square.build(null, null, noop);
     });
 
     it('should not write when writable is set to false', function (done) {
