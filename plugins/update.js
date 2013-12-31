@@ -135,7 +135,7 @@ module.exports = Plugin.extend({
         if (githubRE.test(bundle.latest)) provider = self.repo;
         if (!provider) provider = self.req;
 
-        provider.call(self, bundle.latest, function test (err, version, content) {
+        provider.call(self, bundle.latest, function test(err, version, content) {
           if (err) return cb(err);
           if (!version) return cb(new Error('unable to find and parse the version for ' + key));
           if (version === bundle.version) return cb();
@@ -313,7 +313,8 @@ module.exports = Plugin.extend({
      */
   , req: function req(uri, fn) {
       var lines = this.lines
-        , version = this.version.bind(this);
+        , find = this.version.bind(this)
+        , version;
 
       this.download(uri, function downloading(err, content) {
         if (err) return fn(err);
@@ -321,7 +322,8 @@ module.exports = Plugin.extend({
 
         lines = content.split(/(\r\n)|\r|\n/).splice(0, lines);
         lines.some(function someline (line) {
-          return !!version(line);
+          version = find(line);
+          return !!version;
         });
 
         fn(null, version, content);
