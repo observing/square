@@ -321,8 +321,7 @@ module.exports = Plugin.extend({
 
         lines = content.split(/(\r\n)|\r|\n/).splice(0, lines);
         lines.some(function someline (line) {
-          version = version(line);
-          return !!version;
+          return !!version(line);
         });
 
         fn(null, version, content);
