@@ -157,7 +157,7 @@ module.exports = Plugin.extend({
             if (err) return cb(err);
 
             var code = JSON.parse(self.square.package.source)
-              , current = bundle.version
+              , current = bundle.version || self.version(bundle.meta.content)
               , source;
 
             code.bundle[key].version = version;
