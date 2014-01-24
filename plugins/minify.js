@@ -148,8 +148,8 @@ module.exports = Plugin.extend({
           result = results.runner;
           factor = Buffer.byteLength(result.content) / result.gzip;
           self.logger.metric([
-              'compressed: '.white + Buffer.byteLength(result.content).bytes(1).green
-            , ' minified, '.white + result.gzip.bytes(1).green
+              'compressed: '.white + self.bytes(Buffer.byteLength(result.content)).green
+            , ' minified, '.white + self.bytes(result.gzip).green
             , ' gzip. Which is a factor of '.white
             , factor.toFixed(1).toString().green
           ].join(''));
@@ -161,6 +161,17 @@ module.exports = Plugin.extend({
           self.emit('data', results.runner.content);
         });
       });
+    }
+
+    /**
+     * Really simply byteLength formatter.
+     *
+     * @param {Number} value integer
+     * @returns {String} formatted string
+     * @api private
+     */
+  , bytes: function bytes(value) {
+      return (value / 1000).toFixed(0) + 'kb';
     }
 
     /**
