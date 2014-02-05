@@ -70,16 +70,16 @@ on top of it.
 ## Documentation
 ### Command line flags
 
-1. [watch, --watch](/observing/square/blob/master/doc/flags/watch.md)
-2. [filename, --filename](/observing/square/blob/master/doc/flags/filename.md)
-3. [bundle, --bundle](/observing/square/blob/master/doc/flags/bundle.md)
-4. [extension, --extension](/observing/square/blob/master/doc/flags/extension.md)
+1. [watch, --watch](doc/flags/watch.md)
+2. [filename, --filename](doc/flags/filename.md)
+3. [bundle, --bundle](doc/flags/bundle.md)
+4. [extension, --extension](doc/flags/extension.md)
 
 ### Main pages
 
-1. [The square.json build file](/observing/square/blob/master/doc/square.json.md)
-2. [Transparent pre-processing](/observing/square/blob/master/doc/pre-processors.md)
-2. [Comment directives](/observing/square/blob/master/doc/directive.md)
+1. [The square.json build file](doc/square.json.md)
+2. [Transparent pre-processing](doc/pre-processors.md)
+2. [Comment directives](doc/directive.md)
 
 ### Development
 
