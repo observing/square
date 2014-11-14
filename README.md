@@ -1,4 +1,5 @@
-## This is the development branch of Square, if you are looking for the current version that is released in npm, please switch branches to `master`
+## This project is discontinued, better compilers (i.e. gulp.js for instance)
+are around and should be used. Use at your own risk.
 
 ```
 o-o  o-o o  o o-o o-o o-o       | Square is a modulair build system for building
@@ -110,7 +111,7 @@ this software and associated documentation files (the "Software"), to deal in
 the Software without restriction, including without limitation the rights to
 use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
 of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions: 
+furnished to do so, subject to the following conditions:
 
 The above copyright notice and this permission notice shall be included in all
 copies or substantial portions of the Software.
