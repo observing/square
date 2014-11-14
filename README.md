@@ -1,5 +1,4 @@
-## This project is discontinued, better compilers (i.e. gulp.js for instance)
-are around and should be used. Use at your own risk.
+## This project is discontinued, better compilers (i.e. gulp.js for instance) are around and should be used. Use at your own risk.
 
 ```
 o-o  o-o o  o o-o o-o o-o       | Square is a modulair build system for building
