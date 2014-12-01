@@ -2,7 +2,7 @@
   "author": "Arnout Kazemier <opensource@observe.it>",
   "name": "square",
   "description": "[square] The whole purpose of square is to provide you with building blocks to create an advanced and maintainable build system so you can streamline your development process and be more productive on a daily basis.",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "homepage": "https://github.com/observing/square",
   "main": "lib/square.js",
   "keywords": [
@@ -39,7 +39,7 @@
     "exon": "0.0.x",
     "eventreactor": "1.0.0",
     "expirable": "0.0.x",
-    "extendable": "0.0.x",
+    "extendible": "0.0.x",
     "lodash": "2.4.x",
     "mkdirp": "0.3.5",
     "nconf": "0.6.x",
