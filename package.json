@@ -39,7 +39,7 @@
     "exon": "0.0.x",
     "eventreactor": "1.0.0",
     "expirable": "0.0.x",
-    "extendible": "0.0.x",
+    "extendible": "0.1.x",
     "lodash": "2.4.x",
     "mkdirp": "0.3.5",
     "nconf": "0.6.x",
