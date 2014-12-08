@@ -2,7 +2,7 @@
   "author": "Arnout Kazemier <opensource@observe.it>",
   "name": "square",
   "description": "[square] The whole purpose of square is to provide you with building blocks to create an advanced and maintainable build system so you can streamline your development process and be more productive on a daily basis.",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "homepage": "https://github.com/observing/square",
   "main": "lib/square.js",
   "keywords": [
