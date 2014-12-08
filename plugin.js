@@ -394,7 +394,7 @@ Plugin.once     = 'plugin::once';
  * @type {Function}
  * @api public
  */
-Plugin.extend = require('extendable');
+Plugin.extend = require('extendible');
 
 /**
  * Expose the module.
