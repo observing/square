@@ -1,7 +1,7 @@
 ## This project is discontinued, better compilers (i.e. gulp.js for instance) are around and should be used. Use at your own risk.
 
 ```
-o-o  o-o o  o o-o o-o o-o       | Square is a modulair build system for building
+o-o  o-o o  o o-o o-o o-o       | Square is a modular build system for building
  \  |  | |  | |-| |   |-        | front-end code.
 o-o  o-O o--o o o-o   o-o       |
        |                        | Current status: Stablizing
