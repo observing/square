@@ -31,29 +31,29 @@
     "square": "./bin/square"
   },
   "dependencies": {
-    "async": "0.2.x",
+    "async": "~2.1.2",
     "canihaz": "1.0.x",
-    "colors": "0.6.x",
-    "commander": "2.1.x",
+    "colors": "~1.1.2",
+    "commander": "~2.9.0",
     "devnull": "0.0.x",
     "exon": "0.0.x",
     "eventreactor": "1.0.0",
-    "expirable": "0.0.x",
+    "expirable": "~0.1.0",
     "extendible": "0.1.x",
-    "lodash": "2.4.x",
-    "mkdirp": "0.3.5",
-    "nconf": "0.6.x",
-    "shelljs": "0.2.x",
-    "smithy": "0.3.x",
-    "which": "1.0.x",
-    "request": "2.30.x"
+    "lodash": "~4.17.2",
+    "mkdirp": "0.5.1",
+    "nconf": "~0.8.4",
+    "shelljs": "~0.7.5",
+    "smithy": "~0.6.1",
+    "which": "~1.2.12",
+    "request": "~2.78.0"
   },
   "devDependencies": {
-    "chai": "1.8.x",
-    "mocha": "1.16.x",
-    "sinon": "1.7.x",
-    "sinon-chai": "2.4.x",
-    "pre-commit": "0.0.x"
+    "chai": "~3.5.0",
+    "mocha": "~3.1.2",
+    "sinon": "~1.17.6",
+    "sinon-chai": "~2.8.0",
+    "pre-commit": "~1.1.3"
   },
   "canihaz": {
     "active-x-obfuscator": "0.0.x",
